@@ -99,6 +99,7 @@ bool OptionParser::read_short_args(const std::string& argstr)
       if (OptionDesc* opt_desc = lookup(c)) {
         Option opt = { opt_desc->short_name, opt_desc->long_name };
         m_opts_read.push_back(opt);
+        m_last_option_read = c;
       }      
     }
   }
@@ -119,6 +120,7 @@ bool OptionParser::read_long_arg(const std::string& argstr)
   if (OptionDesc* opt_desc = lookup(long_name)) {
     Option opt = { opt_desc->short_name, opt_desc->long_name, arg };
     m_opts_read.push_back(opt);
+    m_last_option_read = opt_desc->long_name;
   }
   
   return false;

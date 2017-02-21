@@ -27,6 +27,7 @@ public:
   typedef std::vector<Option> option_seq;
   typedef std::vector<std::string> arg_seq;
 
+  typedef option_seq::size_type size_type;
   typedef option_seq::iterator iterator;
   typedef option_seq::const_iterator const_iterator;
   typedef option_seq::reverse_iterator reverse_iterator;
@@ -52,6 +53,9 @@ public:
   
   bool parse(int argc, char* argv[]);
 
+  size_type size() const { return m_opts_read.size(); }
+  bool empty() const { return size() == 0; }
+  
   iterator begin() { return m_opts_read.begin(); }
   const_iterator begin() const { return m_opts_read.begin(); }
   iterator end() { return m_opts_read.end(); }
