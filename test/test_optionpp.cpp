@@ -7,6 +7,8 @@ class OptionParserTest : public ::testing::Test {
 public:
   OptionParserTest();
 protected:
+  void parse(OptionParser& parser,
+             const std::vector<std::string>& args);
   OptionParser sm_parser;
   OptionParser md_parser;
   OptionParser lg_parser;
@@ -57,6 +59,24 @@ OptionParserTest::OptionParserTest():
     });
 }
 
+void OptionParserTest::parse(OptionParser& parser,
+                             const std::vector<std::string>& args)
+{
+  int argc = args.size();
+  char** argv = new char*[argc + 1];
+  for (int i = 0; i < argc; ++i) {
+    argv[i] = new char[args[i].size() + 1];
+    std::strcpy(argv[i], args[i].c_str());
+  }
+  argv[argc] = nullptr;
+
+  parser.parse(argc, argv);
+
+  for (int i = 0; i < argc; ++i)
+    delete[] argv[i];
+  delete[] argv;
+}
+
 TEST_F(OptionParserTest, BadLookup) {
   EXPECT_EQ(nullptr, md_parser.lookup('V'));
   EXPECT_EQ(nullptr, md_parser.lookup("unknown"));
@@ -85,28 +105,17 @@ TEST_F(OptionParserTest, Lookup) {
 }
 
 TEST_F(OptionParserTest, NoArgs) {
-  char* argv[2] = { new char[5], nullptr };
-  std::strcpy(argv[0], "prog");
+  parse(sm_parser, {"prog"});
 
-  sm_parser.parse(1, argv);
   EXPECT_EQ(1, sm_parser.program_args().size());
   EXPECT_EQ(0, sm_parser.size());
   EXPECT_EQ(true, sm_parser.empty());
   EXPECT_EQ(sm_parser.end(), sm_parser.begin());
-  
-  delete[] argv[0];
 }
 
 TEST_F(OptionParserTest, NoOptions) {
-  char* argv[6] = { new char[12], new char[12], new char[12],
-                    new char[12], new char[12], nullptr };
-  std::strcpy(argv[0], "prog");
-  std::strcpy(argv[1], "arg1");
-  std::strcpy(argv[2], "arg2");
-  std::strcpy(argv[3], "arg3");
-  std::strcpy(argv[4], "arg4");
-  
-  sm_parser.parse(5, argv);
+  parse(sm_parser, {"prog", "arg1", "arg2", "arg3", "arg4"});
+
   EXPECT_EQ(0, sm_parser.size());
   EXPECT_EQ(true, sm_parser.empty());
   EXPECT_EQ(sm_parser.end(), sm_parser.begin());
@@ -119,21 +128,11 @@ TEST_F(OptionParserTest, NoOptions) {
   EXPECT_EQ("arg3", *it++);
   EXPECT_EQ("arg4", *it++);
   EXPECT_EQ(sm_parser.program_args().end(), it);
-  
-  for (int i = 0; i < 5; ++i)
-    delete[] argv[i];
 }
 
 TEST_F(OptionParserTest, Options) {
-  char* argv[6] = { new char[12], new char[12], new char[12],
-                    new char[12], new char[12], nullptr };
-  std::strcpy(argv[0], "prog");
-  std::strcpy(argv[1], "-BiuqS");
-  std::strcpy(argv[2], "--line-numbers");
-  std::strcpy(argv[3], "clear-screen");
-  std::strcpy(argv[4], "-I");
+  parse(lg_parser, {"prog", "-BiuqS", "--line-numbers", "clear-screen", "-I"});
 
-  lg_parser.parse(5, argv);
   EXPECT_EQ(7, lg_parser.size());
   EXPECT_EQ(false, lg_parser.empty());
   auto it = lg_parser.begin();
@@ -151,23 +150,12 @@ TEST_F(OptionParserTest, Options) {
   EXPECT_EQ("prog", *arg++);
   EXPECT_EQ("clear-screen", *arg++);
   EXPECT_EQ(lg_parser.program_args().end(), arg);
-  
-  for (int i = 0; i < 5; ++i)
-    delete[] argv[i];
 }
 
 TEST_F(OptionParserTest, OptionsWithArgsEq) {
-  char* argv[7] = { new char[12], new char[12], new char[12],
-                    new char[12], new char[12], new char[12],
-                    nullptr };
-  std::strcpy(argv[0], "prog");
-  std::strcpy(argv[1], "--max-back-scroll=12");
-  std::strcpy(argv[2], "-ep=42");
-  std::strcpy(argv[3], "-P=\"custom prompt\"");
-  std::strcpy(argv[4], "--buffer=10");
-  std::strcpy(argv[5], "--color=red");
+  parse(lg_parser, {"prog", "--max-back-scroll=12", "-ep=42",
+        "-P=custom prompt", "--buffer=10", "--color=red"});
 
-  lg_parser.parse(5, argv);
   EXPECT_EQ(6, lg_parser.size());
   EXPECT_EQ(false, lg_parser.empty());
   auto it = lg_parser.begin();
@@ -196,29 +184,12 @@ TEST_F(OptionParserTest, OptionsWithArgsEq) {
   ++it;
 
   EXPECT_EQ(lg_parser.end(), it);
-  
-  for (int i = 0; i < 6; ++i)
-    delete[] argv[i];
 }
 
 TEST_F(OptionParserTest, OptionsWithArgsSep) {
-  char* argv[12] = { new char[12], new char[12], new char[12],
-                     new char[12], new char[12], new char[12],
-                     new char[12], new char[12], new char[12],
-                     new char[12], new char[12], nullptr };
-  std::strcpy(argv[0], "prog");
-  std::strcpy(argv[1], "--max-back-scroll");
-  std::strcpy(argv[2], "12");
-  std::strcpy(argv[3], "-ep");
-  std::strcpy(argv[4], "42");
-  std::strcpy(argv[5], "-P");
-  std::strcpy(argv[6], "custom prompt");
-  std::strcpy(argv[7], "--buffer");
-  std::strcpy(argv[8], "10");
-  std::strcpy(argv[9], "--color");
-  std::strcpy(argv[10], "red");
+  parse(lg_parser, {"prog", "--max-back-scroll", "12", "-ep", "42",
+        "-P", "custom prompt", "--buffer", "10", "--color", "red"});
 
-  lg_parser.parse(11, argv);
   EXPECT_EQ(6, lg_parser.size());
   EXPECT_EQ(false, lg_parser.empty());
   auto it = lg_parser.begin();
@@ -247,9 +218,6 @@ TEST_F(OptionParserTest, OptionsWithArgsSep) {
   ++it;
 
   EXPECT_EQ(lg_parser.end(), it);
-  
-  for (int i = 0; i < 6; ++i)
-    delete[] argv[i];
 }
 
 int main(int argc, char* argv[])
