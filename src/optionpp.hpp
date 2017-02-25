@@ -76,8 +76,8 @@ public:
   const arg_seq& program_args() const { return m_prog_args; }
 private:
   //return true if argument is to be read next
-  bool read_short_args(const std::string& argstr);
-  bool read_long_arg(const std::string& argstr);
+  bool read_short_opts(const std::string& argstr);
+  bool read_long_opt(const std::string& argstr);
 
   bool m_allow_bad_opts = false;
   bool m_allow_bad_args = false;
