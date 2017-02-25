@@ -20,6 +20,7 @@ struct Option {
   char short_name;
   std::string long_name;
   std::string argument;
+  OptionDesc* desc;
 };
 
 class OptionParser {

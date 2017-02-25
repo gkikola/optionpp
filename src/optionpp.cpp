@@ -70,11 +70,19 @@ bool OptionParser::parse(int argc, char* argv[])
   
   for (size_t i = 1; (i != argc) && argv[i]; ++i) {
     if (reading_arg) {
+      reading_arg = false;
+
       if (m_opts_read.empty())
         throw BadOptionArgument("expected option before argument");
-      m_opts_read.back().argument = argv[i];
-      reading_arg = false;
-      continue;
+
+      if (argv[i][0] == '-') { //no argument given
+        if (!m_opts_read.back().desc->arg_optional)
+          throw BadOptionArgument("expected argument for option "
+                                  + m_last_option_read);
+      } else { //read the argument
+        m_opts_read.back().argument = argv[i];
+        continue;
+      }
     }
     
     if (argv[i][0] == '-') {
@@ -127,6 +135,7 @@ bool OptionParser::read_short_opts(const std::string& argstr)
       
       if (OptionDesc* opt_desc = lookup(c)) {
         Option opt = { opt_desc->short_name, opt_desc->long_name };
+        opt.desc = opt_desc;
         m_opts_read.push_back(opt);
         m_last_option_read = c;
         expecting_arg = !opt_desc->argument_name.empty();
@@ -151,6 +160,7 @@ bool OptionParser::read_long_opt(const std::string& argstr)
   bool expecting_arg = false;
   if (OptionDesc* opt_desc = lookup(long_name)) {
     Option opt = { opt_desc->short_name, opt_desc->long_name, arg };
+    opt.desc = opt_desc;
     m_opts_read.push_back(opt);
     m_last_option_read = opt_desc->long_name;
     expecting_arg = !opt_desc->argument_name.empty() && arg.empty();

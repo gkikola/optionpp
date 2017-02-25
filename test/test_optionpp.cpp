@@ -49,11 +49,11 @@ OptionParserTest::OptionParserTest():
       {'n', "line-numbers", "", "show line numbers"},
       {'p', "pattern", "PATTERN", "start at first occurrence of "
           "PATTERN"},
-      {'P', "", "PROMPT", "use custom prompt"},
+      {'P', "", "PROMPT", "use custom prompt", 0, true},
       {'q', "quiet", "", "quiet mode, do not ring terminal bell"},
       {'s', "", "", "squeeze consecutive blank lines into one"},
       {'S', "", "", "chop long lines"},
-      {'t', "tag", "TAG", "edit file containing tag TAG"},
+      {'t', "tag", "TAG", "edit file containing tag TAG", 0, true},
       {'u', "underline-special", "", "underline special characters"},
       {'z', "window", "N", "change default scrolling window to N lines"}
     });
@@ -211,6 +211,44 @@ TEST_F(OptionParserTest, OptionsWithArgsSep) {
 
   EXPECT_EQ("buffer", it->long_name);
   EXPECT_EQ("10", it->argument);
+  ++it;
+
+  EXPECT_EQ("color", it->long_name);
+  EXPECT_EQ("red", it->argument);
+  ++it;
+
+  EXPECT_EQ(lg_parser.end(), it);
+}
+
+TEST_F(OptionParserTest, OptionsWithOptionalArgs) {
+  parse(lg_parser, {"prog", "--max-back-scroll", "12", "-ep", "42",
+        "-P", "--buffer", "10", "--tag", "--color", "red"});
+
+  EXPECT_EQ(7, lg_parser.size());
+  EXPECT_EQ(false, lg_parser.empty());
+  auto it = lg_parser.begin();
+  EXPECT_EQ("max-back-scroll", it->long_name);
+  EXPECT_EQ("12", it->argument);
+  ++it;
+  
+  EXPECT_EQ("quit-at-eof", it->long_name);
+  EXPECT_EQ("", it->argument);
+  ++it;
+  
+  EXPECT_EQ("pattern", it->long_name);
+  EXPECT_EQ("42", it->argument);
+  ++it;
+  
+  EXPECT_EQ('P', it->short_name);
+  EXPECT_EQ("", it->argument);
+  ++it;
+
+  EXPECT_EQ("buffer", it->long_name);
+  EXPECT_EQ("10", it->argument);
+  ++it;
+
+  EXPECT_EQ("tag", it->long_name);
+  EXPECT_EQ("", it->argument);
   ++it;
 
   EXPECT_EQ("color", it->long_name);
