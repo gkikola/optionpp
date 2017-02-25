@@ -10,9 +10,10 @@
 struct OptionDesc {
   char short_name;
   std::string long_name;
-  std::string argument_name; //use : before name to indicate optional argument
+  std::string argument_name;
   std::string description;
   int group = 0;
+  bool arg_optional = false;
 };
 
 struct Option {
@@ -92,6 +93,14 @@ class BadOption : public std::logic_error {
 public:
   explicit BadOption(const std::string& what_arg): logic_error(what_arg) { }
   explicit BadOption(const char* what_arg): logic_error(what_arg) { }
+};
+
+class BadOptionArgument : public std::logic_error {
+public:
+  explicit BadOptionArgument(const std::string& what_arg):
+    logic_error(what_arg) { }
+  explicit BadOptionArgument(const char* what_arg):
+    logic_error(what_arg) { }
 };
 
 bool operator < (const OptionDesc& o1, const OptionDesc& o2);
