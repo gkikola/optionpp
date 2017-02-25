@@ -258,6 +258,32 @@ TEST_F(OptionParserTest, OptionsWithOptionalArgs) {
   EXPECT_EQ(lg_parser.end(), it);
 }
 
+TEST_F(OptionParserTest, EndOfOptions) {
+  parse(lg_parser, {"prog", "--max-back-scroll", "12", "--", "-ep", "42",
+        "-P", "--buffer", "10", "--tag", "--color", "red"});
+
+  EXPECT_EQ(1, lg_parser.size());
+  EXPECT_EQ(false, lg_parser.empty());
+  auto opt = lg_parser.begin();
+  EXPECT_EQ("max-back-scroll", opt->long_name);
+  EXPECT_EQ("12", opt->argument);
+  ++opt;
+  EXPECT_EQ(opt, lg_parser.end());
+
+  EXPECT_EQ(9, lg_parser.program_args().size());
+  auto it = lg_parser.program_args().begin();
+  EXPECT_EQ("prog", *it++);
+  EXPECT_EQ("-ep", *it++);
+  EXPECT_EQ("42", *it++);
+  EXPECT_EQ("-P", *it++);
+  EXPECT_EQ("--buffer", *it++);
+  EXPECT_EQ("10", *it++);
+  EXPECT_EQ("--tag", *it++);
+  EXPECT_EQ("--color", *it++);
+  EXPECT_EQ("red", *it++);
+  EXPECT_EQ(it, lg_parser.program_args().end());
+}
+
 int main(int argc, char* argv[])
 {
   ::testing::InitGoogleTest(&argc, argv);

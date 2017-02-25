@@ -65,11 +65,12 @@ bool OptionParser::parse(int argc, char* argv[])
   m_prog_args.clear();
   m_prog_args.push_back(argv[0]);
   m_last_option_read = "";
-  
+
+  bool opts_done = false;
   bool reading_arg = false;
   
   for (size_t i = 1; (i != argc) && argv[i]; ++i) {
-    if (reading_arg) {
+    if (!opts_done && reading_arg) {
       reading_arg = false;
 
       if (m_opts_read.empty())
@@ -85,10 +86,14 @@ bool OptionParser::parse(int argc, char* argv[])
       }
     }
     
-    if (argv[i][0] == '-') {
-      if (argv[i][1] == '-') //long option
-        reading_arg = read_long_opt(argv[i] + 2);
-      else //short option
+    if (!opts_done && argv[i][0] == '-') {
+      if (argv[i][1] == '-') { //long option
+        std::string lopt = argv[i] + 2;
+        if (lopt.empty()) //--: no more options
+          opts_done = true;
+        else
+          reading_arg = read_long_opt(lopt);
+      } else //short option
         reading_arg = read_short_opts(argv[i] + 1);
     } else { //not an option
       m_prog_args.push_back(argv[i]);
