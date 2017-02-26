@@ -77,8 +77,8 @@ void OptionParser::parse(int argc, char* argv[])
         throw BadOptionArgument("expected option before argument");
 
       if (argv[i][0] == '-') { //no argument given
-        if (m_opts_read.back().desc
-            && !m_opts_read.back().desc->arg_optional && !m_allow_bad_args)
+        if (!m_allow_bad_args && m_opts_read.back().desc
+            && !m_opts_read.back().desc->arg_optional)
           throw BadOptionArgument("expected argument for option "
                                   + m_last_option_read);
       } else { //read the argument
@@ -103,8 +103,8 @@ void OptionParser::parse(int argc, char* argv[])
 
   //end of program arguments, so we shouldn't be expecting any option args
   if (reading_arg) {
-    if (m_opts_read.back().desc
-        && !m_opts_read.back().desc->arg_optional && !m_allow_bad_args)
+    if (!m_allow_bad_args && m_opts_read.back().desc
+        && !m_opts_read.back().desc->arg_optional)
       throw BadOptionArgument("expected argument for option "
                               + m_last_option_read);
   }
@@ -117,7 +117,7 @@ bool OptionParser::read_short_opts(const std::string& argstr)
 
   for (auto c : argstr) {
     if (c == '=') {
-      if (expecting_arg) {
+      if (expecting_arg || m_allow_bad_args) {
         if (m_opts_read.empty())
           throw BadOptionArgument("expected option before argument");
 
@@ -131,9 +131,6 @@ bool OptionParser::read_short_opts(const std::string& argstr)
         expecting_arg = arg.empty();
         break;
       } else {
-        if (m_allow_bad_args)
-          return true;
-        else
           if (m_last_option_read.empty())
             throw BadOptionArgument("expected option before argument");
           else
@@ -187,9 +184,11 @@ bool OptionParser::read_long_opt(const std::string& argstr)
   } else if (!m_allow_bad_opts) {
     throw BadOption("unexpected option " + m_last_option_read);
   } else { //allowing bad options
-    Option opt = { 0, long_name };
+    Option opt = { 0, long_name, arg };
     m_opts_read.push_back(opt);
     m_last_option_read = "--" + long_name;
+    if (arg.empty() && n != std::string::npos)
+      expecting_arg = true;
   }
   
   return expecting_arg;
