@@ -122,9 +122,11 @@ bool OptionParser::read_short_opts(const std::string& argstr)
         //add argument to last option read
         auto n = argstr.find('=');
         assert(n != std::string::npos);
-        m_opts_read.back().argument = argstr.substr(n + 1);
+        std::string arg = argstr.substr(n + 1);
+        m_opts_read.back().argument = arg;
 
-        expecting_arg = false;
+        //if there was no argument read, expect it later
+        expecting_arg = arg.empty();
         break;
       } else {
         if (m_allow_bad_args)

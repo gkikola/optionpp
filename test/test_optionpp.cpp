@@ -188,7 +188,7 @@ TEST_F(OptionParserTest, OptionsWithArgsEq) {
 
 TEST_F(OptionParserTest, OptionsWithArgsSep) {
   parse(lg_parser, {"prog", "--max-back-scroll", "12", "-ep", "42",
-        "-P", "custom prompt", "--buffer", "10", "--color", "red"});
+        "-P", "custom prompt", "--buffer=", "10", "--color", "red"});
 
   EXPECT_EQ(6, lg_parser.size());
   EXPECT_EQ(false, lg_parser.empty());
@@ -303,6 +303,8 @@ TEST_F(OptionParserTest, BadOptionArgs) {
   EXPECT_THROW(parse(lg_parser, {"prog", "-cinp", "--", "hello"}),
                BadOptionArgument);
   EXPECT_THROW(parse(lg_parser, {"prog", "-pcin"}), BadOptionArgument);
+  EXPECT_THROW(parse(lg_parser, {"prog", "-cinp="}), BadOptionArgument);
+  EXPECT_THROW(parse(lg_parser, {"prog", "--pattern="}), BadOptionArgument);
 }
 
 int main(int argc, char* argv[])
