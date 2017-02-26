@@ -1,6 +1,9 @@
 #ifndef OPTIONPP_HPP
 #define OPTIONPP_HPP
 
+#define OPTIONPP_VERSION_MAJOR 1
+#define OPTIONPP_VERSION_MINOR 0
+
 #include <initializer_list>
 #include <iostream>
 #include <set>
@@ -61,7 +64,7 @@ public:
 
   size_type size() const { return m_opts_read.size(); }
   bool empty() const { return size() == 0; }
-  
+
   iterator begin() { return m_opts_read.begin(); }
   const_iterator begin() const { return m_opts_read.begin(); }
   iterator end() { return m_opts_read.end(); }
@@ -78,6 +81,11 @@ public:
   const_reverse_iterator crbegin() const { return m_opts_read.crbegin(); }
   const_reverse_iterator crend() const { return m_opts_read.crend(); }
   
+  iterator find(char short_name);
+  const_iterator find(char short_name) const;
+  iterator find(const std::string& long_name);
+  const_iterator find(const std::string& long_name) const;
+
   arg_seq& program_args() { return m_prog_args; }
   const arg_seq& program_args() const { return m_prog_args; }
 

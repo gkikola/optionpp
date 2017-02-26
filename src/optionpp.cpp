@@ -60,6 +60,35 @@ const OptionDesc* OptionParser::lookup(const std::string& long_name) const
     return &(*it);
 }
 
+OptionParser::iterator OptionParser::find(char short_name)
+{
+  std::find_if(begin(), end(),
+               [short_name](const Option& o)
+               { return o.short_name == short_name; });
+}
+
+OptionParser::const_iterator OptionParser::find(char short_name) const
+{
+  std::find_if(cbegin(), cend(),
+               [short_name](const Option& o)
+               { return o.short_name == short_name; });
+}
+
+OptionParser::iterator OptionParser::find(const std::string& long_name)
+{
+  std::find_if(begin(), end(),
+               [&long_name](const Option& o)
+               { return o.long_name == long_name; });
+}
+
+OptionParser::const_iterator
+OptionParser::find(const std::string& long_name) const
+{
+  std::find_if(cbegin(), cend(),
+               [&long_name](const Option& o)
+               { return o.long_name == long_name; });
+}
+
 std::ostream& OptionParser::print_usage(std::ostream& out,
                                         unsigned tab_stop,
                                         unsigned term_width)
