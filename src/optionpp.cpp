@@ -2,6 +2,7 @@
 #include <cassert>
 #include <cstddef>
 #include <initializer_list>
+#include <sstream>
 #include <string>
 #include <vector>
 #include "optionpp.hpp"
@@ -57,6 +58,91 @@ const OptionDesc* OptionParser::lookup(const std::string& long_name) const
     return nullptr;
   else
     return &(*it);
+}
+
+std::ostream& OptionParser::print_usage(std::ostream& out,
+                                        unsigned tab_stop,
+                                        unsigned term_width)
+{
+  for (const OptionDesc& o : m_opts) {
+    bool has_short = o.short_name;
+    bool has_long = o.long_name != "";
+    bool has_arg = o.argument_name != "";
+    bool arg_optional = o.arg_optional;
+    std::string entry = "  ";
+
+    //print short name
+    if (has_short) {
+      entry += '-';
+      entry += o.short_name;
+      if (has_long)
+        entry += ", ";
+      else
+        entry += "  ";
+    }
+    else
+      entry += "    ";
+
+    //print long name
+    if (has_long) {
+      entry += "--" + o.long_name;
+
+      if (has_arg) {
+        if (arg_optional)
+          entry += '[';
+        entry += "=" + o.argument_name;
+        if (arg_optional)
+          entry += ']';
+      }
+    } else if (has_arg) {
+      if (arg_optional)
+        entry += '[';
+      entry += o.argument_name;
+      if (arg_optional)
+        entry += ']';
+    }
+
+    //print spaces up to tab stop
+    if (entry.length() >= tab_stop - 1)
+      entry += '\n' + std::string(tab_stop - 1, ' ');
+    else
+      entry += std::string(tab_stop - 1 - entry.length(), ' ');
+
+    out << entry;
+
+    //print description
+    std::istringstream in(o.description);
+    std::string word;
+    unsigned length = 0;
+    while (in >> word) {
+      //insert space before each word
+      if (length != 0) {
+        out << " ";
+        ++length;
+      }
+
+      //ensure we haven't gone past terminal width
+      length += word.length();
+      if (tab_stop + length > term_width) {
+        out << "\n" << std::string(tab_stop + 1, ' ');
+        length = word.length() + 2;
+      }
+
+      out << word;
+    }
+
+    out << std::endl;
+  }
+
+  return out;
+}
+
+void OptionParser::usage(std::string& opt_usage_str,
+                         unsigned tab_stop, unsigned term_width)
+{
+  std::ostringstream oss;
+  print_usage(oss, tab_stop, term_width);
+  opt_usage_str = oss.str();
 }
 
 void OptionParser::parse(int argc, char* argv[])
@@ -200,14 +286,14 @@ bool operator < (const OptionDesc& o1, const OptionDesc& o2)
 
   //group ordering should go 0, 1, 2, ..., n, -1, -2, -3, ...
   if (o1.group != o2.group) {
-    if (o1.group >= 0 && o1.group < o2.group)
+    if (o1.group >= 0 && o2.group >= 0) //both nonnegative
+      return o1.group < o2.group;
+    else if (o1.group >= 0 && o2.group < 0)
       return true;
     else if (o1.group < 0 && o2.group >= 0)
-      return true;
-    else if (o2.group < 0 && o2.group < o1.group)
-      return true;
-    else
       return false;
+    else //both negative
+      return o1.group > o2.group;
   } else {
     //same group, compare short name and long name, in that order
     if (o1.short_name)

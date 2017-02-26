@@ -4,8 +4,9 @@
 int main(int argc, char* argv[])
 {
   OptionParser opt = {
-      {'?', "help", "", "Display help text"},
-      {0, "version", "", "Display program version"}
+    {'?', "help", "", "give detailed usage information", -1},
+    {0, "usage", "", "give a short usage message", -1},
+    {0, "version", "", "display version information and exit", -1}
   };
 
   opt.allow_bad_opts();
@@ -25,5 +26,6 @@ int main(int argc, char* argv[])
       std::cout << "=" << o.argument;
     std::cout << "\n";
   }
+
   return 0;
 }

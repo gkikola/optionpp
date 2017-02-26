@@ -2,6 +2,7 @@
 #define OPTIONPP_HPP
 
 #include <initializer_list>
+#include <iostream>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -22,6 +23,9 @@ struct Option {
   std::string argument;
   OptionDesc* desc = nullptr;
 };
+
+constexpr unsigned def_term_width = 80;
+constexpr unsigned def_tab_stop = 30;
 
 class OptionParser {
 public:
@@ -76,6 +80,13 @@ public:
   
   arg_seq& program_args() { return m_prog_args; }
   const arg_seq& program_args() const { return m_prog_args; }
+
+  std::ostream& print_usage(std::ostream& out,
+                            unsigned tab_stop = def_tab_stop,
+                            unsigned term_width = def_term_width);
+  void usage(std::string& opt_usage_str,
+             unsigned tab_stop = def_tab_stop,
+             unsigned term_width = def_term_width);
 private:
   //return true if argument is to be read next
   bool read_short_opts(const std::string& argstr);
