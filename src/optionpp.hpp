@@ -53,7 +53,7 @@ public:
   OptionDesc* lookup(const std::string& long_name);
   const OptionDesc* lookup(const std::string& long_name) const;
   
-  bool parse(int argc, char* argv[]);
+  void parse(int argc, char* argv[]);
 
   size_type size() const { return m_opts_read.size(); }
   bool empty() const { return size() == 0; }

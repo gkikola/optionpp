@@ -284,6 +284,27 @@ TEST_F(OptionParserTest, EndOfOptions) {
   EXPECT_EQ(it, lg_parser.program_args().end());
 }
 
+TEST_F(OptionParserTest, BadOptions) {
+  EXPECT_THROW(parse(lg_parser, {"prog", "-Bcdjei"}), BadOption);
+  EXPECT_THROW(parse(lg_parser, {"prog", "--error"}), BadOption);
+  EXPECT_THROW(parse(lg_parser, {"prog", "-eid", "--color=red", "--throw",
+          "--window=16"}), BadOption);
+}
+
+TEST_F(OptionParserTest, BadOptionArgs) {
+  EXPECT_THROW(parse(lg_parser, {"prog", "-bcdei"}), BadOptionArgument);
+  EXPECT_THROW(parse(lg_parser, {"prog", "-c=red", "--pattern", "-q"}),
+               BadOptionArgument);
+  EXPECT_THROW(parse(lg_parser, {"prog", "-c=red", "--pattern", "--",
+          "three"}), BadOptionArgument);
+  EXPECT_THROW(parse(lg_parser, {"prog", "--pattern"}), BadOptionArgument);
+  EXPECT_NO_THROW(parse(lg_parser, {"prog", "--tag"}));
+  EXPECT_THROW(parse(lg_parser, {"prog", "-cinp"}), BadOptionArgument);
+  EXPECT_THROW(parse(lg_parser, {"prog", "-cinp", "--", "hello"}),
+               BadOptionArgument);
+  EXPECT_THROW(parse(lg_parser, {"prog", "-pcin"}), BadOptionArgument);
+}
+
 int main(int argc, char* argv[])
 {
   ::testing::InitGoogleTest(&argc, argv);

@@ -59,7 +59,7 @@ const OptionDesc* OptionParser::lookup(const std::string& long_name) const
     return &(*it);
 }
 
-bool OptionParser::parse(int argc, char* argv[])
+void OptionParser::parse(int argc, char* argv[])
 {
   m_opts_read.clear();
   m_prog_args.clear();
@@ -70,7 +70,7 @@ bool OptionParser::parse(int argc, char* argv[])
   bool reading_arg = false;
   
   for (size_t i = 1; (i != argc) && argv[i]; ++i) {
-    if (!opts_done && reading_arg) {
+    if (reading_arg) {
       reading_arg = false;
 
       if (m_opts_read.empty())
@@ -100,7 +100,12 @@ bool OptionParser::parse(int argc, char* argv[])
     }
   }
 
-  return false;
+  //end of program arguments, so we shouldn't be expecting any option args
+  if (reading_arg) {
+    if (!m_opts_read.back().desc->arg_optional)
+      throw BadOptionArgument("expected argument for option "
+                              + m_last_option_read);
+  }
 }
 
 bool OptionParser::read_short_opts(const std::string& argstr)
@@ -126,10 +131,10 @@ bool OptionParser::read_short_opts(const std::string& argstr)
           return true;
         else
           if (m_last_option_read.empty())
-            throw BadOption("expected option before argument");
+            throw BadOptionArgument("expected option before argument");
           else
-            throw BadOption("unexpected argument for option "
-                            + m_last_option_read);
+            throw BadOptionArgument("unexpected argument for option "
+                                    + m_last_option_read);
       }
     } else { //c != '='
       if (expecting_arg && !arg_optional) {
@@ -142,10 +147,11 @@ bool OptionParser::read_short_opts(const std::string& argstr)
         Option opt = { opt_desc->short_name, opt_desc->long_name };
         opt.desc = opt_desc;
         m_opts_read.push_back(opt);
-        m_last_option_read = c;
+        m_last_option_read = std::string("-") + c;
         expecting_arg = !opt_desc->argument_name.empty();
         arg_optional = opt_desc->arg_optional;
-      }
+      } else
+        throw BadOption("unexpected option " + m_last_option_read);
     }
   }
   
@@ -167,9 +173,10 @@ bool OptionParser::read_long_opt(const std::string& argstr)
     Option opt = { opt_desc->short_name, opt_desc->long_name, arg };
     opt.desc = opt_desc;
     m_opts_read.push_back(opt);
-    m_last_option_read = opt_desc->long_name;
+    m_last_option_read = "--" + opt_desc->long_name;
     expecting_arg = !opt_desc->argument_name.empty() && arg.empty();
-  }
+  } else
+    throw BadOption("unexpected option " + m_last_option_read);
   
   return expecting_arg;
 }
