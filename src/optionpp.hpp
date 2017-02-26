@@ -17,10 +17,10 @@ struct OptionDesc {
 };
 
 struct Option {
-  char short_name;
+  char short_name = 0;
   std::string long_name;
   std::string argument;
-  OptionDesc* desc;
+  OptionDesc* desc = nullptr;
 };
 
 class OptionParser {

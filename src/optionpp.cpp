@@ -77,7 +77,8 @@ void OptionParser::parse(int argc, char* argv[])
         throw BadOptionArgument("expected option before argument");
 
       if (argv[i][0] == '-') { //no argument given
-        if (!m_opts_read.back().desc->arg_optional)
+        if (m_opts_read.back().desc
+            && !m_opts_read.back().desc->arg_optional && !m_allow_bad_args)
           throw BadOptionArgument("expected argument for option "
                                   + m_last_option_read);
       } else { //read the argument
@@ -102,7 +103,8 @@ void OptionParser::parse(int argc, char* argv[])
 
   //end of program arguments, so we shouldn't be expecting any option args
   if (reading_arg) {
-    if (!m_opts_read.back().desc->arg_optional)
+    if (m_opts_read.back().desc
+        && !m_opts_read.back().desc->arg_optional && !m_allow_bad_args)
       throw BadOptionArgument("expected argument for option "
                               + m_last_option_read);
   }
@@ -139,7 +141,7 @@ bool OptionParser::read_short_opts(const std::string& argstr)
                                     + m_last_option_read);
       }
     } else { //c != '='
-      if (expecting_arg && !arg_optional) {
+      if (expecting_arg && !arg_optional && !m_allow_bad_args) {
         assert(!m_opts_read.empty());
         throw BadOptionArgument("expected argument for option "
                                 + m_last_option_read);
@@ -152,8 +154,13 @@ bool OptionParser::read_short_opts(const std::string& argstr)
         m_last_option_read = std::string("-") + c;
         expecting_arg = !opt_desc->argument_name.empty();
         arg_optional = opt_desc->arg_optional;
-      } else
+      } else if (!m_allow_bad_opts) {
         throw BadOption("unexpected option " + m_last_option_read);
+      } else { //allowing bad options
+        Option opt = { c };
+        m_opts_read.push_back(opt);
+        m_last_option_read = std::string("-") + c;
+      }
     }
   }
   
@@ -177,8 +184,13 @@ bool OptionParser::read_long_opt(const std::string& argstr)
     m_opts_read.push_back(opt);
     m_last_option_read = "--" + opt_desc->long_name;
     expecting_arg = !opt_desc->argument_name.empty() && arg.empty();
-  } else
+  } else if (!m_allow_bad_opts) {
     throw BadOption("unexpected option " + m_last_option_read);
+  } else { //allowing bad options
+    Option opt = { 0, long_name };
+    m_opts_read.push_back(opt);
+    m_last_option_read = "--" + long_name;
+  }
   
   return expecting_arg;
 }

@@ -8,6 +8,8 @@ int main(int argc, char* argv[])
       {0, "version", "", "Display program version"}
   };
 
+  opt.allow_bad_opts();
+  opt.allow_bad_args();
   opt.parse(argc, argv);
 
   for (const auto& o : opt) {
