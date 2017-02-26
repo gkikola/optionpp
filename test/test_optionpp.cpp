@@ -184,6 +184,17 @@ TEST_F(OptionParserTest, OptionsWithArgsEq) {
   ++it;
 
   EXPECT_EQ(lg_parser.end(), it);
+
+  it = lg_parser.find("buffer");
+  EXPECT_EQ("buffer", it->long_name);
+  EXPECT_EQ("10", it->argument);
+  it = lg_parser.find("boffer");
+  EXPECT_EQ(lg_parser.end(), it);
+
+  it = lg_parser.find('e');
+  EXPECT_EQ("quit-at-eof", it->long_name);
+  it = lg_parser.find('i');
+  EXPECT_EQ(lg_parser.end(), it);
 }
 
 TEST_F(OptionParserTest, OptionsWithArgsSep) {
