@@ -3,3 +3,4 @@
 *.o
 *.tar
 build/
+doxygen/
