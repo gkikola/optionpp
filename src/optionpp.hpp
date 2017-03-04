@@ -22,15 +22,14 @@
 #ifndef OPTIONPP_HPP
 #define OPTIONPP_HPP
 
-#define OPTIONPP_VERSION_MAJOR 1
-#define OPTIONPP_VERSION_MINOR 0
-
 #include <initializer_list>
 #include <iostream>
 #include <set>
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+#include "version.h"
 
 struct OptionDesc {
   char short_name;

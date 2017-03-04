@@ -1,5 +1,18 @@
 cmake_minimum_required (VERSION 2.8)
 project (option++)
+set (OPTIONPP_VERSION_MAJOR 1)
+set (OPTIONPP_VERSION_MINOR 0)
+set (
+  OPTIONPP_VERSION
+  "${OPTIONPP_VERSION_MAJOR}.${OPTIONPP_VERSION_MINOR}"
+  )
+
+configure_file (
+  "version.h.in"
+  "${PROJECT_BINARY_DIR}/version.h"
+  )
+
+include_directories("${PROJECT_BINARY_DIR}")
 
 # Google Test
 # Download and unpack googletest at configure time

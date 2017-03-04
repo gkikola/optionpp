@@ -47,8 +47,7 @@ int main(int argc, char* argv[])
     print_usage();
     return 0;
   } else if (opt.find("version") != opt.end()) {
-    std::cout << "option++ " << OPTIONPP_VERSION_MAJOR << "."
-              << OPTIONPP_VERSION_MINOR << std::endl;
+    std::cout << "option++ " << OPTIONPP_VERSION << std::endl;
     std::cout << "Copyright (C) 2017 Gregory Kikola\n"
               << "License GPLv3+: GNU GPL version 3 or later\n"
               << "<http://www.gnu.org/licenses/gpl.html>.\n"

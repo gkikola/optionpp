@@ -1,0 +1,6 @@
+#ifndef OPTIONPP_VERSION_H
+#define OPTIONPP_VERSION_H
+
+#define OPTIONPP_VERSION "${OPTIONPP_VERSION}"
+
+#endif
