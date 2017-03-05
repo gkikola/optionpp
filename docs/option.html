@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+          "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>Option++ - struct Option</title>
+  </head>
+  <body>
+
+    <h1><code>struct Option</code></h1>
+
+    <p>Specifies a program option that the user has set from the
+    command line.</p>
+
+    <p>The <a href="option_parser.html"><code>OptionParser</code></a>
+      class acts as a container for <code>Option</code>s. Each option
+      that the user has specified is stored, in order, within the
+      <a href="option_parser.html"><code>OptionParser</code></a>.</p>
+    
+    <h2>Members</h2>
+
+    <dl>
+      <dt><code>char short_name</code></dt>
+      <dd>Single-character short name for the option.</dd>
+      <dt><code>std::string long_name</code></dt>
+      <dd>Long name for the option.</dd>
+      <dt><code>std::string argument</code></dt>
+      <dd>The argument, if any, that was given with the option.</dd>
+      <dt><code><a href="option_desc.html">OptionDesc</a>* desc</code></dt>
+      <dd>Pointer to the <a href="option_desc.html">OptionDesc</a>
+      object that describes this option.</dd>
+    </dl>
+    
+  </body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+          "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>Option++</title>
+  </head>
+  <body>
+
+    <h1>Option++</h1>
+
+    <h2>Table of Contents</h2>
+    <ol>
+      <a href="#intro"><li>Introduction</li></a>
+      <a href="#copying"><li>Copyright and License</li></a>
+      <a href="#example"><li>Example Usage</li></a>
+      <a href="#ref"><li>Reference</li></a>
+    </ol>
+    
+    <h2 id="intro">Introduction</h2>
+
+    <p>Option++ is a C++ facility for reading command-line program
+      options. Option++ provides an easy way to read, validate, and process
+      command-line options. It can also print detailed program help
+      information.</p>
+
+    <h2 id="copying">Copyright and License</h2>
+
+    <p>Copyright &copy; 2017 Gregory
+    Kikola. License GPLv3+:
+    <a href="http://www.gnu.org/licenses/gpl.html">GNU GPL</a> version
+    3 or later.</p>
+
+    <p>Option++ is free software: you are free to change and
+    redistribute it. There is NO WARRANTY, to the extent permitted by
+    law.</p>
+
+    <h2 id="example">Example Usage</h2>
+
+    <p>The following is a simple demonstration of how to use
+      Option++.</p>
+
+    <code><pre>
+      #include &lt;iostream>
+      #include &lt;string>
+      #include "optionpp.hpp"
+
+      int main(int argc, char* argv[])
+      {
+        bool show_line_nums = false;
+        int line_width = 16;
+
+        OptionParser opt = {
+          {'n', "line-numbers", "", "display line numbers"},
+          {'w', "line-width", "WIDTH", "set maximum display width "
+          "for each line"},
+          {'?', "help", "", "give detailed usage information"},
+        };
+
+        opt.parse(argc, argv);
+
+        for (const auto& o : opt) {
+          switch (o.short_name) {
+          case 'n':
+            show_line_nums = true;
+            break;
+          case 'w':
+            line_width = std::stoi(o.argument);
+            break;
+          case '?':
+            opt.print_usage(std::cout);
+            return 0;
+          }
+        }
+
+        //...
+
+        return 0;
+      }
+    </pre></code>
+
+    <h2 id="ref">Reference</h2>
+
+    <h3>Headers</h3>
+
+    <code>optionpp.hpp</code><br>
+    
+    <h3>Classes</h3>
+
+    <a href="option_desc.html"><code>OptionDesc</code></a><br>
+    <a href="option.html"><code>Option</code></a><br>
+    <a href="option_parser.html"><code>OptionParser</code></a><br>
+    <code>BadOption</code><br>
+    <code>BadOptionArgument</code><br>
+
+    <h3>Functions</h3>
+    <code>operator&lt;</code>
+    
+  </body>
+</html>
