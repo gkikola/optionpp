@@ -21,26 +21,26 @@
     <h2>Members</h2>
 
     <dl>
-      <dt><code>char short_name</code></dt>
+      <dt><code>char short_name;</code></dt>
       <dd>Short name (single character) for the option being
       described. This character can be used within the program
       arguments to set the option. This is done by prefixing a group
       of single-character option names with a '-' symbol. If this
       character is the null character, then the option will have no
       short name and must be specified by its long name.</dd>
-      <dt><code>std::string long_name</code></dt>
+      <dt><code>std::string long_name;</code></dt>
       <dd>Long name for the option, used with '--' to specify the
       option within the program arguments. The long name should
       consist of only alphanumeric characters and hyphens. In
       particular the long name should not include any spaces. If this
       string is empty, then the option will have no long name and must
       be specified by its short name.</dd>
-      <dt><code>std::string argument_name</code></dt>
+      <dt><code>std::string argument_name;</code></dt>
       <dd>A brief name for the argument, if any, that the option
       takes. The argument is specified on the command line with a '='
       following the option name. If this string is nonempty, Option++
       will expect an argument for this option.</dd>
-      <dt><code>std::string description</code></dt>
+      <dt><code>std::string description;</code></dt>
       <dd>A description of the option's usage and effect on the
       program. For options that take an argument, this description
       should include information about the argument's format and
@@ -48,7 +48,7 @@
       message that is given by the
       <a href="option_parser.html#usage"><code>OptionParser::usage</code></a>
       member function.</dd>
-      <dt><code>int group</code></dt>
+      <dt><code>int group;</code></dt>
       <dd>A number that identifies the group of options to which this
       option belongs. Related options should be grouped together. The
       group numbering affects the order in which options are described
@@ -56,7 +56,7 @@
       followed by group 1, then 2, and so on. After the
       nonnegative-numbered groups comes group -1, then -2, and so
       on.</dd>
-      <dt><code>bool arg_optional</code></dt>
+      <dt><code>bool arg_optional;</code></dt>
       <dd>If the option takes an argument (that
       is, <code>argument_name</code> is nonempty), then this variable
       controls whether the argument is optional or mandatory. If this
