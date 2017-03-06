@@ -174,5 +174,67 @@
       <dd>Brief description of what the option does, to be included in
       the generated help message.</dd>
     </dl>
+
+        <h2 id="lookup"><code>OptionParser::lookup</code></h2>
+
+    <code>
+      OptionDesc* lookup(char short_name);<br>
+      const OptionDesc* lookup(char short_name) const;<br>
+      OptionDesc* lookup(const std::string& long_name);<br>
+      const OptionDesc* lookup(const std::string& long_name) const;
+    </code>
+    <p>
+      Finds and returns a pointer to
+      an <a href="option_desc.html"><code>OptionDesc</code></a> which
+      describes the specified program option.
+    </p>
+    <h4>Parameters</h4>
+
+    <dl>
+      <dt><code>short_name</code></dt>
+      <dd>The short name of the option whose description is to be
+        found.</dd>
+      <dt><code>long_name</code></dt>
+      <dd>The long name of the option whose description is to be
+      found.</dd>
+    </dl>
+
+    <h4>Return Value</h4>
+
+    Pointer to
+    an <a href="option_desc.html"><code>OptionDesc</code></a> which
+    describes the option with the specified name,
+    or <code>nullptr</code> if the option description was not found.
+
+    <h2 id="parse"><code>OptionParser::parse</code></h2>
+
+    <code>
+      void parse(int argc, char* argv[]);
+    </code>
+    <p>
+      Parses the program's command-line arguments and stores any
+      options that were set in a list
+      of <a href="option.html"><code>Option</code></a> objects that
+      can be accessed by iterating over the <code>OptionParser</code>
+      using an iterator returned
+      by <a href="#begin_end"><code>begin</code></a>
+      or <a href="#find"><code>find</code></a>.
+    </p>
+    <p>
+      Non-option program arguments are stored in a separate container
+      that can be accessed with
+      the <a href="#program_args"><code>program_args</code></a>
+      method.
+    </p>
+    <h4>Parameters</h4>
+
+    <dl>
+      <dt><code>argc</code></dt>
+      <dd>The number of command-line arguments that were passed
+      to <code>main</code>.</dd>
+      <dt><code>argv</code></dt>
+      <dd>The array of command-line arguments that was passed
+      to <code>main</code>.</dd>
+    </dl>
   </body>
 </html>
