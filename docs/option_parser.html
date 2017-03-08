@@ -200,12 +200,53 @@
     </dl>
 
     <h4>Return Value</h4>
+    <p>
+      Pointer to
+      an <a href="option_desc.html"><code>OptionDesc</code></a> which
+      describes the option with the specified name,
+      or <code>nullptr</code> if the option description was not found.
+    </p>
 
-    Pointer to
-    an <a href="option_desc.html"><code>OptionDesc</code></a> which
-    describes the option with the specified name,
-    or <code>nullptr</code> if the option description was not found.
+    <h2 id="allow_bad_opts"><code>OptionParser::allow_bad_opts</code></h2>
 
+    <code>
+      void allow_bad_opts(bool allow = true);
+    </code>
+    <p>
+      Tells the parser whether or not it should ignore errors from
+      invalid options. If <code>allow</code> is <code>true</code>,
+      then invalid options are allowed.
+    </p>
+    <h4>Parameters</h4>
+
+    <dl>
+      <dt><code>allow</code></dt>
+      <dd>If set to <code>true</code>, then the parser will allow
+      invalid options without raising an error.</dd>
+    </dl>
+
+    <h2 id="allow_bad_args"><code>OptionParser::allow_bad_args</code></h2>
+
+    <code>
+      void allow_bad_args(bool allow = true);
+    </code>
+    <p>
+      Tells the parser whether or not it should ignore errors from
+      invalid option arguments. If <code>allow</code>
+      is <code>true</code>, then arguments will be accepted even for
+      options that do not normally take arguments. Otherwise,
+      providing an argument for an option that takes no argument will
+      raise an error.
+    </p>
+    <h4>Parameters</h4>
+
+    <dl>
+      <dt><code>allow</code></dt>
+      <dd>If set to <code>true</code>, then the parser will allow an
+      argument to be given for options that do not normally accept an
+      argument.</dd>
+    </dl>
+    
     <h2 id="parse"><code>OptionParser::parse</code></h2>
 
     <code>
@@ -236,5 +277,123 @@
       <dd>The array of command-line arguments that was passed
       to <code>main</code>.</dd>
     </dl>
+
+    <h2 id="size"><code>OptionParser::size</code></h2>
+
+    <code>
+      size_type size() const;
+    </code>
+    <p>
+      Returns the size of the
+      underlying <a href="option.html"><code>Option</code></a>
+      container. That is, it returns the number of options that have
+      been read from the command line.
+    </p>
+
+    <h4>Return Value</h4>
+    <p>
+      Number of options that have been read.
+    </p>
+
+    <h2 id="empty"><code>OptionParser::empty</code></h2>
+
+    <code>
+      bool empty() const;
+    </code>
+    <p>
+      Checks whether the
+      underlying <a href="option.html"><code>Option</code></a>
+      container is empty. That is, it checks whether there have been
+      no options read from the command line.
+    </p>
+
+    <h4>Return Value</h4>
+    <p>
+      True if the parser is empty (no options read) and false
+      otherwise.
+    </p>
+
+    <h2 id="begin_end"><code>
+        OptionParser::begin<br>
+        OptionParser::end<br>
+        OptionParser::rbegin<br>
+        OptionParser::rend<br>
+        OptionParser::cbegin<br>
+        OptionParser::cend<br>
+        OptionParser::crbegin<br>
+        OptionParser::crend
+    </code></h2>
+
+    <code>
+      iterator begin();<br>
+      const_iterator begin() const;<br>
+      iterator end();<br>
+      const_iterator end() const;<br>
+      <br>
+      reverse_iterator rbegin();<br>
+      const_reverse_iterator rbegin() const;<br>
+      reverse_iterator rend();<br>
+      const_reverse_iterator rend() const;<br>
+      <br>
+      const_iterator cbegin() const;<br>
+      const_iterator cend() const;<br>
+      <br>
+      const_reverse_iterator crbegin() const;<br>
+      const_reverse_iterator crend() const;
+    </code>
+    <p>
+      The <code>begin</code> functions return an iterator to the
+      beginning of the sequence of options that were read from the
+      command line, and the <code>end</code> functions return an
+      iterator to the end of the sequence (that is, an iterator
+      pointing one element past the last option that was read).
+    </p>
+    <p>
+      The <code>r</code> functions
+      (<code>rbegin</code>, <code>rend</code>, <code>crbegin</code>,
+      and <code>crend</code>) return reverse iterators and the
+      functions whose names begin with '<code>c</code>' always
+      return <code>const</code> iterators.
+    </p>
+    <h4>Return Value</h4>
+    <p>
+      An iterator pointing to the beginning or end of the sequence of
+      options that were read from the command line (i.e., an iterator
+      over the sequence
+      of <a href="option.html"><code>Option</code></a> objects stored
+      within the parser).
+    </p>
+
+    <h2 id="find"><code>OptionParser::find</code></h2>
+
+    <code>
+      iterator find(char short_name);<br>
+      const_iterator find(char short_name) const;<br>
+      iterator find(const std::string& long_name);<br>
+      const_iterator find(const std::string& long_name) const;
+    </code>
+    <p>
+      Searches the options that were read from the command line for a
+      particular option and returns an iterator pointing to the
+      appropriate <a href="option.html"><code>Option</code></a>
+      object.
+    </p>
+    <h4>Parameters</h4>
+
+    <dl>
+      <dt><code>short_name</code></dt>
+      <dd>The short name of the option to be found.</dd>
+      <dt><code>long_name</code></dt>
+      <dd>The long name of the option to be found.</dd>
+    </dl>
+
+    <h4>Return Value</h4>
+    <p>
+      An iterator pointing to the
+      first <a href="option.html"><code>Option</code></a> having the
+      specified name, or an iterator to the end of the sequence if the
+      option was not found.
+    </p>
+    
   </body>
 </html>
