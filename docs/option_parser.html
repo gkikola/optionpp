@@ -394,6 +394,84 @@
       specified name, or an iterator to the end of the sequence if the
       option was not found.
     </p>
+
+    <h2 id="program_args"><code>OptionParser::program_args</code></h2>
+
+    <code>
+      arg_seq& program_args();<br>
+      const arg_seq& program_args() const;
+    </code>
+    <p>
+      Returns a reference to a container holding all of the non-option
+      program arguments that were read from the
+      command-line. Non-option arguments are any of the arguments
+      passed to <code>main</code> that do not start with a '-', except
+      for those that are interpreted as the argument for an option, as
+      well as any program arguments following a '--' argument.
+    </p>
+    <h4>Return Value</h4>
+    <p>
+      A reference to a container holding the non-option program
+      arguments read from the command line.
+    </p>
+
+    <h2 id="print_usage"><code>OptionParser::print_usage</code></h2>
+
+    <code>
+      std::ostream& print_usage(std::ostream& out,
+      unsigned tab_stop = 30,
+      unsigned term_width = 80);
+    </code>
+    <p>
+      Generate a help message consisting of descriptions for each
+      option accepted by the program and print that message to a given
+      output stream.
+    </p>
+    <h4>Parameters</h4>
+
+    <dl>
+      <dt><code>out</code></dt>
+      <dd>The output stream to which the help message is to be
+        written.</dd>
+      <dt><code>tab_stop</code></dt>
+      <dd>The position within each line in the message string where
+        the description text is to begin.</dd>
+      <dt><code>term_width</code></dt>
+      <dd>The maximum width of each line in the generated
+      message string.</dd>
+    </dl>
+
+    <h4>Return Value</h4>
+    <p>
+      A reference to the output stream that was passed to
+      the <code>out</code> parameter.
+    </p>
+
+    <h2 id="usage"><code>OptionParser::usage</code></h2>
+
+    <code>
+      void usage(std::string& opt_usage_str,
+      unsigned tab_stop = 30,
+      unsigned term_width = 80);
+    </code>
+    <p>
+      Generate a help message consisting of descriptions for each
+      option accepted by the program and store that message in the
+      given <code>std::string</code>.
+    </p>
+    <h4>Parameters</h4>
+
+    <dl>
+      <dt><code>opt_usage_str</code></dt>
+      <dd>The string in which the generated message should be
+      stored.</dd>
+      <dt><code>tab_stop</code></dt>
+      <dd>The position within each line in the message string where
+        the description text is to begin.</dd>
+      <dt><code>term_width</code></dt>
+      <dd>The maximum width of each line in the generated
+      message string.</dd>
+    </dl>
     
   </body>
 </html>
