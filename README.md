@@ -11,6 +11,9 @@ provided that the project is distributed under a license that is compatible
 with the [GNU GPL](https://www.gnu.org/licenses/gpl.html) (see the file
 [COPYING](COPYING) for more details).
 
+For detailed information about using **Option++**, see the 
+[documentation](http://www.gkikola.com/optionpp/).
+
 
 Example Program
 ---------------
