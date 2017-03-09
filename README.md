@@ -1,11 +1,11 @@
-option++
+Option++
 ========
 
-**option++** is a C++ facility for reading command-line program options.
-**option++** provides an easy way to read, validate, and process
+**Option++** is a C++ facility for reading command-line program options.
+**Option++** provides an easy way to read, validate, and process
 command-line options and it can also print detailed program help information.
 
-**option++** can be used simply by copying [optionpp.cpp](src/optionpp.cpp)
+**Option++** can be used simply by copying [optionpp.cpp](src/optionpp.cpp)
 and [optionpp.hpp](src/optionpp.hpp) into a project's source directory,
 provided that the project is distributed under a license that is compatible
 with the [GNU GPL](https://www.gnu.org/licenses/gpl.html) (see the file
@@ -15,7 +15,7 @@ with the [GNU GPL](https://www.gnu.org/licenses/gpl.html) (see the file
 Example Program
 ---------------
 
-The following is a simple demonstration of how to use **option++**.
+The following is a simple demonstration of how to use **Option++**.
 
     #include <iostream>
     #include <string>
@@ -61,6 +61,6 @@ Copyright
 Copyright &copy; 2017 Gregory Kikola. License GPLv3+: [GNU GPL version 3
 or later](http://www.gnu.org/licenses/gpl.html).
 
-**option++** is free software: you are free to change and redistribute it.
+**Option++** is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law. See the file
 [COPYING](COPYING) for more details.
