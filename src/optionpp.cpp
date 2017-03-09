@@ -330,7 +330,7 @@ bool OptionParser::read_long_opt(const std::string& argstr)
   return expecting_arg;
 }
 
-bool operator < (const OptionDesc& o1, const OptionDesc& o2)
+bool operator<(const OptionDesc& o1, const OptionDesc& o2)
 {
   std::string s1, s2;
 
@@ -358,4 +358,34 @@ bool operator < (const OptionDesc& o1, const OptionDesc& o2)
 
     return s1 < s2;
   }
+}
+
+bool operator<=(const OptionDesc& o1, const OptionDesc& o2)
+{
+  return o1 < o2 || o1 == o2;
+}
+
+bool operator>(const OptionDesc& o1, const OptionDesc& o2)
+{
+  return !(o1 <= o2);
+}
+
+bool operator>=(const OptionDesc& o1, const OptionDesc& o2)
+{
+  return !(o1 < o2);
+}
+
+bool operator==(const OptionDesc& o1, const OptionDesc& o2)
+{
+  return o1.short_name == o2.short_name
+    && o1.long_name == o2.long_name
+    && o1.argument_name == o2.argument_name
+    && o1.description == o2.description
+    && o1.group == o2.group
+    && o1.arg_optional == o2.arg_optional;
+}
+
+bool operator!=(const OptionDesc& o1, const OptionDesc& o2)
+{
+  return !(o1 == o2);
 }

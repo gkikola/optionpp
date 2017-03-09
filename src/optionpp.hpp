@@ -143,6 +143,11 @@ public:
     logic_error(what_arg) { }
 };
 
-bool operator < (const OptionDesc& o1, const OptionDesc& o2);
+bool operator<(const OptionDesc& o1, const OptionDesc& o2);
+bool operator<=(const OptionDesc& o1, const OptionDesc& o2);
+bool operator>(const OptionDesc& o1, const OptionDesc& o2);
+bool operator>=(const OptionDesc& o1, const OptionDesc& o2);
+bool operator==(const OptionDesc& o1, const OptionDesc& o2);
+bool operator!=(const OptionDesc& o1, const OptionDesc& o2);
 
 #endif
