@@ -264,6 +264,30 @@ TEST_F(OptionParserTest, OptionsWithArgsSep) {
   EXPECT_EQ(lg_parser.end(), it);
 }
 
+TEST_F(OptionParserTest, OptionsWithHyphenArg) {
+  parse(lg_parser, {"prog", "-p", "-"});
+
+  EXPECT_EQ(1, lg_parser.size());
+  EXPECT_EQ(false, lg_parser.empty());
+  auto it = lg_parser.begin();
+  EXPECT_EQ("pattern", it->long_name);
+  EXPECT_EQ("-", it->argument);
+  ++it;
+  EXPECT_EQ(lg_parser.end(), it);
+
+  parse(lg_parser, {"prog", "--pattern", "-", "-e"});
+
+  EXPECT_EQ(2, lg_parser.size());
+  EXPECT_EQ(false, lg_parser.empty());
+  it = lg_parser.begin();
+  EXPECT_EQ("pattern", it->long_name);
+  EXPECT_EQ("-", it->argument);
+  ++it;
+  EXPECT_EQ("quit-at-eof", it->long_name);
+  ++it;
+  EXPECT_EQ(lg_parser.end(), it);
+}
+
 TEST_F(OptionParserTest, OptionsWithOptionalArgs) {
   parse(lg_parser, {"prog", "--max-back-scroll", "12", "-ep", "42",
         "-P", "--buffer", "10", "--tag", "--color", "red"});

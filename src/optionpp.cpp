@@ -212,7 +212,7 @@ void OptionParser::parse(int argc, char* argv[])
       if (m_opts_read.empty())
         throw BadOptionArgument("expected option before argument");
 
-      if (argv[i][0] == '-') { //no argument given
+      if (argv[i][0] == '-' && argv[i][1]) { //no argument given
         if (!m_allow_bad_args && m_opts_read.back().desc
             && !m_opts_read.back().desc->arg_optional)
           throw BadOptionArgument("expected argument for option "
