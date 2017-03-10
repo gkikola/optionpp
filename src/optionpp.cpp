@@ -223,7 +223,7 @@ void OptionParser::parse(int argc, char* argv[])
       }
     }
     
-    if (!opts_done && argv[i][0] == '-') {
+    if (!opts_done && argv[i][0] == '-' && argv[i][1]) {
       if (argv[i][1] == '-') { //long option
         std::string lopt = argv[i] + 2;
         if (lopt.empty()) //--: no more options

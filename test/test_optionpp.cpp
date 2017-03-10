@@ -151,6 +151,18 @@ TEST_F(OptionParserTest, NoOptions) {
   EXPECT_EQ(sm_parser.program_args().end(), it);
 }
 
+TEST_F(OptionParserTest, NoOptionHyphen) {
+  parse(lg_parser, {"prog", "-", "blank"});
+
+  EXPECT_EQ(true, lg_parser.empty());
+  EXPECT_EQ(3, lg_parser.program_args().size());
+  auto it = lg_parser.program_args().begin();
+  EXPECT_EQ("prog", *it++);
+  EXPECT_EQ("-", *it++);
+  EXPECT_EQ("blank", *it++);
+  EXPECT_EQ(lg_parser.program_args().end(), it);
+}
+
 TEST_F(OptionParserTest, Options) {
   parse(lg_parser, {"prog", "-BiuqS", "--line-numbers", "clear-screen", "-I"});
 
