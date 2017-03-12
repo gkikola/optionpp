@@ -251,16 +251,14 @@ bool OptionParser::read_short_opts(const std::string& argstr)
   bool expecting_arg = false;
   bool arg_optional = false;
 
-  for (auto c : argstr) {
-    if (c == '=') {
+  for (std::size_t i = 0; i < argstr.size(); ++i) {
+    if (argstr[i] == '=') {
       if (expecting_arg || m_allow_bad_args) {
         if (m_opts_read.empty())
           throw BadOptionArgument("expected option before argument");
 
         //add argument to last option read
-        auto n = argstr.find('=');
-        assert(n != std::string::npos);
-        std::string arg = argstr.substr(n + 1);
+        std::string arg = argstr.substr(i + 1);
         m_opts_read.back().argument = arg;
 
         //if there was no argument read, expect it later
@@ -273,26 +271,26 @@ bool OptionParser::read_short_opts(const std::string& argstr)
             throw BadOptionArgument("unexpected argument for option "
                                     + m_last_option_read);
       }
-    } else { //c != '='
+    } else { //argstr[i] != '='
       if (expecting_arg && !arg_optional && !m_allow_bad_args) {
         assert(!m_opts_read.empty());
         throw BadOptionArgument("expected argument for option "
                                 + m_last_option_read);
       }
       
-      if (OptionDesc* opt_desc = lookup(c)) {
+      if (OptionDesc* opt_desc = lookup(argstr[i])) {
         Option opt = { opt_desc->short_name, opt_desc->long_name };
         opt.desc = opt_desc;
         m_opts_read.push_back(opt);
-        m_last_option_read = std::string("-") + c;
+        m_last_option_read = std::string("-") + argstr[i];
         expecting_arg = !opt_desc->argument_name.empty();
         arg_optional = opt_desc->arg_optional;
       } else if (!m_allow_bad_opts) {
         throw BadOption("unexpected option " + m_last_option_read);
       } else { //allowing bad options
-        Option opt = { c };
+        Option opt = { argstr[i] };
         m_opts_read.push_back(opt);
-        m_last_option_read = std::string("-") + c;
+        m_last_option_read = std::string("-") + argstr[i];
       }
     }
   }
