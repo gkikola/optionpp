@@ -324,9 +324,9 @@ TEST_F(OptionParserTest, OptionsWithHyphenArg) {
 
 TEST_F(OptionParserTest, OptionsWithOptionalArgs) {
   parse(lg_parser, {"prog", "--max-back-scroll", "12", "-ep", "42",
-        "-P", "--buffer", "10", "--tag", "--color", "red"});
+        "-P", "--buffer", "10", "-qt", "--color", "red"});
 
-  EXPECT_EQ(7, lg_parser.size());
+  EXPECT_EQ(8, lg_parser.size());
   EXPECT_EQ(false, lg_parser.empty());
   auto it = lg_parser.begin();
   EXPECT_EQ("max-back-scroll", it->long_name);
@@ -349,6 +349,10 @@ TEST_F(OptionParserTest, OptionsWithOptionalArgs) {
   EXPECT_EQ("10", it->argument);
   ++it;
 
+  EXPECT_EQ("quiet", it->long_name);
+  EXPECT_EQ("", it->argument);
+  ++it;
+  
   EXPECT_EQ("tag", it->long_name);
   EXPECT_EQ("", it->argument);
   ++it;
