@@ -253,31 +253,15 @@ bool OptionParser::read_short_opts(const std::string& argstr)
 
   for (std::size_t i = 0; i < argstr.size(); ++i) {
     if (argstr[i] == '=') {
-      if (expecting_arg || m_allow_bad_args) {
+      if (!expecting_arg && !m_allow_bad_args) {
         if (m_opts_read.empty())
           throw BadOptionArgument("expected option before argument");
-
-        //add argument to last option read
-        std::string arg = argstr.substr(i + 1);
-        m_opts_read.back().argument = arg;
-
-        //if there was no argument read, expect it later
-        expecting_arg = arg.empty();
-        break;
-      } else {
-          if (m_last_option_read.empty())
-            throw BadOptionArgument("expected option before argument");
-          else
-            throw BadOptionArgument("unexpected argument for option "
-                                    + m_last_option_read);
-      }
+        else
+          throw BadOptionArgument("unexpected argument for option "
+                                  + m_last_option_read);
+      } else
+        expecting_arg = true;
     } else { //argstr[i] != '='
-      if (expecting_arg && !arg_optional && !m_allow_bad_args) {
-        assert(!m_opts_read.empty());
-        throw BadOptionArgument("expected argument for option "
-                                + m_last_option_read);
-      }
-      
       if (OptionDesc* opt_desc = lookup(argstr[i])) {
         Option opt = { opt_desc->short_name, opt_desc->long_name };
         opt.desc = opt_desc;
@@ -292,6 +276,21 @@ bool OptionParser::read_short_opts(const std::string& argstr)
         m_opts_read.push_back(opt);
         m_last_option_read = std::string("-") + argstr[i];
       }
+    }
+
+    if (expecting_arg) {
+      if (i + 1 < argstr.size() && argstr[i + 1] == '=')
+        ++i;
+      if (m_opts_read.empty())
+        throw BadOptionArgument("expected option before argument");
+      
+      //add argument to last option read
+      std::string arg = argstr.substr(i + 1);
+      m_opts_read.back().argument = arg;
+
+      //if there was no argument read, expect it later
+      expecting_arg = arg.empty();
+      break;
     }
   }
   

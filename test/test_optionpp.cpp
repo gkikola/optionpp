@@ -230,6 +230,40 @@ TEST_F(OptionParserTest, OptionsWithArgsEq) {
   EXPECT_EQ(lg_parser.end(), it);
 }
 
+TEST_F(OptionParserTest, OptionsWithArgsNoSpace) {
+  parse(lg_parser, {"prog", "-h12", "-ep42",
+        "-Pcustom", "-b10", "-ptest"});
+
+  EXPECT_EQ(6, lg_parser.size());
+  EXPECT_EQ(false, lg_parser.empty());
+  auto it = lg_parser.begin();
+  EXPECT_EQ("max-back-scroll", it->long_name);
+  EXPECT_EQ("12", it->argument);
+  ++it;
+  
+  EXPECT_EQ("quit-at-eof", it->long_name);
+  EXPECT_EQ("", it->argument);
+  ++it;
+  
+  EXPECT_EQ("pattern", it->long_name);
+  EXPECT_EQ("42", it->argument);
+  ++it;
+  
+  EXPECT_EQ('P', it->short_name);
+  EXPECT_EQ("custom", it->argument);
+  ++it;
+
+  EXPECT_EQ("buffer", it->long_name);
+  EXPECT_EQ("10", it->argument);
+  ++it;
+
+  EXPECT_EQ("pattern", it->long_name);
+  EXPECT_EQ("test", it->argument);
+  ++it;
+
+  EXPECT_EQ(lg_parser.end(), it);
+}
+
 TEST_F(OptionParserTest, OptionsWithArgsSep) {
   parse(lg_parser, {"prog", "--max-back-scroll", "12", "-ep", "42",
         "-P", "custom prompt", "--buffer=", "10", "--color", "red"});
@@ -360,7 +394,6 @@ TEST_F(OptionParserTest, BadOptions) {
 }
 
 TEST_F(OptionParserTest, BadOptionArgs) {
-  EXPECT_THROW(parse(lg_parser, {"prog", "-bcdei"}), BadOptionArgument);
   EXPECT_THROW(parse(lg_parser, {"prog", "-c=red", "--pattern", "-q"}),
                BadOptionArgument);
   EXPECT_THROW(parse(lg_parser, {"prog", "-c=red", "--pattern", "--",
@@ -370,7 +403,6 @@ TEST_F(OptionParserTest, BadOptionArgs) {
   EXPECT_THROW(parse(lg_parser, {"prog", "-cinp"}), BadOptionArgument);
   EXPECT_THROW(parse(lg_parser, {"prog", "-cinp", "--", "hello"}),
                BadOptionArgument);
-  EXPECT_THROW(parse(lg_parser, {"prog", "-pcin"}), BadOptionArgument);
   EXPECT_THROW(parse(lg_parser, {"prog", "-cinp="}), BadOptionArgument);
   EXPECT_THROW(parse(lg_parser, {"prog", "--pattern="}), BadOptionArgument);
 }
