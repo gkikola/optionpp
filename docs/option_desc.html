@@ -68,6 +68,59 @@
       exception will be thrown if the option is set without an
       argument.</dd>
     </dl>
+
+    <h2>Non-Member Functions</h2>
+
+    <dl>
+      <dt><a href="#rel_op"><code>operator&lt;</code></a></dt>
+      <dt><a href="#rel_op"><code>operator&lt;=</code></a></dt>
+      <dt><a href="#rel_op"><code>operator></code></a></dt>
+      <dt><a href="#rel_op"><code>operator>=</code></a></dt>
+      <dt><a href="#rel_op"><code>operator==</code></a></dt>
+      <dt><a href="#rel_op"><code>operator!=</code></a></dt>
+      <dd>Compare two <code>OptionDesc</code> objects.
+    </dl>
+
+    <h2>Non-Member Functions in Detail</h2>
+
+    <h2 id="rel_op"><code>
+        operator&lt;<br>
+        operator&lt;=<br>
+        operator><br>
+        operator>=<br>
+        operator==<br>
+        operator!=
+    </code></h2>
+
+    <code>
+      bool operator&lt;(const OptionDesc& o1, const OptionDesc& o2);<br>
+      bool operator&lt;=(const OptionDesc& o1, const OptionDesc& o2);<br>
+      bool operator>(const OptionDesc& o1, const OptionDesc& o2);<br>
+      bool operator>=(const OptionDesc& o1, const OptionDesc& o2);<br>
+      bool operator==(const OptionDesc& o1, const OptionDesc& o2);<br>
+      bool operator!=(const OptionDesc& o1, const OptionDesc& o2);
+    </code>
+    <p>
+      Compares two <code>OptionDesc</code>
+      objects. <code>OptionDesc</code> objects are compared first by
+      group number, and then by short or long name. Short names are
+      used for comparison when available, but options without short
+      names will be compared by their long name.
+    </p>
+    <h4>Parameters</h4>
+
+    <dl>
+      <dt><code>o1</code></dt>
+      <dd>Left operand.</dd>
+      <dt><code>o2</code></dt>
+      <dd>Right operand.</dd>
+    </dl>
+
+    <h4>Return Value</h4>
+    <p>
+      <code>true</code> or <code>false</code> depending on the truth
+      value of the relational operator being used.
+    </p>
     
   </body>
 </html>
