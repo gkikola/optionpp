@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include "optionpp.hpp"
+#include "version.h"
 
 void print_usage()
 {
