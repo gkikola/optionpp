@@ -262,11 +262,13 @@ bool OptionParser::read_short_opts(const std::string& argstr)
       } else
         expecting_arg = true;
     } else { //argstr[i] != '='
-      if (OptionDesc* opt_desc = lookup(argstr[i])) {
+      char name = argstr[i];
+      m_last_option_read = std::string("-") + name;
+      
+      if (OptionDesc* opt_desc = lookup(name)) {
         Option opt = { opt_desc->short_name, opt_desc->long_name };
         opt.desc = opt_desc;
         m_opts_read.push_back(opt);
-        m_last_option_read = std::string("-") + argstr[i];
         expecting_arg = !opt_desc->argument_name.empty();
         arg_optional = opt_desc->arg_optional;
       } else if (!m_allow_bad_opts) {
@@ -274,7 +276,6 @@ bool OptionParser::read_short_opts(const std::string& argstr)
       } else { //allowing bad options
         Option opt = { argstr[i] };
         m_opts_read.push_back(opt);
-        m_last_option_read = std::string("-") + argstr[i];
       }
     }
 
@@ -307,19 +308,19 @@ bool OptionParser::read_long_opt(const std::string& argstr)
   } else
     long_name = argstr;
 
+  m_last_option_read = "--" + long_name;
+  
   bool expecting_arg = false;
   if (OptionDesc* opt_desc = lookup(long_name)) {
     Option opt = { opt_desc->short_name, opt_desc->long_name, arg };
     opt.desc = opt_desc;
     m_opts_read.push_back(opt);
-    m_last_option_read = "--" + opt_desc->long_name;
     expecting_arg = !opt_desc->argument_name.empty() && arg.empty();
   } else if (!m_allow_bad_opts) {
     throw BadOption("unexpected option " + m_last_option_read);
   } else { //allowing bad options
     Option opt = { 0, long_name, arg };
     m_opts_read.push_back(opt);
-    m_last_option_read = "--" + long_name;
     if (arg.empty() && n != std::string::npos)
       expecting_arg = true;
   }
