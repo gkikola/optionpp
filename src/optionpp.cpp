@@ -112,7 +112,7 @@ OptionParser::find(const std::string& long_name) const
 
 std::ostream& OptionParser::print_usage(std::ostream& out,
                                         unsigned tab_stop,
-                                        unsigned term_width)
+                                        unsigned term_width) const
 {
   for (const OptionDesc& o : m_opts) {
     bool has_short = o.short_name;
@@ -188,7 +188,7 @@ std::ostream& OptionParser::print_usage(std::ostream& out,
 }
 
 void OptionParser::usage(std::string& opt_usage_str,
-                         unsigned tab_stop, unsigned term_width)
+                         unsigned tab_stop, unsigned term_width) const
 {
   std::ostringstream oss;
   print_usage(oss, tab_stop, term_width);

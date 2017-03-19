@@ -109,10 +109,10 @@ public:
 
   std::ostream& print_usage(std::ostream& out,
                             unsigned tab_stop = def_tab_stop,
-                            unsigned term_width = def_term_width);
+                            unsigned term_width = def_term_width) const;
   void usage(std::string& opt_usage_str,
              unsigned tab_stop = def_tab_stop,
-             unsigned term_width = def_term_width);
+             unsigned term_width = def_term_width) const;
 private:
   //return true if argument is to be read next
   bool read_short_opts(const std::string& argstr);
