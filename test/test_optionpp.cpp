@@ -128,7 +128,8 @@ TEST_F(OptionParserTest, Lookup) {
 TEST_F(OptionParserTest, NoArgs) {
   parse(sm_parser, {"prog"});
 
-  EXPECT_EQ(1, sm_parser.program_args().size());
+  EXPECT_EQ("prog", sm_parser.program_cmd());
+  EXPECT_EQ(0, sm_parser.program_args().size());
   EXPECT_EQ(0, sm_parser.size());
   EXPECT_EQ(true, sm_parser.empty());
   EXPECT_EQ(sm_parser.end(), sm_parser.begin());
@@ -137,13 +138,13 @@ TEST_F(OptionParserTest, NoArgs) {
 TEST_F(OptionParserTest, NoOptions) {
   parse(sm_parser, {"prog", "arg1", "arg2", "arg3", "arg4"});
 
+  EXPECT_EQ("prog", sm_parser.program_cmd());
   EXPECT_EQ(0, sm_parser.size());
   EXPECT_EQ(true, sm_parser.empty());
   EXPECT_EQ(sm_parser.end(), sm_parser.begin());
 
-  EXPECT_EQ(5, sm_parser.program_args().size());
+  EXPECT_EQ(4, sm_parser.program_args().size());
   auto it = sm_parser.program_args().begin();
-  EXPECT_EQ("prog", *it++);
   EXPECT_EQ("arg1", *it++);
   EXPECT_EQ("arg2", *it++);
   EXPECT_EQ("arg3", *it++);
@@ -155,9 +156,8 @@ TEST_F(OptionParserTest, NoOptionHyphen) {
   parse(lg_parser, {"prog", "-", "blank"});
 
   EXPECT_EQ(true, lg_parser.empty());
-  EXPECT_EQ(3, lg_parser.program_args().size());
+  EXPECT_EQ(2, lg_parser.program_args().size());
   auto it = lg_parser.program_args().begin();
-  EXPECT_EQ("prog", *it++);
   EXPECT_EQ("-", *it++);
   EXPECT_EQ("blank", *it++);
   EXPECT_EQ(lg_parser.program_args().end(), it);
@@ -178,9 +178,9 @@ TEST_F(OptionParserTest, Options) {
   EXPECT_EQ("IGNORE-CASE", (it++)->long_name);
   EXPECT_EQ(lg_parser.end(), it);
 
+  EXPECT_EQ("prog", lg_parser.program_cmd());
   auto arg = lg_parser.program_args().begin();
-  EXPECT_EQ(2, lg_parser.program_args().size());
-  EXPECT_EQ("prog", *arg++);
+  EXPECT_EQ(1, lg_parser.program_args().size());
   EXPECT_EQ("clear-screen", *arg++);
   EXPECT_EQ(lg_parser.program_args().end(), arg);
 }
@@ -376,9 +376,8 @@ TEST_F(OptionParserTest, EndOfOptions) {
   ++opt;
   EXPECT_EQ(opt, lg_parser.end());
 
-  EXPECT_EQ(9, lg_parser.program_args().size());
+  EXPECT_EQ(8, lg_parser.program_args().size());
   auto it = lg_parser.program_args().begin();
-  EXPECT_EQ("prog", *it++);
   EXPECT_EQ("-ep", *it++);
   EXPECT_EQ("42", *it++);
   EXPECT_EQ("-P", *it++);

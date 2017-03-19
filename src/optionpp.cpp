@@ -199,7 +199,7 @@ void OptionParser::parse(int argc, char* argv[])
 {
   m_opts_read.clear();
   m_prog_args.clear();
-  m_prog_args.push_back(argv[0]);
+  m_prog_cmd = argv[0];
   m_last_option_read = "";
 
   bool opts_done = false;

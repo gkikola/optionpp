@@ -4,10 +4,15 @@ Option++ Release Notes
 Option++ 1.01 (TBD)
 --------------------------
 
-Minor fixes:
+Changes:
 
 * Add `const` qualifier to `OptionParser::print_usage` and
   `OptionParser::usage`
+* Do not include `argv[0]` in `OptionParser::program_args()`; that is,
+  ignore the command used to invoke the program when populating the
+  `program_args()` container
+* Add `program_cmd` function to `OptionParser` to return the command used
+  to invoke the program
 * Fix problem with error message for bad options not showing correct
   option name
 

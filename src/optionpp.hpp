@@ -104,6 +104,8 @@ public:
   iterator find(const std::string& long_name);
   const_iterator find(const std::string& long_name) const;
 
+  std::string program_cmd() const { return m_prog_cmd; }
+  
   arg_seq& program_args() { return m_prog_args; }
   const arg_seq& program_args() const { return m_prog_args; }
 
@@ -124,6 +126,7 @@ private:
   desc_set m_opts;
   option_seq m_opts_read;
   arg_seq m_prog_args;
+  std::string m_prog_cmd;
   std::string m_last_option_read; //used for error reporting
 };
 

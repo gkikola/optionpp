@@ -105,7 +105,9 @@
       <dd><code>const</code> reverse iterator to ending.</dd>
       <dt><a href="#find"><code>find</code></a></dt>
       <dd>Find a particular option in the last of options that have
-      been read.</dd>
+        been read.</dd>
+      <dt><a href="#program_cmd"><code>program_cmd</code></a></dt>
+      <dd>Return the command used to invoke the program.</dd>
       <dt><a href="#program_args"><code>program_args</code></a></dt>
       <dd>Return reference to container holding non-option program
       arguments.</dd>
@@ -397,6 +399,22 @@
       first <a href="option.html"><code>Option</code></a> having the
       specified name, or an iterator to the end of the sequence if the
       option was not found.
+    </p>
+
+    <h2 id="program_cmd"><code>OptionParser::program_cmd</code></h2>
+
+    <code>
+      std::string program_cmd() const;
+    </code>
+    <p>
+      Returns the program name as given on the command line. This is the
+      command used to invoke the program and is identical to
+      <code>argv[0]</code>.
+    </p>
+    <h4>Return Value</h4>
+    <p>
+      The command used to invoke the program, or an empty string if the
+      parser has not yet been run.
     </p>
 
     <h2 id="program_args"><code>OptionParser::program_args</code></h2>
