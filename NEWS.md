@@ -13,6 +13,7 @@ Changes:
   `program_args()` container
 * Add `program_cmd` function to `OptionParser` to return the command used
   to invoke the program
+* Do case-insensitive sort for options in usage message
 * Fix problem with error message for bad options not showing correct
   option name
 

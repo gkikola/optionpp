@@ -21,8 +21,10 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <cstddef>
 #include <initializer_list>
+#include <iterator>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -330,8 +332,6 @@ bool OptionParser::read_long_opt(const std::string& argstr)
 
 bool operator<(const OptionDesc& o1, const OptionDesc& o2)
 {
-  std::string s1, s2;
-
   //group ordering should go 0, 1, 2, ..., n, -1, -2, -3, ...
   if (o1.group != o2.group) {
     if (o1.group >= 0 && o2.group >= 0) //both nonnegative
@@ -343,18 +343,31 @@ bool operator<(const OptionDesc& o1, const OptionDesc& o2)
     else //both negative
       return o1.group > o2.group;
   } else {
+    std::string name1, name2;
+
     //same group, compare short name and long name, in that order
     if (o1.short_name)
-      s1 = o1.short_name;
+      name1 = o1.short_name;
     else
-      s1 = o1.long_name;
+      name1 = o1.long_name;
 
     if (o2.short_name)
-      s2 = o2.short_name;
+      name2 = o2.short_name;
     else
-      s2 = o2.long_name;
+      name2 = o2.long_name;
 
-    return s1 < s2;
+    std::string upper_name1, upper_name2;
+    auto make_upper = [](char c) -> char { return std::toupper(c); };
+    std::transform(name1.begin(), name1.end(),
+                   std::back_inserter(upper_name1), make_upper);
+    std::transform(name2.begin(), name2.end(),
+                   std::back_inserter(upper_name2), make_upper);
+
+    //do case-sensitive compare only if uppercase names are the same
+    if (upper_name1 == upper_name2)
+      return name1 < name2;
+    else
+      return upper_name1 < upper_name2;
   }
 }
 
