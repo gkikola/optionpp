@@ -35,12 +35,12 @@ void OptionParser::add(char sname, const std::string& lname,
          int group)
 {
   OptionDesc opt = { sname, lname, aname, desc, group };
-  m_opts.insert(opt);
+  m_opts.push_back(opt);
 }
 
 void OptionParser::add(std::initializer_list<OptionDesc> opts)
 {
-  m_opts.insert(opts.begin(), opts.end());
+  m_opts.insert(m_opts.end(), opts.begin(), opts.end());
 }
 
 OptionDesc* OptionParser::lookup(char short_name)
@@ -116,7 +116,11 @@ std::ostream& OptionParser::print_usage(std::ostream& out,
                                         unsigned tab_stop,
                                         unsigned term_width) const
 {
-  for (const OptionDesc& o : m_opts) {
+  //sort option descriptions by option name
+  desc_set opts = m_opts;
+  std::stable_sort(opts.begin(), opts.end());
+  
+  for (const OptionDesc& o : opts) {
     bool has_short = o.short_name;
     bool has_long = o.long_name != "";
     bool has_arg = o.argument_name != "";
@@ -356,18 +360,11 @@ bool operator<(const OptionDesc& o1, const OptionDesc& o2)
     else
       name2 = o2.long_name;
 
-    std::string upper_name1, upper_name2;
-    auto make_upper = [](char c) -> char { return std::toupper(c); };
-    std::transform(name1.begin(), name1.end(),
-                   std::back_inserter(upper_name1), make_upper);
-    std::transform(name2.begin(), name2.end(),
-                   std::back_inserter(upper_name2), make_upper);
-
-    //do case-sensitive compare only if uppercase names are the same
-    if (upper_name1 == upper_name2)
-      return name1 < name2;
-    else
-      return upper_name1 < upper_name2;
+    auto comp = [](char c1, char c2)
+      { return std::toupper(c1) < std::toupper(c2); };
+    return std::lexicographical_compare(name1.begin(), name1.end(),
+                                        name2.begin(), name2.end(),
+                                        comp);
   }
 }
 
