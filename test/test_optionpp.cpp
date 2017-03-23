@@ -410,6 +410,92 @@ TEST_F(OptionParserTest, BadOptionArgs) {
   EXPECT_THROW(parse(lg_parser, {"prog", "--pattern="}), BadOptionArgument);
 }
 
+TEST(ArgConversion, ArgToInt) {
+  Option o = {'n', "number", "42"};
+  EXPECT_EQ(42, o.arg_to_int());
+
+  o.argument = "-57";
+  EXPECT_EQ(-57, o.arg_to_int());
+
+  o.argument = "0";
+  EXPECT_EQ(0, o.arg_to_int());
+
+  o.argument = "  37  ";
+  EXPECT_EQ(37, o.arg_to_int());
+
+  o.argument = "37f";
+  EXPECT_THROW(o.arg_to_int(), BadOptionArgument);
+
+  o.argument = "42.57";
+  EXPECT_THROW(o.arg_to_int(), BadOptionArgument);
+}
+
+TEST(ArgConversion, ArgToUnsigned) {
+  Option o = {'n', "number", "42"};
+  EXPECT_EQ(42, o.arg_to_unsigned());
+
+  o.argument = "-57";
+  EXPECT_THROW(o.arg_to_unsigned(), BadOptionArgument);
+
+  o.argument = "0";
+  EXPECT_EQ(0, o.arg_to_unsigned());
+
+  o.argument = "  37  ";
+  EXPECT_EQ(37, o.arg_to_unsigned());
+
+  o.argument = "37f";
+  EXPECT_THROW(o.arg_to_unsigned(), BadOptionArgument);
+
+  o.argument = "42.57";
+  EXPECT_THROW(o.arg_to_unsigned(), BadOptionArgument);
+}
+
+TEST(ArgConversion, ArgToLong) {
+  Option o = {'n', "number", "42"};
+  EXPECT_EQ(42L, o.arg_to_long());
+
+  o.argument = "-57";
+  EXPECT_EQ(-57L, o.arg_to_long());
+
+  o.argument = "0";
+  EXPECT_EQ(0L, o.arg_to_long());
+
+  o.argument = "  37  ";
+  EXPECT_EQ(37L, o.arg_to_long());
+
+  o.argument = "37f";
+  EXPECT_THROW(o.arg_to_long(), BadOptionArgument);
+
+  o.argument = "42.57";
+  EXPECT_THROW(o.arg_to_long(), BadOptionArgument);
+}
+
+TEST(ArgConversion, ArgToDouble) {
+  Option o = {'n', "number", "42"};
+  EXPECT_EQ(42.0, o.arg_to_double());
+
+  o.argument = "-57";
+  EXPECT_EQ(-57.0, o.arg_to_double());
+
+  o.argument = "0";
+  EXPECT_EQ(0.0, o.arg_to_double());
+
+  o.argument = "  37  ";
+  EXPECT_EQ(37.0, o.arg_to_double());
+
+  o.argument = "37.519";
+  EXPECT_FLOAT_EQ(37.519, o.arg_to_double());
+
+  o.argument = "-13.847";
+  EXPECT_FLOAT_EQ(-13.847, o.arg_to_double());
+
+  o.argument = "-2.3e4";
+  EXPECT_FLOAT_EQ(-2.3e4, o.arg_to_double());
+
+  o.argument = "37f";
+  EXPECT_THROW(o.arg_to_double(), BadOptionArgument);
+}
+
 int main(int argc, char* argv[])
 {
   ::testing::InitGoogleTest(&argc, argv);

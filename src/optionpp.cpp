@@ -334,6 +334,98 @@ bool OptionParser::read_long_opt(const std::string& argstr)
   return expecting_arg;
 }
 
+int Option::arg_to_int() const
+{
+  try {
+    std::size_t pos = 0;
+    int ret = std::stoi(argument, &pos);
+    validate_arg(pos);
+
+    return ret;
+  } catch (const std::invalid_argument& e) {
+    throw BadOptionArgument("argument for option " + option_name()
+                            + " must be an integer");
+  } catch (const std::out_of_range& e) {
+    throw BadOptionArgument("argument for option " + option_name()
+                            + " is out of range");
+  }
+}
+
+unsigned Option::arg_to_unsigned() const
+{
+  try {
+    std::size_t pos = 0;
+    int val = std::stoi(argument, &pos);
+    validate_arg(pos);
+
+    if (val < 0)
+      throw BadOptionArgument("argument for option " + option_name()
+                              + " must not be negative");
+
+    return static_cast<unsigned>(val);
+  } catch (const std::invalid_argument& e) {
+    throw BadOptionArgument("argument for option " + option_name()
+                            + " must be a nonnegative integer");
+  } catch (const std::out_of_range& e) {
+    throw BadOptionArgument("argument for option " + option_name()
+                            + " is out of range");
+  }
+}
+
+long Option::arg_to_long() const
+{
+  try {
+    std::size_t pos = 0;
+    long ret = std::stol(argument, &pos);
+    validate_arg(pos);
+
+    return ret;
+  } catch (const std::invalid_argument& e) {
+    throw BadOptionArgument("argument for option " + option_name()
+                            + " must be an integer");
+  } catch (const std::out_of_range& e) {
+    throw BadOptionArgument("argument for option " + option_name()
+                            + " is out of range");
+  }
+}
+
+double Option::arg_to_double() const
+{
+  try {
+    std::size_t pos = 0;
+    double ret = std::stod(argument, &pos);
+    validate_arg(pos);
+
+    return ret;
+  } catch (const std::invalid_argument& e) {
+    throw BadOptionArgument("argument for option " + option_name()
+                            + " must be a number");
+  } catch (const std::out_of_range& e) {
+    throw BadOptionArgument("argument for option " + option_name()
+                            + " is out of range");
+  }
+}
+
+std::string Option::option_name() const
+{
+  std::string ret;
+  if (!long_name.empty() && short_name)
+    return "--" + long_name + " (-" + short_name + ")";
+  else if (!long_name.empty())
+    return "--" + long_name;
+  else
+    return "-" + std::string(1, short_name);
+}
+
+void Option::validate_arg(std::size_t end_pos) const
+{
+  while (end_pos < argument.length()) {
+    if (argument[end_pos] != ' ')
+      throw std::invalid_argument("validate_arg");
+    ++end_pos;
+  }
+}
+
 bool operator<(const OptionDesc& o1, const OptionDesc& o2)
 {
   //group ordering should go 0, 1, 2, ..., n, -1, -2, -3, ...

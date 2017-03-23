@@ -42,6 +42,15 @@ struct Option {
   std::string long_name;
   std::string argument;
   OptionDesc* desc = nullptr;
+
+  int arg_to_int() const;
+  unsigned arg_to_unsigned() const;
+  long arg_to_long() const;
+  double arg_to_double() const;
+
+private:
+  std::string option_name() const;
+  void validate_arg(std::size_t end_pos) const;
 };
 
 constexpr unsigned def_term_width = 80;
