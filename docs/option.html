@@ -34,6 +34,81 @@
       <dd>Pointer to the <a href="option_desc.html">OptionDesc</a>
       object that describes this option.</dd>
     </dl>
-    
+
+    <h2>Member Functions</h2>
+
+    <dl>
+      <dt><a href="#arg_to_int"><code>arg_to_int</code></a></dt>
+      <dd>Convert argument string to integer.</dd>
+      <dt><a href="#arg_to_unsigned"><code>arg_to_unsigned</code></a></dt>
+      <dd>Convert argument string to an unsigned integer.</dd>
+      <dt><a href="#arg_to_long"><code>arg_to_long</code></a></dt>
+      <dd>Convert argument string to long integer.</dd>
+      <dt><a href="#arg_to_double"><code>arg_to_double</code></a></dt>
+      <dd>Convert argument string to floating-point value.</dd>
+    </dl>
+
+    <h2>Member Functions in Detail</h2>
+
+    <h2 id="arg_to_int"><code>Option::arg_to_int</code></h2>
+
+    <code>
+      int arg_to_int() const;
+    </code>
+    <p>
+      Converts this option's argument to an integer or throws an exception
+      if the conversion cannot be made.
+    </p>
+
+    <h4>Return Value</h4>
+    <p>
+      The option's argument as an integer value.
+    </p>
+
+    <h2 id="arg_to_unsigned"><code>Option::arg_to_unsigned</code></h2>
+
+    <code>
+      unsigned arg_to_unsigned() const;
+    </code>
+    <p>
+      Converts this option's argument to an unsigned integer or throws
+      an exception if the conversion cannot be made.
+    </p>
+
+    <h4>Return Value</h4>
+    <p>
+      The option's argument as an unsigned integer value.
+    </p>
+
+    <h2 id="arg_to_long"><code>Option::arg_to_long</code></h2>
+
+    <code>
+      long arg_to_long() const;
+    </code>
+    <p>
+      Converts this option's argument to a long integer or throws an
+      exception if the conversion cannot be made.
+    </p>
+
+    <h4>Return Value</h4>
+    <p>
+      The option's argument as a long integer value.
+    </p>
+
+    <h2 id="arg_to_double"><code>Option::arg_to_double</code></h2>
+
+    <code>
+      double arg_to_double() const;
+    </code>
+    <p>
+      Converts this option's argument to a floating-point value or
+      throws an exception if the conversion cannot be made.
+    </p>
+
+    <h4>Return Value</h4>
+    <p>
+      The option's argument as a double-precision floating-point value.
+    </p>
+
   </body>
 </html>
