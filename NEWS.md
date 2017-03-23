@@ -6,6 +6,8 @@ Option++ 1.01 (TBD)
 
 Additions:
 
+* Add conversion functions `arg_to_int`, `arg_to_unsigned`, `arg_to_long`,
+  and `arg_to_double` to `Option` class.
 * Add `OptionParser::program_cmd` member function to return the command used
   to invoke the program (argv[0])
 
