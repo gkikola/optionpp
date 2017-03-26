@@ -54,6 +54,7 @@
       Option++.</p>
 
     <code><pre>
+      #include &lt;exception>
       #include &lt;iostream>
       #include &lt;string>
       #include "optionpp.hpp"
@@ -70,22 +71,26 @@
           {'?', "help", "", "give detailed usage information"},
         };
 
-        opt.parse(argc, argv);
+        try {
+          opt.parse(argc, argv);
 
-        for (const auto& o : opt) {
-          switch (o.short_name) {
-          case 'n':
-            show_line_nums = true;
-            break;
-          case 'w':
-            line_width = std::stoi(o.argument);
-            break;
-          case '?':
-            opt.print_usage(std::cout);
-            return 0;
+          for (const auto& o : opt) {
+            switch (o.short_name) {
+            case 'n':
+              show_line_nums = true;
+              break;
+            case 'w':
+              line_width = o.arg_to_unsigned();
+              break;
+            case '?':
+              opt.print_usage(std::cout);
+              return 0;
+            }
           }
+        } catch (const std::exception& e) {
+          std::cerr << "Error: " << e.what() << std::endl;
         }
-
+      
         //...
 
         return 0;

@@ -20,6 +20,7 @@ Example Program
 
 The following is a simple demonstration of how to use **Option++**.
 
+    #include <exception>
     #include <iostream>
     #include <string>
     #include "optionpp.hpp"
@@ -28,32 +29,36 @@ The following is a simple demonstration of how to use **Option++**.
     {
       bool show_line_nums = false;
       int line_width = 16;
-  
+
       OptionParser opt = {
         {'n', "line-numbers", "", "display line numbers"},
         {'w', "line-width", "WIDTH", "set maximum display width "
-        "for each line"},
+         "for each line"},
         {'?', "help", "", "give detailed usage information"},
       };
 
-      opt.parse(argc, argv);
+      try {
+        opt.parse(argc, argv);
 
-      for (const auto& o : opt) {
-        switch (o.short_name) {
-        case 'n':
-          show_line_nums = true;
-          break;
-        case 'w':
-          line_width = std::stoi(o.argument);
-          break;
-        case '?':
-          opt.print_usage(std::cout);
-          return 0;
+        for (const auto& o : opt) {
+          switch (o.short_name) {
+          case 'n':
+            show_line_nums = true;
+            break;
+          case 'w':
+            line_width = o.arg_to_unsigned();
+            break;
+          case '?':
+            opt.print_usage(std::cout);
+            return 0;
+          }
         }
+      } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
       }
-    
+
       //...
-      
+
       return 0;
     }
 
