@@ -1,7 +1,7 @@
 Option++ Release Notes
 ======================
 
-Option++ 1.01 (TBD)
+Option++ 1.01 (2017-03-26)
 --------------------------
 
 Additions:
