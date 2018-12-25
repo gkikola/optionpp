@@ -21,8 +21,8 @@ Setup
 -----
 
 The **Option++** library itself consists of only two files: a header
-and an implementation source file. **Option++** is designed to be used
-simply by copying these files
+file and an implementation source file. **Option++** is designed to be
+used simply by copying these files
 ([optionpp.cpp](src/optionpp/optionpp.cpp) and
 [optionpp.hpp](src/optionpp/optionpp.hpp)) directly into your
 project's source directory. Then simply put `#include

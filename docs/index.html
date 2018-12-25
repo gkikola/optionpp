@@ -11,6 +11,7 @@
     <h2>Table of Contents</h2>
     <ol>
       <li><a href="#intro">Introduction</a></li>
+      <li><a href="#requirements">Requirements</a></li>
       <li><a href="#setup">Setup</a></li>
       <li><a href="#copying">Copyright and License</a></li>
       <li><a href="#example">Example Usage</a></li>
@@ -20,22 +21,35 @@
 
     <h2 id="intro">Introduction</h2>
 
-    <p>Option++ is a C++ facility for reading command-line program
+    <p>Option++ is a C++ library for reading command-line program
       options. Option++ provides an easy way to read, validate, and process
       command-line options. It can also print detailed program help
       information.</p>
 
+    <h2 id="requirements">Requirements</h2>
+
+    <p>Option++ depends only on the C++ Standard Library. To compile
+      and use Option++, your compiler must support C++11
+      features. Unfortunately, Option++ is not designed for projects
+      that require compatibility with older compilers.</p>
+
     <h2 id="setup">Setup</h2>
 
-    <p>Option++ can be incorporated into your own projects by simply
-    placing <code>optionpp.cpp</code> and <code>optionpp.hpp</code>
-    into your project's source directory. Then <code>#include
-    "optionpp.hpp"</code> in your source file. See
-    the <a href="#example">example</a> below to get started.</p>
+    <p>The Option++ library itself consists of only two files: a
+      header file and an implementation source file. Option++ is
+      designed to be used simply by copying these files
+      (<code>optionpp.cpp</code> and <code>optionpp.hpp</code>) directly
+      into your project's source directory. Then simply
+      put <code>#include "optionpp/optionpp.hpp"</code> in the
+      appropriate source file(s).</p>
+
+    <p>See the <a href="#example">example</a> below to get
+      started.</p>
+
     <p>For detailed information about using
-    Option++'s <a href="option_parser.html"><code>OptionParser</code></a>
-    class and related types, see the <a href="#ref">Class
-    Reference</a> section.</p>
+      Option++'s <a href="option_parser.html"><code>OptionParser</code></a>
+      class and related types, see the <a href="#ref">Class
+        Reference</a> section.</p>
 
     <h2 id="copying">Copyright and License</h2>
 
