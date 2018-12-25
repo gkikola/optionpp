@@ -12,7 +12,7 @@ Changes:
 
 Bug fixes:
 
-* Fix find functions potentially returning the wrong iterator
+* Fix `find` functions potentially returning the wrong iterator
 
 
 Option++ 1.01 (2017-03-26)
