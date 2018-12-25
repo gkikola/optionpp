@@ -1,14 +1,35 @@
 Option++
 ========
 
-**Option++** is a C++ facility for reading command-line program options.
-**Option++** provides an easy way to read, validate, and process
-command-line options and it can also print detailed program help information.
+**Option++** is a C++ library for reading command-line program
+options. **Option++** provides an easy way to read, validate, and
+process command-line options and it can also print detailed program
+help information.
 
-**Option++** can be used simply by copying [optionpp.cpp](src/optionpp.cpp)
-and [optionpp.hpp](src/optionpp.hpp) into a project's source directory.
 
-For detailed information about using **Option++**, see the
+Requirements
+------------
+
+**Option++** depends only on the C++ Standard Library. To compile and
+use **Option++**, your compiler must support C++11
+features. Unfortunately, **Option++** cannot be used (without some
+modification) in projects that require compatibility with older
+compilers.
+
+
+Setup
+-----
+
+The **Option++** library itself consists of only two files: a header
+and an implementation source file. **Option++** is designed to be used
+simply by copying these files
+([optionpp.cpp](src/optionpp/optionpp.cpp) and
+[optionpp.hpp](src/optionpp/optionpp.hpp)) directly into your
+project's source directory. Then simply put `#include
+"optionpp/optionpp.hpp"` in the appropriate source file(s).
+
+For detailed information about using **Option++** and a complete class
+reference, see the
 [documentation](http://www.gregkikola.com/optionpp/).
 
 
