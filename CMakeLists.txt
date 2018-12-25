@@ -46,8 +46,12 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
   include_directories("${gtest_SOURCE_DIR}/include")
 endif()
 
-add_executable(test_option++ src/optionpp.cpp test/test_optionpp.cpp)
+add_executable(
+  test_option++
+  src/optionpp/optionpp.cpp
+  test/test_optionpp.cpp
+  )
 target_link_libraries(test_option++ gtest_main)
 add_test(NAME test_optionpp COMMAND test_option++)
 
-add_executable(option++ src/main.cpp src/optionpp.cpp)
+add_executable(option++ src/main.cpp src/optionpp/optionpp.cpp)

@@ -6,8 +6,13 @@ Option++ 1.02 (TBD)
 
 Changes:
 
-* License: Switched to the Boost Software License to allow use in
+* License: Switch to the Boost Software License to allow use in
   non-GPL projects.
+* Move optionpp.cpp and optionpp.hpp into src/optionpp/ directory
+
+Bug fixes:
+
+* Fix find functions potentially returning the wrong iterator
 
 
 Option++ 1.01 (2017-03-26)

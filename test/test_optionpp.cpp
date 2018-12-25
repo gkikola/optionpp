@@ -21,7 +21,7 @@
 #include <cstring>
 #include <iostream>
 #include "gtest/gtest.h"
-#include "../src/optionpp.hpp"
+#include "../src/optionpp/optionpp.hpp"
 
 class OptionParserTest : public ::testing::Test {
 public:

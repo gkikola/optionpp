@@ -20,7 +20,7 @@ The following is a simple demonstration of how to use **Option++**.
     #include <exception>
     #include <iostream>
     #include <string>
-    #include "optionpp.hpp"
+    #include "optionpp/optionpp.hpp"
 
     int main(int argc, char* argv[])
     {

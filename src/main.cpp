@@ -19,7 +19,7 @@
 /* Written by Greg Kikola <gkikola@gmail.com>. */
 
 #include <iostream>
-#include "optionpp.hpp"
+#include "optionpp/optionpp.hpp"
 #include "version.h"
 
 void print_usage()
