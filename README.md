@@ -6,13 +6,10 @@ Option++
 command-line options and it can also print detailed program help information.
 
 **Option++** can be used simply by copying [optionpp.cpp](src/optionpp.cpp)
-and [optionpp.hpp](src/optionpp.hpp) into a project's source directory,
-provided that the project is distributed under a license that is compatible
-with the [GNU GPL](https://www.gnu.org/licenses/gpl.html) (see the file
-[COPYING](COPYING) for more details).
+and [optionpp.hpp](src/optionpp.hpp) into a project's source directory.
 
-For detailed information about using **Option++**, see the 
-[documentation](http://www.gkikola.com/optionpp/).
+For detailed information about using **Option++**, see the
+[documentation](http://www.gregkikola.com/optionpp/).
 
 
 Example Program
@@ -66,9 +63,9 @@ The following is a simple demonstration of how to use **Option++**.
 Copyright
 ---------
 
-Copyright &copy; 2017 Gregory Kikola. License GPLv3+: [GNU GPL version 3
-or later](http://www.gnu.org/licenses/gpl.html).
+Copyright &copy; 2017-2018 Greg Kikola. License BSL-1.0: [Boost
+Software License version 1.0](https://www.boost.org/LICENSE_1_0.txt).
 
 **Option++** is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law. See the file
-[COPYING](COPYING) for more details.
+[LICENSE.txt](LICENSE.txt) for more details.

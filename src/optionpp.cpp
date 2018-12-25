@@ -1,23 +1,21 @@
-/* optionpp -- read command-line program options
-   Copyright (C) 2017 Gregory Kikola.
+/* Option++ -- read command-line program options
+   Copyright (C) 2017-2018 Greg Kikola.
 
-   This file is part of option++.
+   This file is part of Option++.
 
-   option++ is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+   Option++ is free software: you can redistribute it and/or modify
+   it under the terms of the Boost Software License version 1.0.
 
-   option++ is distributed in the hope that it will be useful,
+   Option++ is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   Boost Software License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with option++.  If not, see <http://www.gnu.org/licenses/>.
+   You should have received a copy of the Boost Software License
+   along with Option++.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Written by Gregory Kikola <gkikola@gmail.com>. */
+/* Written by Greg Kikola <gkikola@gmail.com>. */
 
 #include <algorithm>
 #include <cassert>
@@ -119,7 +117,7 @@ std::ostream& OptionParser::print_usage(std::ostream& out,
   //sort option descriptions by option name
   desc_set opts = m_opts;
   std::stable_sort(opts.begin(), opts.end());
-  
+
   for (const OptionDesc& o : opts) {
     bool has_short = o.short_name;
     bool has_long = o.long_name != "";
@@ -210,7 +208,7 @@ void OptionParser::parse(int argc, char* argv[])
 
   bool opts_done = false;
   bool reading_arg = false;
-  
+
   for (size_t i = 1; (i != argc) && argv[i]; ++i) {
     if (reading_arg) {
       reading_arg = false;
@@ -228,7 +226,7 @@ void OptionParser::parse(int argc, char* argv[])
         continue;
       }
     }
-    
+
     if (!opts_done && argv[i][0] == '-' && argv[i][1]) {
       if (argv[i][1] == '-') { //long option
         std::string lopt = argv[i] + 2;
@@ -270,7 +268,7 @@ bool OptionParser::read_short_opts(const std::string& argstr)
     } else { //argstr[i] != '='
       char name = argstr[i];
       m_last_option_read = std::string("-") + name;
-      
+
       if (OptionDesc* opt_desc = lookup(name)) {
         Option opt = { opt_desc->short_name, opt_desc->long_name };
         opt.desc = opt_desc;
@@ -290,7 +288,7 @@ bool OptionParser::read_short_opts(const std::string& argstr)
         ++i;
       if (m_opts_read.empty())
         throw BadOptionArgument("expected option before argument");
-      
+
       //add argument to last option read
       std::string arg = argstr.substr(i + 1);
       m_opts_read.back().argument = arg;
@@ -300,7 +298,7 @@ bool OptionParser::read_short_opts(const std::string& argstr)
       break;
     }
   }
-  
+
   return expecting_arg;
 }
 
@@ -315,7 +313,7 @@ bool OptionParser::read_long_opt(const std::string& argstr)
     long_name = argstr;
 
   m_last_option_read = "--" + long_name;
-  
+
   bool expecting_arg = false;
   if (OptionDesc* opt_desc = lookup(long_name)) {
     Option opt = { opt_desc->short_name, opt_desc->long_name, arg };
@@ -330,7 +328,7 @@ bool OptionParser::read_long_opt(const std::string& argstr)
     if (arg.empty() && n != std::string::npos)
       expecting_arg = true;
   }
-  
+
   return expecting_arg;
 }
 

@@ -1,23 +1,21 @@
-/* optionpp -- read command-line program options
-   Copyright (C) 2017 Gregory Kikola.
+/* Option++ -- read command-line program options
+   Copyright (C) 2017-2018 Greg Kikola.
 
-   This file is part of option++.
+   This file is part of Option++.
 
-   option++ is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+   Option++ is free software: you can redistribute it and/or modify
+   it under the terms of the Boost Software License version 1.0.
 
-   option++ is distributed in the hope that it will be useful,
+   Option++ is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   Boost Software License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with option++.  If not, see <http://www.gnu.org/licenses/>.
+   You should have received a copy of the Boost Software License
+   along with Option++.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Written by Gregory Kikola <gkikola@gmail.com>. */
+/* Written by Greg Kikola <gkikola@gmail.com>. */
 
 #ifndef OPTIONPP_HPP
 #define OPTIONPP_HPP
@@ -67,14 +65,14 @@ public:
   typedef option_seq::const_iterator const_iterator;
   typedef option_seq::reverse_iterator reverse_iterator;
   typedef option_seq::const_reverse_iterator const_reverse_iterator;
-  
+
   OptionParser() = default;
   OptionParser(std::initializer_list<OptionDesc> opts):
     m_opts(opts.begin(), opts.end()) { }
 
   void allow_bad_opts(bool allow = true) { m_allow_bad_opts = allow; }
   void allow_bad_args(bool allow = true) { m_allow_bad_args = allow; }
-  
+
   void add(const OptionDesc& desc) { m_opts.push_back(desc); }
   void add(char sname, const std::string& lname,
            const std::string& aname, const std::string& desc,
@@ -85,7 +83,7 @@ public:
   const OptionDesc* lookup(char short_name) const;
   OptionDesc* lookup(const std::string& long_name);
   const OptionDesc* lookup(const std::string& long_name) const;
-  
+
   void parse(int argc, char* argv[]);
 
   size_type size() const { return m_opts_read.size(); }
@@ -100,20 +98,20 @@ public:
   const_reverse_iterator rbegin() const { return m_opts_read.rbegin(); }
   reverse_iterator rend() { return m_opts_read.rend(); }
   const_reverse_iterator rend() const { return m_opts_read.rend(); }
-  
+
   const_iterator cbegin() const { return m_opts_read.cbegin(); }
   const_iterator cend() const { return m_opts_read.cend(); }
 
   const_reverse_iterator crbegin() const { return m_opts_read.crbegin(); }
   const_reverse_iterator crend() const { return m_opts_read.crend(); }
-  
+
   iterator find(char short_name);
   const_iterator find(char short_name) const;
   iterator find(const std::string& long_name);
   const_iterator find(const std::string& long_name) const;
 
   std::string program_cmd() const { return m_prog_cmd; }
-  
+
   arg_seq& program_args() { return m_prog_args; }
   const arg_seq& program_args() const { return m_prog_args; }
 
@@ -130,7 +128,7 @@ private:
 
   bool m_allow_bad_opts = false;
   bool m_allow_bad_args = false;
-  
+
   desc_set m_opts;
   option_seq m_opts_read;
   arg_seq m_prog_args;

@@ -1,6 +1,15 @@
 Option++ Release Notes
 ======================
 
+Option++ 1.02 (TBD)
+-------------------
+
+Changes:
+
+* License: Switched to the Boost Software License to allow use in
+  non-GPL projects.
+
+
 Option++ 1.01 (2017-03-26)
 --------------------------
 

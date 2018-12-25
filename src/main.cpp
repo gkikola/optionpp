@@ -1,23 +1,21 @@
-/* optionpp -- read command-line program options
-   Copyright (C) 2017 Gregory Kikola.
+/* Option++ -- read command-line program options
+   Copyright (C) 2017-2018 Greg Kikola.
 
-   This file is part of option++.
+   This file is part of Option++.
 
-   option++ is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+   Option++ is free software: you can redistribute it and/or modify
+   it under the terms of the Boost Software License version 1.0.
 
-   option++ is distributed in the hope that it will be useful,
+   Option++ is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   Boost Software License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with option++.  If not, see <http://www.gnu.org/licenses/>.
+   You should have received a copy of the Boost Software License
+   along with Option++.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Written by Gregory Kikola <gkikola@gmail.com>. */
+/* Written by Greg Kikola <gkikola@gmail.com>. */
 
 #include <iostream>
 #include "optionpp.hpp"
@@ -48,19 +46,19 @@ int main(int argc, char* argv[])
     print_usage();
     return 0;
   } else if (opt.find("version") != opt.end()) {
-    std::cout << "option++ " << OPTIONPP_VERSION << std::endl;
-    std::cout << "Copyright (C) 2017 Gregory Kikola\n"
-              << "License GPLv3+: GNU GPL version 3 or later\n"
-              << "<http://www.gnu.org/licenses/gpl.html>.\n"
+    std::cout << "Option++ " << OPTIONPP_VERSION << std::endl;
+    std::cout << "Copyright (C) 2017-2018 Greg Kikola\n"
+              << "License BSL-1.0: Boost Software License version 1.0\n"
+              << "<https://www.boost.org/LICENSE_1_0.txt>.\n"
               << "This is free software: you are free to change and "
               << "redistribute it.\n"
               << "There is NO WARRANTY, to the extent permitted by law.\n"
               << std::endl;
-    std::cout << "Written by Gregory Kikola <gkikola@gmail.com>." << std::endl;
+    std::cout << "Written by Greg Kikola <gkikola@gmail.com>." << std::endl;
 
     return 0;
   }
-  
+
   for (const auto& o : opt) {
     if (o.short_name)
       std::cout << "-" << o.short_name;
