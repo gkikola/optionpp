@@ -12,7 +12,8 @@
    Boost Software License for more details.
 
    You should have received a copy of the Boost Software License
-   along with Option++.  If not, see <http://www.gnu.org/licenses/>.
+   along with Option++.  If not, see
+   <https://www.boost.org/LICENSE_1_0.txt>.
  */
 
 /* Written by Greg Kikola <gkikola@gmail.com>. */
