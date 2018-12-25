@@ -6,6 +6,13 @@ options. Option++ provides an easy way to read, validate, and process
 command-line options and it can also print detailed program help
 information.
 
+Option++ supports both long and short option names (e.g., `myprogram
+--version` or `myprogram -abcd file.txt`). Each program option may
+take a mandatory or optional argument (e.g., `myprogram --color=red`
+or `myprogram -C red` or even `myprogram -Cred`). A double dash, `--`,
+may be used by itself to indicate the end of the options, so that
+remaining command-line arguments do not get parsed by Option++.
+
 
 Requirements
 ------------
