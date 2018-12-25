@@ -12,8 +12,8 @@ Requirements
 
 Option++ depends only on the C++ Standard Library. To compile and use
 Option++, your compiler must support C++11 features. Unfortunately,
-Option++ cannot be used (without some modification) in projects that
-require compatibility with older compilers.
+Option++ is not designed for projects that require compatibility with
+older compilers.
 
 
 Setup
