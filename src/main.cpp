@@ -29,7 +29,7 @@ void print_usage()
 
 int main(int argc, char* argv[])
 {
-  OptionParser opt = {
+  optionpp::OptionParser opt = {
     {'?', "help", "", "give detailed usage information", -1},
     {0, "usage", "", "give a short usage message", -1},
     {0, "version", "", "display version information and exit", -1}

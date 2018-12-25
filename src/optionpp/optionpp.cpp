@@ -29,27 +29,31 @@
 #include <vector>
 #include "optionpp.hpp"
 
-void OptionParser::add(char sname, const std::string& lname,
-         const std::string& aname, const std::string& desc,
-         int group)
+void optionpp::OptionParser::add(char sname,
+                                 const std::string& lname,
+                                 const std::string& aname,
+                                 const std::string& desc,
+                                 int group)
 {
   OptionDesc opt = { sname, lname, aname, desc, group };
   m_opts.push_back(opt);
 }
 
-void OptionParser::add(std::initializer_list<OptionDesc> opts)
+void optionpp::OptionParser::add(std::initializer_list<OptionDesc> opts)
 {
   m_opts.insert(m_opts.end(), opts.begin(), opts.end());
 }
 
-OptionDesc* OptionParser::lookup(char short_name)
+optionpp::OptionDesc*
+optionpp::OptionParser::lookup(char short_name)
 {
   //convert to const, use const lookup, then convert back
   return const_cast<OptionDesc*>
     (const_cast<const OptionParser*>(this)->lookup(short_name));
 }
 
-const OptionDesc* OptionParser::lookup(char short_name) const
+const optionpp::OptionDesc*
+optionpp::OptionParser::lookup(char short_name) const
 {
   decltype(m_opts.cbegin()) it
     = std::find_if(m_opts.cbegin(), m_opts.cend(),
@@ -62,14 +66,16 @@ const OptionDesc* OptionParser::lookup(char short_name) const
     return &(*it);
 }
 
-OptionDesc* OptionParser::lookup(const std::string& long_name)
+optionpp::OptionDesc*
+optionpp::OptionParser::lookup(const std::string& long_name)
 {
   //convert to const, use const lookup, then convert back
   return const_cast<OptionDesc*>
     (const_cast<const OptionParser*>(this)->lookup(long_name));
 }
 
-const OptionDesc* OptionParser::lookup(const std::string& long_name) const
+const optionpp::OptionDesc*
+optionpp::OptionParser::lookup(const std::string& long_name) const
 {
   decltype(m_opts.cbegin()) it
     = std::find_if(m_opts.cbegin(), m_opts.cend(),
@@ -82,38 +88,42 @@ const OptionDesc* OptionParser::lookup(const std::string& long_name) const
     return &(*it);
 }
 
-OptionParser::iterator OptionParser::find(char short_name)
+optionpp::OptionParser::iterator
+optionpp::OptionParser::find(char short_name)
 {
   return std::find_if(begin(), end(),
                       [short_name](const Option& o)
                       { return o.short_name == short_name; });
 }
 
-OptionParser::const_iterator OptionParser::find(char short_name) const
+optionpp::OptionParser::const_iterator
+optionpp::OptionParser::find(char short_name) const
 {
   return std::find_if(cbegin(), cend(),
                       [short_name](const Option& o)
                       { return o.short_name == short_name; });
 }
 
-OptionParser::iterator OptionParser::find(const std::string& long_name)
+optionpp::OptionParser::iterator
+optionpp::OptionParser::find(const std::string& long_name)
 {
   return std::find_if(begin(), end(),
                       [&long_name](const Option& o)
                       { return o.long_name == long_name; });
 }
 
-OptionParser::const_iterator
-OptionParser::find(const std::string& long_name) const
+optionpp::OptionParser::const_iterator
+optionpp::OptionParser::find(const std::string& long_name) const
 {
   return std::find_if(cbegin(), cend(),
                       [&long_name](const Option& o)
                       { return o.long_name == long_name; });
 }
 
-std::ostream& OptionParser::print_usage(std::ostream& out,
-                                        unsigned tab_stop,
-                                        unsigned term_width) const
+std::ostream&
+optionpp::OptionParser::print_usage(std::ostream& out,
+                                    unsigned tab_stop,
+                                    unsigned term_width) const
 {
   //sort option descriptions by option name
   desc_set opts = m_opts;
@@ -192,15 +202,17 @@ std::ostream& OptionParser::print_usage(std::ostream& out,
   return out;
 }
 
-void OptionParser::usage(std::string& opt_usage_str,
-                         unsigned tab_stop, unsigned term_width) const
+void
+optionpp::OptionParser::usage(std::string& opt_usage_str,
+                              unsigned tab_stop,
+                              unsigned term_width) const
 {
   std::ostringstream oss;
   print_usage(oss, tab_stop, term_width);
   opt_usage_str = oss.str();
 }
 
-void OptionParser::parse(int argc, char* argv[])
+void optionpp::OptionParser::parse(int argc, char* argv[])
 {
   m_opts_read.clear();
   m_prog_args.clear();
@@ -251,7 +263,8 @@ void OptionParser::parse(int argc, char* argv[])
   }
 }
 
-bool OptionParser::read_short_opts(const std::string& argstr)
+bool
+optionpp::OptionParser::read_short_opts(const std::string& argstr)
 {
   bool expecting_arg = false;
   bool arg_optional = false;
@@ -303,7 +316,8 @@ bool OptionParser::read_short_opts(const std::string& argstr)
   return expecting_arg;
 }
 
-bool OptionParser::read_long_opt(const std::string& argstr)
+bool
+optionpp::OptionParser::read_long_opt(const std::string& argstr)
 {
   std::string long_name, arg;
   std::string::size_type n = 0;
@@ -333,7 +347,7 @@ bool OptionParser::read_long_opt(const std::string& argstr)
   return expecting_arg;
 }
 
-int Option::arg_to_int() const
+int optionpp::Option::arg_to_int() const
 {
   try {
     std::size_t pos = 0;
@@ -350,7 +364,7 @@ int Option::arg_to_int() const
   }
 }
 
-unsigned Option::arg_to_unsigned() const
+unsigned optionpp::Option::arg_to_unsigned() const
 {
   try {
     std::size_t pos = 0;
@@ -371,7 +385,7 @@ unsigned Option::arg_to_unsigned() const
   }
 }
 
-long Option::arg_to_long() const
+long optionpp::Option::arg_to_long() const
 {
   try {
     std::size_t pos = 0;
@@ -388,7 +402,7 @@ long Option::arg_to_long() const
   }
 }
 
-double Option::arg_to_double() const
+double optionpp::Option::arg_to_double() const
 {
   try {
     std::size_t pos = 0;
@@ -405,7 +419,7 @@ double Option::arg_to_double() const
   }
 }
 
-std::string Option::option_name() const
+std::string optionpp::Option::option_name() const
 {
   std::string ret;
   if (!long_name.empty() && short_name)
@@ -416,7 +430,7 @@ std::string Option::option_name() const
     return "-" + std::string(1, short_name);
 }
 
-void Option::validate_arg(std::size_t end_pos) const
+void optionpp::Option::validate_arg(std::size_t end_pos) const
 {
   while (end_pos < argument.length()) {
     if (argument[end_pos] != ' ')
@@ -425,7 +439,8 @@ void Option::validate_arg(std::size_t end_pos) const
   }
 }
 
-bool operator<(const OptionDesc& o1, const OptionDesc& o2)
+bool optionpp::operator<(const OptionDesc& o1,
+                         const OptionDesc& o2)
 {
   //group ordering should go 0, 1, 2, ..., n, -1, -2, -3, ...
   if (o1.group != o2.group) {
@@ -459,22 +474,26 @@ bool operator<(const OptionDesc& o1, const OptionDesc& o2)
   }
 }
 
-bool operator<=(const OptionDesc& o1, const OptionDesc& o2)
+bool optionpp::operator<=(const OptionDesc& o1,
+                          const OptionDesc& o2)
 {
-  return o1 < o2 || o1 == o2;
+  return (o1 < o2) || (o1 == o2);
 }
 
-bool operator>(const OptionDesc& o1, const OptionDesc& o2)
+bool optionpp::operator>(const OptionDesc& o1,
+                         const OptionDesc& o2)
 {
   return !(o1 <= o2);
 }
 
-bool operator>=(const OptionDesc& o1, const OptionDesc& o2)
+bool optionpp::operator>=(const OptionDesc& o1,
+                          const OptionDesc& o2)
 {
   return !(o1 < o2);
 }
 
-bool operator==(const OptionDesc& o1, const OptionDesc& o2)
+bool optionpp::operator==(const OptionDesc& o1,
+                          const OptionDesc& o2)
 {
   return o1.short_name == o2.short_name
     && o1.long_name == o2.long_name
@@ -484,7 +503,8 @@ bool operator==(const OptionDesc& o1, const OptionDesc& o2)
     && o1.arg_optional == o2.arg_optional;
 }
 
-bool operator!=(const OptionDesc& o1, const OptionDesc& o2)
+bool optionpp::operator!=(const OptionDesc& o1,
+                          const OptionDesc& o2)
 {
   return !(o1 == o2);
 }

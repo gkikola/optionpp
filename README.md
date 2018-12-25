@@ -27,7 +27,7 @@ The following is a simple demonstration of how to use **Option++**.
       bool show_line_nums = false;
       int line_width = 16;
 
-      OptionParser opt = {
+      optionpp::OptionParser opt = {
         {'n', "line-numbers", "", "display line numbers"},
         {'w', "line-width", "WIDTH", "set maximum display width "
          "for each line"},

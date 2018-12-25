@@ -23,6 +23,12 @@
 #include "gtest/gtest.h"
 #include "../src/optionpp/optionpp.hpp"
 
+using optionpp::OptionParser;
+using optionpp::Option;
+using optionpp::OptionDesc;
+using optionpp::BadOption;
+using optionpp::BadOptionArgument;
+
 class OptionParserTest : public ::testing::Test {
 public:
   OptionParserTest();

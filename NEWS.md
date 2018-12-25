@@ -7,8 +7,9 @@ Option++ 1.02 (TBD)
 Changes:
 
 * License: Switch to the Boost Software License to allow use in
-  non-GPL projects.
+  non-GPL projects
 * Move optionpp.cpp and optionpp.hpp into src/optionpp/ directory
+* Move all declarations into `optionpp` namespace
 
 Bug fixes:
 
@@ -21,7 +22,7 @@ Option++ 1.01 (2017-03-26)
 Additions:
 
 * Add conversion functions `arg_to_int`, `arg_to_unsigned`, `arg_to_long`,
-  and `arg_to_double` to `Option` class.
+  and `arg_to_double` to `Option` class
 * Add `OptionParser::program_cmd` member function to return the command used
   to invoke the program (argv[0])
 
