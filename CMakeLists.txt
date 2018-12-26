@@ -1,5 +1,8 @@
 cmake_minimum_required (VERSION 2.8)
-project (option++)
+cmake_policy(SET CMP0048 NEW)
+
+project (option++ VERSION 1.02)
+
 set (OPTIONPP_VERSION_MAJOR 1)
 set (OPTIONPP_VERSION_MINOR 02)
 set (
@@ -55,3 +58,10 @@ target_link_libraries(test_option++ gtest_main)
 add_test(NAME test_optionpp COMMAND test_option++)
 
 add_executable(option++ src/main.cpp src/optionpp/optionpp.cpp)
+
+# Set max warning level
+if (MSVC)
+  target_compile_options(option++ PRIVATE /W4)
+else (MSVC)
+  target_compile_options(option++ PRIVATE -Wall -Wextra -pedantic)
+endif (MSVC)

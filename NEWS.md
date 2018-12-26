@@ -1,8 +1,8 @@
 Option++ Release Notes
 ======================
 
-Option++ 1.02 (TBD)
--------------------
+Option++ 1.02 (2018-12-25)
+--------------------------
 
 Changes:
 
@@ -14,6 +14,7 @@ Changes:
 Bug fixes:
 
 * Fix `find` functions potentially returning the wrong iterator
+* Correct some g++ compiler warnings
 
 
 Option++ 1.01 (2017-03-26)

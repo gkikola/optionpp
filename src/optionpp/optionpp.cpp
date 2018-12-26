@@ -222,7 +222,9 @@ void optionpp::OptionParser::parse(int argc, char* argv[])
   bool opts_done = false;
   bool reading_arg = false;
 
-  for (size_t i = 1; (i != argc) && argv[i]; ++i) {
+  for (size_t i = 1;
+       (i != static_cast<size_t>(argc)) && argv[i];
+       ++i) {
     if (reading_arg) {
       reading_arg = false;
 
@@ -267,7 +269,6 @@ bool
 optionpp::OptionParser::read_short_opts(const std::string& argstr)
 {
   bool expecting_arg = false;
-  bool arg_optional = false;
 
   for (std::size_t i = 0; i < argstr.size(); ++i) {
     if (argstr[i] == '=') {
@@ -284,15 +285,18 @@ optionpp::OptionParser::read_short_opts(const std::string& argstr)
       m_last_option_read = std::string("-") + name;
 
       if (OptionDesc* opt_desc = lookup(name)) {
-        Option opt = { opt_desc->short_name, opt_desc->long_name };
+        Option opt =
+          {
+            opt_desc->short_name, opt_desc->long_name,
+            "", nullptr
+          };
         opt.desc = opt_desc;
         m_opts_read.push_back(opt);
         expecting_arg = !opt_desc->argument_name.empty();
-        arg_optional = opt_desc->arg_optional;
       } else if (!m_allow_bad_opts) {
         throw BadOption("unexpected option " + m_last_option_read);
       } else { //allowing bad options
-        Option opt = { argstr[i] };
+        Option opt = { argstr[i], "", "", nullptr };
         m_opts_read.push_back(opt);
       }
     }
