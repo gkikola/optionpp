@@ -190,6 +190,88 @@ TEST_F(OptionParserTest, Options) {
   EXPECT_EQ(lg_parser.program_args().end(), arg);
 }
 
+TEST_F(OptionParserTest, CopyCtor) {
+  OptionParser copy = lg_parser;
+
+  EXPECT_EQ(0, copy.size());
+  EXPECT_EQ(true, copy.empty());
+
+  OptionDesc* od = nullptr;
+  od = copy.lookup('p');
+  EXPECT_EQ("pattern", od->long_name);
+  EXPECT_EQ("PATTERN", od->argument_name);
+
+  od = copy.lookup("line-numbers");
+  EXPECT_EQ('n', od->short_name);
+  EXPECT_EQ("line-numbers", od->long_name);
+  EXPECT_EQ("show line numbers", od->description);
+
+  parse(copy, {"prog", "-BiuqS", "--line-numbers", "clear-screen", "-I"});
+
+  EXPECT_EQ(7, copy.size());
+  EXPECT_EQ(false, copy.empty());
+  auto it = copy.begin();
+  EXPECT_EQ("auto-buffers", (it++)->long_name);
+  EXPECT_EQ("ignore-case", (it++)->long_name);
+  EXPECT_EQ("underline-special", (it++)->long_name);
+  EXPECT_EQ("quiet", (it++)->long_name);
+  EXPECT_EQ('S', (it++)->short_name);
+  EXPECT_EQ("line-numbers", (it++)->long_name);
+  EXPECT_EQ("IGNORE-CASE", (it++)->long_name);
+  EXPECT_EQ(copy.end(), it);
+
+  EXPECT_EQ("prog", copy.program_cmd());
+  auto arg = copy.program_args().begin();
+  EXPECT_EQ(1, copy.program_args().size());
+  EXPECT_EQ("clear-screen", *arg++);
+  EXPECT_EQ(copy.program_args().end(), arg);
+}
+
+TEST_F(OptionParserTest, CopyAssignment) {
+  OptionParser copy = sm_parser;
+
+  EXPECT_EQ(0, copy.size());
+  EXPECT_EQ(true, copy.empty());
+
+  OptionDesc* od = nullptr;
+  od = copy.lookup('p');
+  EXPECT_EQ(nullptr, od);
+
+  od = copy.lookup("sort");
+  EXPECT_EQ('s', od->short_name);
+  EXPECT_EQ("sort", od->long_name);
+  EXPECT_EQ("sort files in list", od->description);
+
+  parse(lg_parser, {"prog", "-BiuqS", "--line-numbers", "clear-screen", "-I"});
+
+  copy = lg_parser;
+
+  od = copy.lookup('p');
+  EXPECT_EQ("pattern", od->long_name);
+  EXPECT_EQ("PATTERN", od->argument_name);
+
+  od = copy.lookup("sort");
+  EXPECT_EQ(nullptr, od);
+
+  EXPECT_EQ(7, copy.size());
+  EXPECT_EQ(false, copy.empty());
+  auto it = copy.begin();
+  EXPECT_EQ("auto-buffers", (it++)->long_name);
+  EXPECT_EQ("ignore-case", (it++)->long_name);
+  EXPECT_EQ("underline-special", (it++)->long_name);
+  EXPECT_EQ("quiet", (it++)->long_name);
+  EXPECT_EQ('S', (it++)->short_name);
+  EXPECT_EQ("line-numbers", (it++)->long_name);
+  EXPECT_EQ("IGNORE-CASE", (it++)->long_name);
+  EXPECT_EQ(copy.end(), it);
+
+  EXPECT_EQ("prog", copy.program_cmd());
+  auto arg = copy.program_args().begin();
+  EXPECT_EQ(1, copy.program_args().size());
+  EXPECT_EQ("clear-screen", *arg++);
+  EXPECT_EQ(copy.program_args().end(), arg);
+}
+
 TEST_F(OptionParserTest, OptionsWithArgsEq) {
   parse(lg_parser, {"prog", "--max-back-scroll=12", "-ep=42",
         "-P=custom prompt", "--buffer=10", "--color=red"});
