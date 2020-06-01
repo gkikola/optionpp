@@ -17,7 +17,7 @@
  */
 /* Written by Greg Kikola <gkikola@gmail.com>. */
 
-// Catch (unit test library) needs this to be in exactly one
+// Catch2 needs this to be in exactly one
 // translation unit
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>

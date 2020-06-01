@@ -10,7 +10,11 @@ set (OPTIONPP_VERSION "${PROJECT_VERSION}")
 
 add_executable (
   run_tests
-  test/main.cpp
+  src/option.cpp
+  src/parser.cpp
+  test/tst_main.cpp
+  test/tst_option.cpp
+  test/tst_parser.cpp
   )
 target_include_directories (
   run_tests
