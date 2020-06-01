@@ -8,7 +8,15 @@ project (
 
 set (OPTIONPP_VERSION "${PROJECT_VERSION}")
 
-include_directories("${PROJECT_BINARY_DIR}")
+add_executable (
+  run_tests
+  test/main.cpp
+  )
+target_include_directories (
+  run_tests
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party"
+  )
+add_test (NAME run_tests COMMAND run_tests)
 
 # Require standard C++11
 set (CMAKE_CXX_STANDARD 11)
@@ -17,7 +25,7 @@ set (CMAKE_CXX_EXTENSIONS OFF)
 
 # Set max warning level
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(option++ PRIVATE -Wall -Wextra -pedantic)
+  target_compile_options(run_tests PRIVATE -Wall -Wextra -pedantic)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  target_compile_options(option++ PRIVATE /W4)
+  target_compile_options(run_tests PRIVATE /W4)
 endif ()
