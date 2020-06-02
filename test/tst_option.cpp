@@ -22,7 +22,7 @@
 
 using namespace optionpp;
 
-TEST_CASE("option objects can be created and manipulated", "[option]") {
+TEST_CASE("option") {
   option empty{};
   option short_name_only{'v'};
   option long_name_only{"version"};
@@ -37,41 +37,41 @@ TEST_CASE("option objects can be created and manipulated", "[option]") {
   option combo;
   combo.long_name("all").short_name('a').description("show all").group("Main");
 
-  SECTION("objects are constructed correctly") {
+  SECTION("constructors") {
     REQUIRE_NOTHROW(option{});
 
     REQUIRE(empty.long_name() == "");
     REQUIRE(empty.short_name() == '\0');
     REQUIRE(empty.description() == "");
     REQUIRE(empty.argument_name() == "");
-    REQUIRE(!empty.is_argument_required());
+    REQUIRE_FALSE(empty.is_argument_required());
     REQUIRE(empty.group() == "");
 
     REQUIRE(short_name_only.long_name() == "");
     REQUIRE(short_name_only.short_name() == 'v');
     REQUIRE(short_name_only.description() == "");
     REQUIRE(short_name_only.argument_name() == "");
-    REQUIRE(!short_name_only.is_argument_required());
+    REQUIRE_FALSE(short_name_only.is_argument_required());
     REQUIRE(short_name_only.group() == "");
 
     REQUIRE(long_name_only.long_name() == "version");
     REQUIRE(long_name_only.short_name() == '\0');
     REQUIRE(long_name_only.description() == "");
     REQUIRE(long_name_only.argument_name() == "");
-    REQUIRE(!long_name_only.is_argument_required());
+    REQUIRE_FALSE(long_name_only.is_argument_required());
     REQUIRE(long_name_only.group() == "");
 
     REQUIRE(long_and_short.long_name() == "version");
     REQUIRE(long_and_short.short_name() == 'v');
-    REQUIRE(!long_and_short.is_argument_required());
+    REQUIRE_FALSE(long_and_short.is_argument_required());
   }
 
-  SECTION("setters work correctly") {
+  SECTION("setters") {
     REQUIRE(with_argument_req.argument_name() == "FILE");
     REQUIRE(with_argument_req.is_argument_required());
 
     REQUIRE(with_argument_opt.argument_name() == "DIRECTORY");
-    REQUIRE(!with_argument_opt.is_argument_required());
+    REQUIRE_FALSE(with_argument_opt.is_argument_required());
 
     REQUIRE(combo.long_name() == "all");
     REQUIRE(combo.short_name() == 'a');

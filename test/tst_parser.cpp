@@ -22,7 +22,7 @@
 
 using namespace optionpp;
 
-TEST_CASE("parser functions correctly", "[parser]") {
+TEST_CASE("parser") {
   parser empty{};
   parser example{};
   example.add_option().long_name("help").short_name('?')
@@ -44,7 +44,7 @@ TEST_CASE("parser functions correctly", "[parser]") {
   example.add_option().long_name("force").short_name('f')
     .description("Force file creation").group("File options");
 
-  SECTION("objects can be constructed") {
+  SECTION("constructors") {
     REQUIRE_NOTHROW(parser{});
   }
 }
