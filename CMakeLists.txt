@@ -27,7 +27,7 @@ if (OPTIONPP_DOCS)
 
     configure_file ("${DOXYGEN_IN}" "${DOXYGEN_OUT}")
 
-    add_custom_target (docs ALL
+    add_custom_target (doc ALL
       COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
