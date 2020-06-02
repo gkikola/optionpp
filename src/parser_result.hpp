@@ -61,21 +61,26 @@ namespace optionpp {
     void push_back(const value_type& item) { m_items.push_back(item); }
     void push_back(value_type&& item) { m_items.push_back(std::move(item)); }
 
+    void clear() noexcept { m_items.clear(); }
+
     size_type size() const noexcept { return m_items.size(); }
     bool empty() const noexcept { return m_items.empty(); }
 
     iterator begin() noexcept { return m_items.begin(); }
-    const_iterator begin() const noexcept { return m_items.begin(); }
+    const_iterator begin() const noexcept { return cbegin(); }
     iterator end() noexcept { return m_items.end(); }
-    const_iterator end() const noexcept { return m_items.end(); }
+    const_iterator end() const noexcept { return cend(); }
 
     const_iterator cbegin() const noexcept { return m_items.cbegin(); }
     const_iterator cend() const noexcept { return m_items.cend(); }
 
     reverse_iterator rbegin() noexcept { return m_items.rbegin(); }
-    const_reverse_iterator rbegin() const noexcept { return m_items.rbegin(); }
+    const_reverse_iterator rbegin() const noexcept { return crbegin(); }
     reverse_iterator rend() noexcept { return m_items.rend(); }
-    const_reverse_iterator rend() const noexcept { return m_items.rend(); }
+    const_reverse_iterator rend() const noexcept { return crend(); }
+
+    const_reverse_iterator crbegin() const noexcept { return m_items.crbegin(); }
+    const_reverse_iterator crend() const noexcept { return m_items.crend(); }
 
   private:
     container_type m_items;

@@ -28,8 +28,8 @@ TEST_CASE("parser_result") {
 
   parser_result::item version { "--version", true, "version", '\0', "" };
   parser_result::item help { "-?", true, "help", '?', "" };
-  parser_result::item file { "-f myfile.txt", true, "file", 'f', "myfile.txt" };
   parser_result::item non_option { "command", false, "", '\0', "" };
+  parser_result::item file { "-f myfile.txt", true, "file", 'f', "myfile.txt" };
 
   SECTION("constructors, push_back, size, and empty") {
     result = parser_result{};
@@ -66,5 +66,74 @@ TEST_CASE("parser_result") {
     result3.push_back(std::move(non_opt2));
     REQUIRE_FALSE(result3.empty());
     REQUIRE(result3.size() == 4);
+  }
+
+  SECTION("iteration") {
+    result = parser_result{version, help, non_option, file};
+
+    // Plain iterator
+    auto it = result.begin();
+    REQUIRE(it->original_text == "--version");
+    ++it;
+    REQUIRE(it->original_text == "-?");
+    ++it;
+    REQUIRE(it->original_text == "command");
+    ++it;
+    REQUIRE(it->original_text == "-f myfile.txt");
+    ++it;
+    REQUIRE(it == result.end());
+
+    // const_iterator
+    const parser_result cresult = result;
+    auto cit = cresult.begin();
+    REQUIRE(cit->original_text == "--version");
+    ++cit;
+    REQUIRE(cit->original_text == "-?");
+    ++cit;
+    REQUIRE(cit->original_text == "command");
+    ++cit;
+    REQUIRE(cit->original_text == "-f myfile.txt");
+    ++cit;
+    REQUIRE(cit == cresult.end());
+
+    // reverse_iterator
+    auto rit = result.rbegin();
+    REQUIRE(rit->original_text == "-f myfile.txt");
+    ++rit;
+    REQUIRE(rit->original_text == "command");
+    ++rit;
+    REQUIRE(rit->original_text == "-?");
+    ++rit;
+    REQUIRE(rit->original_text == "--version");
+    ++rit;
+    REQUIRE(rit == result.rend());
+
+    // const_reverse_iterator
+    auto crit = cresult.rbegin();
+    REQUIRE(crit->original_text == "-f myfile.txt");
+    ++crit;
+    REQUIRE(crit->original_text == "command");
+    ++crit;
+    REQUIRE(crit->original_text == "-?");
+    ++crit;
+    REQUIRE(crit->original_text == "--version");
+    ++crit;
+    REQUIRE(crit == cresult.rend());
+  }
+
+  SECTION("clear") {
+    result = parser_result{help, version, non_option, file};
+
+    REQUIRE(result.size() == 4);
+    REQUIRE_FALSE(result.empty());
+
+    result.clear();
+    REQUIRE(result.size() == 0);
+    REQUIRE(result.empty());
+    REQUIRE(result.begin() == result.end());
+
+    result.push_back(help);
+    REQUIRE(result.size() == 1);
+    REQUIRE_FALSE(result.empty());
   }
 }
