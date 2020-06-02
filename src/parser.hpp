@@ -19,7 +19,7 @@
 
 /**
  * @file
- * @brief Header file for `parser` class.
+ * @brief Header file for `basic_parser` class.
  */
 
 #ifndef OPTIONPP_PARSER_HPP
