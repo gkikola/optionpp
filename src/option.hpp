@@ -17,6 +17,11 @@
  */
 /* Written by Greg Kikola <gkikola@gmail.com>. */
 
+/**
+ * @file
+ * @brief Header file for `basic_option` class.
+ */
+
 #ifndef OPTIONPP_OPTION_HPP
 #define OPTIONPP_OPTION_HPP
 
@@ -24,32 +29,122 @@
 
 namespace optionpp {
 
-  enum class argument_type { optional, required };
+  /**
+   * @brief Flags for option arguments.
+   */
+  enum class argument_type { optional, //< Argument is optional
+                             required //< Argument is mandatory
+  };
 
+  /**
+   * @brief Describes a valid program command-line option.
+   *
+   * A `basic_option` can hold information about a program option that
+   * the user can pass through the command line. Among this information,
+   * the most important are the long name and the short name.
+   *
+   * If an option has a long name, then the user can specify that option
+   * using a double-hyphen. For example, `--version` would specify an option
+   * with a long name of `version`.
+   *
+   * If an option has a short name, then the user can specify the
+   * option with a single hyphen. For example `-v` would specify an
+   * option with a short name of `v`. Short names are always a single
+   * character, and can be combined in a single command-line
+   * argument. For example, the command-line argument `-xvf` specifies
+   * three different options: one with a short name of `x`, another
+   * with short name `v`, and another with `f`.
+   *
+   * Program options can accept arguments. These can be mandatory or
+   * optional. The argument name (set in the `name` parameter of the
+   * `argument` method) is used in the help text and usage string.
+   *
+   * A description and a group name can be set as well. These are used
+   * in generating the program help text.
+   *
+   * Note that many of the methods in the class return a reference to
+   * the current instance. This allows for convenient chaining. For
+   * example, to create an option with a long name of `help`, a short
+   * name of `?`, and an appropriate description, one could write:
+   * ```
+   * basic_option help_opt{};
+   * help_opt.long_name("help").short_name('?').description("Show help text.");
+   * ```
+   */
   template <typename StringType>
   class basic_option {
   public:
-    using string_type = StringType;
-    using char_type = typename StringType::value_type;
-    using traits_type = typename StringType::traits_type;
+    using string_type = StringType; //< Type of string used for input/output.
+    using char_type = typename StringType::value_type; //< Type of character used in `string_type`.
+    using traits_type = typename StringType::traits_type; //< Type specifying character traits used in `string_type`.
 
+    /**
+     * @brief Default constructor.
+     *
+     * Constructs an option without initial information.
+     */
     basic_option() noexcept(noexcept(string_type())) {}
+    /**
+     * @brief Construct an option with a given short name.
+     *
+     * Other fields are left empty.
+     *
+     * @param short_name The short name for the option.
+     */
     basic_option(char_type short_name) : m_short_name{short_name} {}
+    /**
+     * @brief Construct an option with given names.
+     *
+     * The argument, description, and group fields are left empty.
+     *
+     * @param long_name The long name for the option.
+     * @param short_name The short name for the option.
+     */
     basic_option(string_type long_name, char_type short_name = char_type{})
       : m_long_name{long_name}, m_short_name{short_name} {}
 
+    /**
+     * @brief Set the option's long name.
+     * @param name The long name to use.
+     * @return Reference to the current instance (for chaining calls).
+     */
     basic_option& long_name(const string_type& name) {
       m_long_name = name;
       return *this;
     }
+    /**
+     * @brief Retrieve the option's long name.
+     * @return The long name for the option.
+     */
     const string_type& long_name() const noexcept { return m_long_name; }
 
+    /**
+     * @brief Set the option's short name.
+     * @param name The character to use as the short name.
+     * @return Reference to the current instance (for chaining calls).
+     */
     basic_option& short_name(char_type name) noexcept {
       m_short_name = name;
       return *this;
     }
+    /**
+     * @brief Retrieve the option's short name.
+     * @return The single-character short name for the option.
+     */
     char_type short_name() const noexcept { return m_short_name; }
 
+    /**
+     * @brief Set the option's argument information.
+     *
+     * The name is used in the program help text and usage string. The
+     * type specifies whether the argument is optional
+     * (`argument_type::optional`) or mandatory
+     * (`argument_type::mandatory`).
+     *
+     * @param name Name of the argument (usually all uppercase).
+     * @param type Whether the argument is optional or mandatory.
+     * @return Reference to the current instance (for chaining calls).
+     */
     inline basic_option& argument(const string_type& name,
                                   argument_type type = argument_type::optional);
     const string_type& argument_name() const noexcept { return m_arg_name; }
