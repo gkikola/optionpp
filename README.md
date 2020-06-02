@@ -14,6 +14,14 @@ may be used by itself to indicate the end of the options, so that
 remaining command-line arguments do not get parsed by Option++.
 
 
+Development Status
+------------------
+
+Option++ is currently being redesigned and will be (mostly)
+rewritten. You can find the unfinished source files for version 2.0 in
+the 'v2' branch.
+
+
 Requirements
 ------------
 
