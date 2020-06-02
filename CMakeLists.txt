@@ -42,10 +42,12 @@ add_executable (
   src/option.cpp
   src/parser.cpp
   src/parser_result.cpp
+  src/utility.cpp
   test/tst_main.cpp
   test/tst_option.cpp
   test/tst_parser.cpp
   test/tst_parser_result.cpp
+  test/tst_utility.cpp
   )
 target_include_directories (
   run_tests
