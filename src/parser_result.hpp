@@ -302,6 +302,7 @@ namespace optionpp {
      * @brief Range-checked subscript.
      * @param index The index of the data `item` to return.
      * @return The parsed data `item` corresponding to the `index`.
+     * @exception std::out_of_range Thrown if `index >= size()`.
      */
     value_type& at(size_type index) {
       if (index >= size())
