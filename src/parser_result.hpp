@@ -21,6 +21,7 @@
 #define OPTIONPP_PARSER_RESULT_HPP
 
 #include <cstddef>
+#include <initializer_list>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -46,11 +47,19 @@ namespace optionpp {
     using const_reverse_iterator = typename container_type::const_reverse_iterator;
 
     struct item {
-      string_type original_text{};
-      bool is_option{};
-      string_type long_name{};
-      char_type short_name{};
-      string_type argument{};
+      explicit item(const string_type& original_text,
+                    bool is_option = false,
+                    const string_type& long_name = string_type{},
+                    char_type short_name = '\0',
+                    const string_type& argument = string_type{})
+        : original_text{original_text}, is_option{is_option},
+          long_name{long_name}, short_name{short_name}, argument{argument} {}
+
+      string_type original_text;
+      bool is_option;
+      string_type long_name;
+      char_type short_name;
+      string_type argument;
     };
 
     basic_parser_result() noexcept {}

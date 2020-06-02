@@ -8,6 +8,11 @@ project (
 
 set (OPTIONPP_VERSION "${PROJECT_VERSION}")
 
+# Require standard C++11
+set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
+set (CMAKE_CXX_EXTENSIONS OFF)
+
 add_executable (
   run_tests
   src/option.cpp
@@ -23,11 +28,6 @@ target_include_directories (
   PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party"
   )
 add_test (NAME run_tests COMMAND run_tests)
-
-# Require standard C++11
-set (CMAKE_CXX_STANDARD 11)
-set (CMAKE_CXX_STANDARD_REQUIRED ON)
-set (CMAKE_CXX_EXTENSIONS OFF)
 
 # Set max warning level
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
