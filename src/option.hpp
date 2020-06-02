@@ -164,7 +164,7 @@ namespace optionpp {
      * @return Reference to the current instance (for chaining calls).
      */
     inline basic_option& argument(const string_type& name,
-                                  argument_type type = argument_type::optional);
+                                  argument_type type = argument_type::required);
     /**
      * @brief Retrieve the option's argument name.
      *

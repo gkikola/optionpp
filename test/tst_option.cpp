@@ -32,7 +32,7 @@ TEST_CASE("option") {
   with_argument_req.argument("FILE", argument_type::required);
 
   option with_argument_opt{"dir", 'd'};
-  with_argument_opt.argument("DIRECTORY");
+  with_argument_opt.argument("DIRECTORY", argument_type::optional);
 
   option combo;
   combo.long_name("all").short_name('a').description("show all").group("Main");
