@@ -21,6 +21,7 @@
 #define OPTIONPP_PARSER_RESULT_HPP
 
 #include <cstddef>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -81,6 +82,22 @@ namespace optionpp {
 
     const_reverse_iterator crbegin() const noexcept { return m_items.crbegin(); }
     const_reverse_iterator crend() const noexcept { return m_items.crend(); }
+
+    value_type& at(size_type index) {
+      if (index >= size())
+        throw std::out_of_range("out of bounds optionpp::parser_result access");
+      return (*this)[index];
+    }
+    const value_type& at(size_type index) const {
+      if (index >= size())
+        throw std::out_of_range("out of bounds optionpp::parser_result access");
+      return (*this)[index];
+    }
+
+    value_type& operator[](size_type index) noexcept { return m_items[index]; }
+    const value_type& operator[](size_type index) const noexcept {
+      return m_items[index];
+    }
 
   private:
     container_type m_items;

@@ -17,6 +17,7 @@
  */
 /* Written by Greg Kikola <gkikola@gmail.com>. */
 
+#include <stdexcept>
 #include <vector>
 #include <catch2/catch.hpp>
 #include "../src/parser_result.hpp"
@@ -135,5 +136,33 @@ TEST_CASE("parser_result") {
     result.push_back(help);
     REQUIRE(result.size() == 1);
     REQUIRE_FALSE(result.empty());
+  }
+
+  SECTION("operator[] and at") {
+    result = parser_result{version, help, non_option, file};
+
+    REQUIRE(result[0].original_text == "--version");
+    REQUIRE(result[1].original_text == "-?");
+    REQUIRE(result[2].original_text == "command");
+    REQUIRE(result[3].original_text == "-f myfile.txt");
+
+    REQUIRE(result.at(0).original_text == "--version");
+    REQUIRE(result.at(1).original_text == "-?");
+    REQUIRE(result.at(2).original_text == "command");
+    REQUIRE(result.at(3).original_text == "-f myfile.txt");
+
+    REQUIRE_THROWS_AS(result.at(4), std::out_of_range);
+    REQUIRE_THROWS_AS(result.at(5), std::out_of_range);
+    REQUIRE_THROWS_AS(result.at(10), std::out_of_range);
+
+    const parser_result cresult = result;
+    REQUIRE(cresult.at(0).original_text == "--version");
+    REQUIRE(cresult.at(1).original_text == "-?");
+    REQUIRE(cresult.at(2).original_text == "command");
+    REQUIRE(cresult.at(3).original_text == "-f myfile.txt");
+
+    REQUIRE_THROWS_AS(cresult.at(4), std::out_of_range);
+    REQUIRE_THROWS_AS(cresult.at(5), std::out_of_range);
+    REQUIRE_THROWS_AS(cresult.at(10), std::out_of_range);
   }
 }
