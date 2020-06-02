@@ -65,10 +65,22 @@ namespace optionpp {
   template <typename StringType>
   class basic_parser {
   public:
-    using string_type = StringType; //< Type of string used for input/output.
-    using char_type = typename StringType::value_type; //< Type of character used in `string_type`.
-    using traits_type = typename StringType::traits_type; //< Type specifying character traits used in `string_type`.
-    using option_type = basic_option<StringType>; //< Type that stores option descriptions.
+    /**
+     * @brief Type of string used for input/output.
+     */
+    using string_type = StringType;
+    /**
+     * @brief Type of character used in `string_type`.
+     */
+    using char_type = typename StringType::value_type;
+    /**
+     * @brief Type specifying character traits used in `string_type`.
+     */
+    using traits_type = typename StringType::traits_type;
+    /**
+     * @brief Type that stores option descriptions.
+     */
+    using option_type = basic_option<StringType>;
 
     /**
      * @brief Default constructor.
@@ -137,7 +149,10 @@ namespace optionpp {
     opt_container m_options; //< The container of `basic_option` objects.
   };
 
-  using parser = basic_parser<std::string>; //< Type alias for typical usage of `basic_parser`.
+  /**
+   * @brief Type alias for typical usage of `basic_parser`.
+   */
+  using parser = basic_parser<std::string>;
 
 } // End namespace
 
