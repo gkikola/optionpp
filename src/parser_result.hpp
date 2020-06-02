@@ -94,8 +94,8 @@ namespace optionpp {
       return (*this)[index];
     }
 
-    value_type& operator[](size_type index) noexcept { return m_items[index]; }
-    const value_type& operator[](size_type index) const noexcept {
+    value_type& operator[](size_type index) { return m_items[index]; }
+    const value_type& operator[](size_type index) const {
       return m_items[index];
     }
 
