@@ -211,16 +211,23 @@ namespace optionpp {
      *
      * For full details, see the description of the
      * `parse(InputIt, InputIt, bool)` overload. This version of the
-     * function will split the string over whitespace to tokenize the
-     * input. Quotation marks (single or double) can be used within
-     * the string to specify arguments containing spaces.
+     * function will split the string over a set of delimiters to
+     * tokenize the input. The specified quotation symbols can be used
+     * within the string to specify arguments containing delimiters.
+     * `escape_char` can be used to start an escape sequence within an
+     * argument.
      *
      * @param cmd_line The command-line arguments to parse.
      * @param ignore_first If true, the first argument is ignored.
+     * @param delims Delimiters to use for splitting.
+     * @param quotes Quote characters to use for quoting arguments.
+     * @param escape_char Character that starts escape sequences.
      * @return A `basic_parser_result` containing the parsed data.
      * @see basic_parser_result
      */
-    result_type parse(const string_type& cmd_line, bool ignore_first = false);
+    result_type parse(const string_type& cmd_line, bool ignore_first,
+                      const string_type& delims, const string_type& quotes,
+                      char_type escape_char);
 
   private:
     /**
