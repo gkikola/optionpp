@@ -306,7 +306,7 @@ namespace optionpp {
      */
     value_type& at(size_type index) {
       if (index >= size())
-        throw std::out_of_range("out of bounds optionpp::parser_result access");
+        throw std::out_of_range("[optionpp] out of bounds parser_result access");
       return (*this)[index];
     }
     /**
@@ -314,7 +314,7 @@ namespace optionpp {
      */
     const value_type& at(size_type index) const {
       if (index >= size())
-        throw std::out_of_range("out of bounds optionpp::parser_result access");
+        throw std::out_of_range("[optionpp] out of bounds parser_result access");
       return (*this)[index];
     }
 
