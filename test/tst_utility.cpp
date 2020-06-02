@@ -153,4 +153,16 @@ TEST_CASE("utility::split") {
     REQUIRE(output.size() == 1);
     REQUIRE(output[0] == "abcdefgh");
   }
+
+  SECTION("wide strings") {
+    vector<std::basic_string<wchar_t>> loutput;
+    split<std::basic_string<wchar_t>>(L"Same as\\ it ever was",
+                                      back_inserter(loutput),
+                                      L" ", L"\"\'", L'\\');
+    REQUIRE(loutput.size() == 4);
+    REQUIRE(loutput[0] == L"Same");
+    REQUIRE(loutput[1] == L"as it");
+    REQUIRE(loutput[2] == L"ever");
+    REQUIRE(loutput[3] == L"was");
+  }
 }
