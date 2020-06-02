@@ -70,13 +70,31 @@ namespace optionpp {
    * basic_option help_opt{};
    * help_opt.long_name("help").short_name('?').description("Show help text.");
    * ```
+   *
+   * @tparam StringType
+   * @parblock
+   * @brief The type of string used for storing option information.
+   *
+   * Usually this is `std::string` (i.e. `std::basic_string<char>`),
+   * which is used in the `option` type alias, but other string
+   * variants may be used instead.
+   * @endparblock
    */
   template <typename StringType>
   class basic_option {
   public:
-    using string_type = StringType; //< Type of string used for input/output.
-    using char_type = typename StringType::value_type; //< Type of character used in `string_type`.
-    using traits_type = typename StringType::traits_type; //< Type specifying character traits used in `string_type`.
+    /**
+     * @brief Type of string used for input/output.
+     */
+    using string_type = StringType;
+    /**
+     * @brief Type of character used in `string_type`.
+     */
+    using char_type = typename StringType::value_type;
+    /**
+     * @brief Type specifying character traits used in `string_type`.
+     */
+    using traits_type = typename StringType::traits_type;
 
     /**
      * @brief Default constructor.
@@ -147,28 +165,68 @@ namespace optionpp {
      */
     inline basic_option& argument(const string_type& name,
                                   argument_type type = argument_type::optional);
+    /**
+     * @brief Retrieve the option's argument name.
+     *
+     * This is the name that is used in the help text.
+     *
+     * @return The name of the argument.
+     */
     const string_type& argument_name() const noexcept { return m_arg_name; }
+    /**
+     * @brief Return true if the argument is mandatory.
+     * @return True if the argument is required and false if it is optional.
+     */
     bool is_argument_required() const noexcept { return m_arg_required; }
 
+    /**
+     * @brief Set the option description.
+     *
+     * This description is used in generating the program help text.
+     *
+     * @param desc Description of the option.
+     * @return Reference to the current instance (for chaining calls).
+     */
     basic_option& description(const string_type& desc) {
       m_desc = desc;
       return *this;
     }
+    /**
+     * @brief Retrieve the option description.
+     * @return Option description, used in generating program help text.
+     */
     const string_type& description() const noexcept { return m_desc; }
 
+    /**
+     * @brief Set the option group.
+     *
+     * Options that are in the same group will be grouped together in
+     * the program's help text.
+     *
+     * @param group_name Name of the group to which the option belongs.
+     * @return Reference to the current instance (for chaining calls).
+     */
     basic_option& group(const string_type& group_name) {
       m_group_name = group_name;
       return *this;
     }
+    /**
+     * @brief Retrieve the option group.
+     *
+     * Options that are in the same group will be grouped together in
+     * the program help text.
+     *
+     * @return Name of the group to which the option belongs, if any.
+     */
     const string_type& group() const noexcept { return m_group_name; }
 
   private:
-    string_type m_long_name;
-    char_type m_short_name{};
-    string_type m_arg_name;
-    bool m_arg_required{};
-    string_type m_desc;
-    string_type m_group_name;
+    string_type m_long_name; //< The long name
+    char_type m_short_name{}; //< The short name
+    string_type m_arg_name; //< The name of the argument (for help text)
+    bool m_arg_required{}; //< True if argument is mandatory, false if optional
+    string_type m_desc; //< Description of option (for help text)
+    string_type m_group_name; //< Name of option group
   };
 
 
@@ -183,6 +241,9 @@ namespace optionpp {
     return *this;
   }
 
+  /**
+   * @brief Type alias for typical usage of `basic_option`.
+   */
   using option = basic_option<std::string>;
 
 } // End namespace
