@@ -56,9 +56,9 @@ namespace optionpp {
      */
     template <typename StringType, typename OutputIt>
     void split(const StringType& str, OutputIt dest,
-               const StringType& delims,
-               const StringType& quotes,
-               typename StringType::value_type escape_char);
+               const StringType& delims = " \t\n\r",
+               const StringType& quotes = "\"\'",
+               typename StringType::value_type escape_char = '\\');
 
     /**
      * @brief Split a string over delimiters into nonempty substrings.
