@@ -6,12 +6,36 @@ project (
   DESCRIPTION "C++ library for reading command-line options"
   )
 
+set (OPTIONPP_NAME "Option++")
 set (OPTIONPP_VERSION "${PROJECT_VERSION}")
+set (OPTIONPP_DESCRIPTION "${PROJECT_DESCRIPTION}")
+
+option (OPTIONPP_DOCS "Generate documentation" ON)
 
 # Require standard C++11
 set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 set (CMAKE_CXX_EXTENSIONS OFF)
+
+# See if Doxygen is available
+if (OPTIONPP_DOCS)
+  find_package (Doxygen)
+  if (DOXYGEN_FOUND)
+    # Generate Doxygen config file
+    set (DOXYGEN_IN "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in")
+    set (DOXYGEN_OUT "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile")
+
+    configure_file ("${DOXYGEN_IN}" "${DOXYGEN_OUT}")
+
+    add_custom_target (docs ALL
+      COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      VERBATIM
+      )
+  else () # No Doxygen
+    message ("Doxygen not found, documentation will not be generated")
+  endif ()
+endif ()
 
 add_executable (
   run_tests
