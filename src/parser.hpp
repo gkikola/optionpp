@@ -29,6 +29,7 @@
 #include <string>
 #include <vector>
 #include "option.hpp"
+#include "parser_result.hpp"
 
 /**
  * @brief Library namespace.
@@ -81,6 +82,10 @@ namespace optionpp {
      * @brief Type that stores option descriptions.
      */
     using option_type = basic_option<StringType>;
+    /**
+     * @brief Type that stores the parsed result data.
+     */
+    using result_type = basic_parser_result<StringType>;
 
     /**
      * @brief Default constructor.
@@ -143,8 +148,85 @@ namespace optionpp {
       return m_options.back();
     }
 
+    /**
+     * @brief Parse command-line arguments.
+     *
+     * Accepts the usual arguments that are normally supplied to
+     * `main`, scans them for program options (these will be arguments
+     * starting with a hyphen or double-hyphen) and stores the options
+     * together with the non-option arguments in a
+     * `basic_parser_result` object.
+     *
+     * Each option can have a short name consisting of a single
+     * character (following a hyphen), or a long name (following a
+     * double-hyphen), or both. For example, an option called
+     * `verbose` with a short name of `v` could be specified either as
+     * `--verbose` or as `-v`.
+     *
+     * Multiple short names can be specified in a single argument. For
+     * example `-abc` would specify three options with respective
+     * short names `a`, `b`, and `c`.
+     *
+     * Some options may accept arguments. Arguments can be supplied in
+     * several ways: for long names, the usual form is
+     * `--long-name=argument` and for short names `-X argument`. The
+     * parser will also accept `--long-name argument`, `-X=argument`,
+     * and `-Xargument`.
+     *
+     * A double-hyphen (`--`) by itself can be used to indicate the
+     * end of program options. Any remaining command line arguments
+     * are then interpreted as non-option arguments. A single hyphen
+     * (`-`) by itself is considered a non-option argument (this is
+     * often used as a way to specify standard input instead of a
+     * filename).
+     *
+     * @param first An iterator pointing to the first argument.
+     * @param last An iterator pointing to one past the last argument.
+     * @param ignore_first If true, the first argument (typically the
+     *                     program filename) is ignored.
+     * @return A `basic_parser_result` containing the parsed data.
+     * @see basic_parser_result
+     */
+    template <typename InputIt>
+    result_type parse(InputIt first, InputIt last, bool ignore_first = true);
+
+    /**
+     * @brief Parse command-line arguments.
+     *
+     * Accepts the usual arguments that are normally supplied to
+     * `main`. For further details, see the description of the
+     * `parse(InputIt, InputIt, bool)` overload.
+     *
+     * @param argc The number of arguments given on the command line.
+     * @param argv All command-line arguments.
+     * @param ignore_first If true, the first argument (typically the
+     *                     program filename) is ignored.
+     * @return A `basic_parser_result` containing the parsed data.
+     * @see basic_parser_result
+     */
+    result_type parse(int argc, const char_type* argv[], bool ignore_first = true);
+
+    /**
+     * @brief Parse command-line arguments from a string.
+     *
+     * For full details, see the description of the
+     * `parse(InputIt, InputIt, bool)` overload. This version of the
+     * function will split the string over whitespace to tokenize the
+     * input. Quotation marks (single or double) can be used within
+     * the string to specify arguments containing spaces.
+     *
+     * @param cmd_line The command-line arguments to parse.
+     * @param ignore_first If true, the first argument is ignored.
+     * @return A `basic_parser_result` containing the parsed data.
+     * @see basic_parser_result
+     */
+    result_type parse(const string_type& cmd_line, bool ignore_first = false);
+
   private:
-    using opt_container = std::vector<option_type>; //< Type used to hold `basic_option` objects.
+    /**
+     * @brief Type used to hold `basic_option` objects.
+     */
+    using opt_container = std::vector<option_type>;
 
     opt_container m_options; //< The container of `basic_option` objects.
   };
