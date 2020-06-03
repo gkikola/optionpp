@@ -283,11 +283,42 @@ TEST_CASE("parser") {
     REQUIRE(result[7].short_name == '\0');
   }
 
-  SECTION("custom prefixes") {
-    example.set_prefixes(":::", "<>", "+++", "->");
-    auto result = example.parse(":::help <>nf :::output->file +++ <>a :::version");
+  SECTION("custom strings") {
+    struct mystrings : public string_traits<std::string> {
+      using string_type = std::string;
+      using char_type = char;
+      static string_type whitespace() { return "."; }
+      static string_type quotes() { return "^"; }
+      static char_type escape_char() { return '\\'; }
+      static string_type long_option_prefix() { return ":::"; }
+      static string_type short_option_prefix() { return "<>"; }
+      static string_type end_of_options() { return "+++"; }
+      static string_type assignment() { return "->"; }
+    };
 
-    REQUIRE(result.size() == 6);
+    basic_parser<std::string, mystrings> parser;
+    parser.add_option().long_name("help").short_name('?')
+      .description("Show help information");
+    parser.add_option().long_name("version").description("Get version info");
+    parser.add_option().long_name("verbose").short_name('v')
+      .description("Show verbose output");
+    parser.add_option().long_name("output").short_name('o')
+      .argument("FILE", argument_type::required)
+      .description("Write output to FILE").group("File options");
+    parser.add_option().short_name('n').description("Show line numbers")
+      .group("File options");
+    parser.add_option().long_name("all").short_name('a')
+      .description("Show all lines").group("Display options");
+    parser.add_option().long_name("indent")
+      .argument("WIDTH", argument_type::optional)
+      .description("Indent each line by WIDTH spaces (default: 2)")
+      .group("Display options");
+    parser.add_option().long_name("force").short_name('f')
+      .description("Force file creation").group("File options");
+
+    auto result = parser.parse(":::help.<>nf.:::output->file.+++.<>a.:::version.^hello.world^");
+
+    REQUIRE(result.size() == 7);
     REQUIRE(result[0].original_text == ":::help");
     REQUIRE(result[0].is_option);
     REQUIRE(result[0].long_name == "help");
@@ -323,17 +354,28 @@ TEST_CASE("parser") {
     REQUIRE(result[5].long_name.empty());
     REQUIRE(result[5].short_name == '\0');
     REQUIRE(result[5].argument.empty());
+
+    REQUIRE(result[6].original_text == "hello.world");
+    REQUIRE_FALSE(result[6].is_option);
   }
 
   SECTION("wide strings") {
-    basic_parser<std::basic_string<wchar_t>> lexample;
-    lexample.add_option().long_name("help").short_name('?');
-    lexample.add_option().long_name("width").short_name('w')
-      .argument("WIDTH", argument_type::optional);
+    using wstring = std::basic_string<wchar_t>;
+    basic_parser<wstring, string_traits<wstring>> lexample;
+    lexample.add_option().long_name(L"help").short_name(L'?');
+    lexample.add_option().long_name(L"width").short_name(L'w')
+      .argument(L"WIDTH", argument_type::optional);
 
-    auto result = lexample.parse("--help -?w 32 command");
+    auto result = lexample.parse(L"--help -?w 32 command");
     REQUIRE(result.size() == 4);
     REQUIRE(result[0].original_text == L"--help");
     REQUIRE(result[0].is_option);
+    REQUIRE(result[1].original_text == L"-?");
+    REQUIRE(result[1].is_option);
+    REQUIRE(result[2].original_text == L"-w 32");
+    REQUIRE(result[2].is_option);
+    REQUIRE(result[2].argument == L"32");
+    REQUIRE(result[3].original_text == L"command");
+    REQUIRE_FALSE(result[3].is_option);
   }
 }

@@ -41,6 +41,143 @@
 namespace optionpp {
 
   /**
+   * @brief Provides string information and values to be used with
+   * `basic_parser`.
+   *
+   * By providing a specialization of this template and using it as
+   * the `StringTraits` template parameter on `basic_option`, one may
+   * change the strings that are used by the parser. For example, this
+   * allows the ability to change the option prefixes, the whitespace
+   * delimiters, and so on.
+   *
+   * Specializations for `std::string` and
+   * `std::basic_string<wchar_t>` are provided. To provide your own
+   * specializations, define the following static member functions: a
+   * `whitespace` function that returns a string containing whitespace
+   * delimiters, a `quotes` function that returns a string containing
+   * quote characters, an `escape_char` function that returns a
+   * character to be used for starting an escape sequence, a
+   * `long_option_prefix` function that returns the prefix to be used
+   * for long option names, a `short_option_prefix` function for short
+   * option names, an `end_of_options` function that gives the string
+   * that specifies that remaining arguments are non-options, and an
+   * `assignment` function that returns a string that is used for
+   * specifying an option argument.
+   *
+   * See the default specializations for examples.
+   */
+  template <typename StringType>
+  struct string_traits {};
+
+  /**
+   * @brief Default specialization of `string_traits` for
+   * `std::string`.
+   */
+  template<>
+  struct string_traits<std::string> {
+    /**
+     * @brief Type of string used by the static member functions.
+     */
+    using string_type = std::string;
+    /**
+     * @brief Type of character used by `string_type`.
+     */
+    using char_type = char;
+    /**
+     * @brief Return whitespace delimiters.
+     * @return String containing characters used to separate
+     *         command line arguments.
+     */
+    static string_type whitespace() noexcept { return " \t\n\r"; }
+    /**
+     * @brief Return quote characters.
+     * @return String containing characters used to quote
+     *         command line arguments.
+     */
+    static string_type quotes() noexcept { return "\"'"; }
+    /**
+     * @brief Return escape character.
+     * @return Character that begins an escape sequence.
+     */
+    static char_type escape_char() noexcept { return '\\'; }
+    /**
+     * @brief Return prefix for long option names.
+     * @return Prefix used for long option names.
+     */
+    static string_type long_option_prefix() noexcept { return "--"; }
+    /**
+     * @brief Return prefix for short option names.
+     * @return Prefix used for short option names.
+     */
+    static string_type short_option_prefix() noexcept { return "-"; }
+    /**
+     * @brief Return end-of-options marker.
+     * @return String which specifies that all remaining command
+     *         line arguments are non-option arguments.
+     */
+    static string_type end_of_options() noexcept { return "--"; }
+    /**
+     * @brief Return assignment symbol.
+     * @return String used to assign an argument to an option.
+     */
+    static string_type assignment() noexcept { return "="; }
+  };
+
+  /**
+   * @brief Default specialization of `string_traits` for
+   * `std::basic_string<wchar_t>`.
+   */
+  template<>
+  struct string_traits<std::basic_string<wchar_t>> {
+    /**
+     * @brief Type of string used by the static member functions.
+     */
+    using string_type = std::basic_string<wchar_t>;
+    /**
+     * @brief Type of character used by `string_type`.
+     */
+    using char_type = wchar_t;
+    /**
+     * @brief Return whitespace delimiters.
+     * @return String containing characters used to separate
+     *         command line arguments.
+     */
+    static string_type whitespace() noexcept { return L" \t\n\r"; }
+    /**
+     * @brief Return quote characters.
+     * @return String containing characters used to quote
+     *         command line arguments.
+     */
+    static string_type quotes() noexcept { return L"\"'"; }
+    /**
+     * @brief Return escape character.
+     * @return Character that begins an escape sequence.
+     */
+    static char_type escape_char() noexcept { return L'\\'; }
+    /**
+     * @brief Return prefix for long option names.
+     * @return Prefix used for long option names.
+     */
+    static string_type long_option_prefix() noexcept { return L"--"; }
+    /**
+     * @brief Return prefix for short option names.
+     * @return Prefix used for short option names.
+     */
+    static string_type short_option_prefix() noexcept { return L"-"; }
+    /**
+     * @brief Return end-of-options marker.
+     * @return String which specifies that all remaining command
+     *         line arguments are non-option arguments.
+     */
+    static string_type end_of_options() noexcept { return L"--"; }
+    /**
+     * @brief Return assignment symbol.
+     * @return String used to assign an argument to an option.
+     */
+    static string_type assignment() noexcept { return L"="; }
+  };
+
+  /**
    * @brief Parses program options.
    *
    * A `basic_parser` accepts program option information in the form
@@ -62,10 +199,21 @@ namespace optionpp {
    * which is used in the `parser` type alias, but other string variants
    * may be used instead.
    * @endparblock
+   * @tparam StringTraits
+   * @parblock
+   * @brief The type used to supply string information.
+   *
+   * Changing this parameter from its default allows you to customize
+   * the strings that are used by the parser, or to allow you to use a
+   * string class other than `std::string`. See `string_traits` for
+   * further details.
+   * @endparblock
    * @see basic_option
    * @see basic_parser_result
+   * @see string_traits
    */
-  template <typename StringType>
+  template <typename StringType,
+            typename StringTraits = string_traits<StringType>>
   class basic_parser {
   public:
     /**
@@ -77,9 +225,9 @@ namespace optionpp {
      */
     using char_type = typename StringType::value_type;
     /**
-     * @brief Type specifying character traits used in `string_type`.
+     * @brief Type specifying string traits.
      */
-    using traits_type = typename StringType::traits_type;
+    using traits_type = StringTraits;
     /**
      * @brief Type that stores option descriptions.
      */
@@ -225,66 +373,19 @@ namespace optionpp {
      *
      * @param cmd_line The command-line arguments to parse.
      * @param ignore_first If true, the first argument is ignored.
-     * @param delims Delimiters to use for splitting.
-     * @param quotes Quote characters to use for quoting arguments.
-     * @param escape_char Character that starts escape sequences.
      * @return `basic_parser_result` containing the parsed data.
      * @throw std::invalid_argument if an invalid option is entered or
      *                              a mandatory argument is missing.
      * @see basic_parser_result
      */
-    result_type parse(const string_type& cmd_line,
-                      bool ignore_first = false,
-                      const string_type& delims = " \t\r\n",
-                      const string_type& quotes = "\"\'",
-                      char_type escape_char = '\\');
-
-    /**
-     * @brief Set a custom option prefix.
-     *
-     * `long_prefix` is the prefix used for specifying options by
-     * their long name. Normally this is a double-hyphen
-     * (`--`). `short_prefix` is the prefix for short names (default
-     * is a single hyphen, `-`). `end_indicator` is the argument used
-     * to indicate that remaining arguments should be treated as
-     * non-option arguments, normally a double-hyphen (`--`). `assign`
-     * is the symbol that is used to specify arguments, normally an
-     * equals sign (`=`).
-     *
-     * For each parameter, an empty string indicates that the value
-     * should be left unchanged.
-     *
-     * @param long_prefix Prefix for long name options.
-     * @param short_prefix Prefix for short name options.
-     * @param end_indicator Symbol designating end of options.
-     * @param assign Symbol designating the start of an option
-     *               argument.
-     */
-    void set_prefixes(const string_type& long_prefix,
-                      const string_type& short_prefix = "",
-                      const string_type& end_indicator = "",
-                      const string_type& assign = "") {
-      if (!long_prefix.empty())
-        m_long_prefix = long_prefix;
-      if (!short_prefix.empty())
-        m_short_prefix = short_prefix;
-      if (!end_indicator.empty())
-        m_end_indicator = end_indicator;
-      if (!assign.empty())
-        m_assignment = assign;
-    }
+    result_type parse(const string_type& cmd_line, bool ignore_first = false);
 
   private:
     /**
      * @brief Type used to hold `basic_option` objects.
      */
     using opt_container = std::vector<option_type>;
-
     opt_container m_options; //< The container of `basic_option` objects.
-    string_type m_long_prefix{"--"};
-    string_type m_short_prefix{"-"};
-    string_type m_end_indicator{"--"};
-    string_type m_assignment{"="};
   };
 
   /**
@@ -302,10 +403,10 @@ namespace optionpp {
    */
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-  template <typename StringType>
+  template <typename StringType, typename StringTraits>
   template <typename InputIt>
-  auto basic_parser<StringType>::parse(InputIt first, InputIt last,
-                                       bool ignore_first) -> result_type {
+  auto basic_parser<StringType, StringTraits>::parse(InputIt first, InputIt last,
+                                                     bool ignore_first) -> result_type {
     if (ignore_first && first != last)
       ++first;
 
@@ -323,18 +424,20 @@ namespace optionpp {
     return result;
   }
 
-  template <typename StringType>
-  auto basic_parser<StringType>::parse(int argc, const char_type* argv[],
-                                       bool ignore_first) -> result_type {
+  template <typename StringType, typename StringTraits>
+  auto basic_parser<StringType, StringTraits>::parse(int argc, const char_type* argv[],
+                                                     bool ignore_first) -> result_type {
     return parse(argv, argv + argc, ignore_first);
   }
 
-  template <typename StringType>
-  auto basic_parser<StringType>::parse(const string_type& cmd_line, bool ignore_first,
-                                       const string_type& delims, const string_type& quotes,
-                                       char_type escape_char) -> result_type {
+  template <typename StringType, typename StringTraits>
+  auto basic_parser<StringType, StringTraits>::parse(const string_type& cmd_line,
+                                                     bool ignore_first) -> result_type {
     std::vector<string_type> container;
-    utility::split(cmd_line, std::back_inserter(container), delims, quotes, escape_char);
+    utility::split(cmd_line, std::back_inserter(container),
+                   StringTraits::whitespace(),
+                   StringTraits::quotes(),
+                   StringTraits::escape_char());
     return parse(container.begin(), container.end(), ignore_first);
   }
 
