@@ -31,6 +31,8 @@ TEST_CASE("parser_result") {
   parser_result::item help { "-?", true, "help", '?', "" };
   parser_result::item non_option { "command", false, "", '\0', "" };
   parser_result::item file { "-f myfile.txt", true, "file", 'f', "myfile.txt" };
+  parser_result::item file_sonly { "-f myfile.txt", true, "", 'f', "myfile.txt" };
+  parser_result::item file_lonly { "--file=myfile.txt", false, "file", '\0', "myfile.txt" };
 
   SECTION("constructors, push_back, size, and empty") {
     result = parser_result{};
@@ -164,5 +166,34 @@ TEST_CASE("parser_result") {
     REQUIRE_THROWS_AS(cresult.at(4), std::out_of_range);
     REQUIRE_THROWS_AS(cresult.at(5), std::out_of_range);
     REQUIRE_THROWS_AS(cresult.at(10), std::out_of_range);
+  }
+
+  SECTION("is_option_set") {
+    result = parser_result{version, help, non_option, file};
+    REQUIRE(result.is_option_set("version"));
+    REQUIRE(result.is_option_set('?'));
+    REQUIRE(result.is_option_set('f'));
+    REQUIRE_FALSE(result.is_option_set("verbose"));
+    REQUIRE_FALSE(result.is_option_set(""));
+    REQUIRE_FALSE(result.is_option_set('\0'));
+    REQUIRE_FALSE(result.is_option_set("command"));
+  }
+
+  SECTION("get_argument") {
+    result = parser_result{version, help, non_option, file};
+    REQUIRE(result.get_argument("file") == "myfile.txt");
+    REQUIRE(result.get_argument('f') == "myfile.txt");
+    REQUIRE(result.get_argument("width") == "");
+    REQUIRE(result.get_argument("command") == "");
+    REQUIRE(result.get_argument("") == "");
+    REQUIRE(result.get_argument('\0') == "");
+
+    result = parser_result{file_sonly};
+    REQUIRE(result.get_argument("") == "");
+    REQUIRE(result.get_argument('\0') == "");
+
+    result = parser_result{file_lonly};
+    REQUIRE(result.get_argument("") == "");
+    REQUIRE(result.get_argument('\0') == "");
   }
 }

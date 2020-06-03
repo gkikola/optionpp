@@ -25,6 +25,7 @@
 #ifndef OPTIONPP_PARSER_RESULT_HPP
 #define OPTIONPP_PARSER_RESULT_HPP
 
+#include <algorithm>
 #include <cstddef>
 #include <initializer_list>
 #include <stdexcept>
@@ -62,12 +63,6 @@ namespace optionpp {
   template <typename StringType>
   class basic_parser_result {
   public:
-    struct item;
-
-    /**
-     * @brief Type used for storing argument data.
-     */
-    using value_type = item;
     /**
      * @brief Type of string used for input/output.
      */
@@ -80,32 +75,6 @@ namespace optionpp {
      * @brief Type specifying character traits used in `string_type`.
      */
     using traits_type = typename StringType::traits_type;
-
-    /**
-     * @brief Type of container used to store the data items.
-     */
-    using container_type = std::vector<item>;
-    /**
-     * @brief Unsigned integer type (usually `std::size_t`) that can
-     * hold container size.
-     */
-    using size_type = typename container_type::size_type;
-    /**
-     * @brief Plain iterator type.
-     */
-    using iterator = typename container_type::iterator;
-    /**
-     * @brief Constant iterator type.
-     */
-    using const_iterator = typename container_type::const_iterator;
-    /**
-     * @brief Reverse iterator type.
-     */
-    using reverse_iterator = typename container_type::reverse_iterator;
-    /**
-     * @brief Constant reverse iterator type.
-     */
-    using const_reverse_iterator = typename container_type::const_reverse_iterator;
 
     /**
      * @brief Holds data parsed from the command line.
@@ -186,6 +155,36 @@ namespace optionpp {
        */
       string_type argument;
     };
+
+    /**
+     * @brief Type used for storing argument data.
+     */
+    using value_type = item;
+    /**
+     * @brief Type of container used to store the data items.
+     */
+    using container_type = std::vector<item>;
+    /**
+     * @brief Unsigned integer type (usually `std::size_t`) that can
+     * hold container size.
+     */
+    using size_type = typename container_type::size_type;
+    /**
+     * @brief Plain iterator type.
+     */
+    using iterator = typename container_type::iterator;
+    /**
+     * @brief Constant iterator type.
+     */
+    using const_iterator = typename container_type::const_iterator;
+    /**
+     * @brief Reverse iterator type.
+     */
+    using reverse_iterator = typename container_type::reverse_iterator;
+    /**
+     * @brief Constant reverse iterator type.
+     */
+    using const_reverse_iterator = typename container_type::const_reverse_iterator;
 
     /**
      * @brief Default constructor.
@@ -334,6 +333,70 @@ namespace optionpp {
      */
     const value_type& operator[](size_type index) const {
       return m_items[index];
+    }
+
+    /**
+     * @brief Returns whether the specified option is set.
+     * @param long_name The long name for the option.
+     * @return True if the option was present on the command-line,
+     *         and false otherwise.
+     */
+    bool is_option_set(const string_type& long_name) const noexcept {
+      if (long_name.empty())
+        return false;
+      else
+        return std::any_of(begin(), end(), [&](const item& i) { return i.is_option && i.long_name == long_name; });
+    }
+    /**
+     * @brief Returns whether the specified option is set.
+     * @param short_name The short name for the option.
+     * @return True if the option was present on the command-line,
+     *         and false otherwise.
+     */
+    bool is_option_set(char_type short_name) const noexcept {
+      if (short_name == '\0')
+        return false;
+      else
+        return std::any_of(begin(), end(), [&](const item& i) { return i.is_option && i.short_name == short_name; });
+    }
+
+    /**
+     * @brief Get the argument for the specified option.
+     *
+     * If no argument was given, an empty string is returned. If
+     * multiple arguments were given, only the first is returned.
+     *
+     * @param long_name The long name for the option.
+     * @return The argument given to the option.
+     */
+    string_type get_argument(string_type long_name) const noexcept {
+      if (long_name == string_type{})
+        return string_type{};
+
+      auto it = std::find_if(begin(), end(), [&](const item& i) { return i.is_option && i.long_name == long_name; });
+      if (it != end())
+        return it->argument;
+      else
+        return string_type{};
+    }
+    /**
+     * @brief Get the argument for the specified option.
+     *
+     * If no argument was given, an empty string is returned. If
+     * multiple arguments were given, only the first is returned.
+     *
+     * @param short_name The short name for the option.
+     * @return The argument given to the option.
+     */
+    string_type get_argument(char_type short_name) const noexcept {
+      if (short_name == '\0')
+        return string_type{};
+
+      auto it = std::find_if(begin(), end(), [=](const item& i) { return i.is_option && i.short_name == short_name; });
+      if (it != end())
+        return it->argument;
+      else
+        return string_type{};
     }
 
   private:
