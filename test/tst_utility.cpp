@@ -166,3 +166,28 @@ TEST_CASE("utility::split") {
     REQUIRE(loutput[3] == L"was");
   }
 }
+
+TEST_CASE("utility::is_substr_at_pos") {
+  REQUIRE(is_substr_at_pos<string>("Hello world", "wor", 6));
+  REQUIRE_FALSE(is_substr_at_pos<string>("Hello world", "wor", 5));
+  REQUIRE_FALSE(is_substr_at_pos<string>("Hello world", "wor", 4));
+  REQUIRE_FALSE(is_substr_at_pos<string>("Hello world", "wor", 7));
+  REQUIRE_FALSE(is_substr_at_pos<string>("Hello world", "wor", 8));
+  REQUIRE_FALSE(is_substr_at_pos<string>("Hello world", "wor", 99));
+
+  REQUIRE(is_substr_at_pos<string>("This is not my beautiful house", "", 17));
+  REQUIRE(is_substr_at_pos<string>("This is not my beautiful house", "", 0));
+  REQUIRE(is_substr_at_pos<string>("Twister", "", 5));
+  REQUIRE(is_substr_at_pos<string>("Twister", "", 6));
+  REQUIRE(is_substr_at_pos<string>("Twister", "", 7));
+  REQUIRE_FALSE(is_substr_at_pos<string>("Twister", "", 8));
+  REQUIRE_FALSE(is_substr_at_pos<string>("Twister", "string", 6));
+  REQUIRE_FALSE(is_substr_at_pos<string>("Twister", "string", 7));
+
+  REQUIRE(is_substr_at_pos<string>("--version", "--"));
+  REQUIRE_FALSE(is_substr_at_pos<string>("--version", "--", 1));
+  REQUIRE(is_substr_at_pos<string>("--version", "si", 5));
+
+  REQUIRE_FALSE(is_substr_at_pos<string>("small", "really really big", 2));
+  REQUIRE(is_substr_at_pos<string>("small", "small", 0));
+}

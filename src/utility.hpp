@@ -142,6 +142,39 @@ namespace optionpp {
         *dest++ = cur_token;
     }
 
+    /**
+     * @brief Determine if a string occurs within another string at a
+     * particular position.
+     *
+     * This simple function checks `str` to see if `substr` is
+     * at the specified position. For example, the call
+     * ```
+     * is_substr_at_pos("Hello world", "wor", 6)
+     * ```
+     * should return true because the string "wor" does occur within
+     * "Hello world" at index 6.
+     *
+     * @param str String in which substring is to be found.
+     * @param substr Substring to match.
+     * @param pos The position in `str` at which `substr` should be
+     *            found.
+     * @return True if `substr` occurs at index `pos` in `str`, and
+     *         false otherwise.
+     */
+    template <typename StringType>
+    inline bool is_substr_at_pos(const StringType& str, const StringType& substr,
+                                 typename StringType::size_type pos = 0) noexcept {
+      if (pos + substr.size() > str.size())
+        return false;
+
+      for (decltype(pos) i = 0; i < substr.size(); ++i) {
+        if (str[pos + i] != substr[i])
+          return false;
+      }
+
+      return true;
+    }
+
   } // End namespace
 
 } // End namespace
