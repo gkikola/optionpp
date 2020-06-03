@@ -282,4 +282,58 @@ TEST_CASE("parser") {
     REQUIRE(result[7].long_name.empty());
     REQUIRE(result[7].short_name == '\0');
   }
+
+  SECTION("custom prefixes") {
+    example.set_prefixes(":::", "<>", "+++", "->");
+    auto result = example.parse(":::help <>nf :::output->file +++ <>a :::version");
+
+    REQUIRE(result.size() == 6);
+    REQUIRE(result[0].original_text == ":::help");
+    REQUIRE(result[0].is_option);
+    REQUIRE(result[0].long_name == "help");
+    REQUIRE(result[0].short_name == '?');
+    REQUIRE(result[0].argument.empty());
+
+    REQUIRE(result[1].original_text == "<>n");
+    REQUIRE(result[1].is_option);
+    REQUIRE(result[1].long_name.empty());
+    REQUIRE(result[1].short_name == 'n');
+    REQUIRE(result[1].argument.empty());
+
+    REQUIRE(result[2].original_text == "<>f");
+    REQUIRE(result[2].is_option);
+    REQUIRE(result[2].long_name == "force");
+    REQUIRE(result[2].short_name == 'f');
+    REQUIRE(result[2].argument.empty());
+
+    REQUIRE(result[3].original_text == ":::output->file");
+    REQUIRE(result[3].is_option);
+    REQUIRE(result[3].long_name == "output");
+    REQUIRE(result[3].short_name == 'o');
+    REQUIRE(result[3].argument == "file");
+
+    REQUIRE(result[4].original_text == "<>a");
+    REQUIRE_FALSE(result[4].is_option);
+    REQUIRE(result[4].long_name.empty());
+    REQUIRE(result[4].short_name == '\0');
+    REQUIRE(result[4].argument.empty());
+
+    REQUIRE(result[5].original_text == ":::version");
+    REQUIRE_FALSE(result[5].is_option);
+    REQUIRE(result[5].long_name.empty());
+    REQUIRE(result[5].short_name == '\0');
+    REQUIRE(result[5].argument.empty());
+  }
+
+  SECTION("wide strings") {
+    basic_parser<std::basic_string<wchar_t>> lexample;
+    lexample.add_option().long_name("help").short_name('?');
+    lexample.add_option().long_name("width").short_name('w')
+      .argument("WIDTH", argument_type::optional);
+
+    auto result = lexample.parse("--help -?w 32 command");
+    REQUIRE(result.size() == 4);
+    REQUIRE(result[0].original_text == L"--help");
+    REQUIRE(result[0].is_option);
+  }
 }

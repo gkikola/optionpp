@@ -239,6 +239,41 @@ namespace optionpp {
                       const string_type& quotes = "\"\'",
                       char_type escape_char = '\\');
 
+    /**
+     * @brief Set a custom option prefix.
+     *
+     * `long_prefix` is the prefix used for specifying options by
+     * their long name. Normally this is a double-hyphen
+     * (`--`). `short_prefix` is the prefix for short names (default
+     * is a single hyphen, `-`). `end_indicator` is the argument used
+     * to indicate that remaining arguments should be treated as
+     * non-option arguments, normally a double-hyphen (`--`). `assign`
+     * is the symbol that is used to specify arguments, normally an
+     * equals sign (`=`).
+     *
+     * For each parameter, an empty string indicates that the value
+     * should be left unchanged.
+     *
+     * @param long_prefix Prefix for long name options.
+     * @param short_prefix Prefix for short name options.
+     * @param end_indicator Symbol designating end of options.
+     * @param assign Symbol designating the start of an option
+     *               argument.
+     */
+    void set_prefixes(const string_type& long_prefix,
+                      const string_type& short_prefix = "",
+                      const string_type& end_indicator = "",
+                      const string_type& assign = "") {
+      if (!long_prefix.empty())
+        m_long_prefix = long_prefix;
+      if (!short_prefix.empty())
+        m_short_prefix = short_prefix;
+      if (!end_indicator.empty())
+        m_end_indicator = end_indicator;
+      if (!assign.empty())
+        m_assignment = assign;
+    }
+
   private:
     /**
      * @brief Type used to hold `basic_option` objects.
@@ -246,6 +281,10 @@ namespace optionpp {
     using opt_container = std::vector<option_type>;
 
     opt_container m_options; //< The container of `basic_option` objects.
+    string_type m_long_prefix{"--"};
+    string_type m_short_prefix{"-"};
+    string_type m_end_indicator{"--"};
+    string_type m_assignment{"="};
   };
 
   /**
@@ -267,14 +306,21 @@ namespace optionpp {
   template <typename InputIt>
   auto basic_parser<StringType>::parse(InputIt first, InputIt last,
                                        bool ignore_first) -> result_type {
-    if (first != last && ignore_first)
+    if (ignore_first && first != last)
       ++first;
 
+    result_type result;
+    typename result_type::item cur_item;
+    option_type* cur_option = nullptr;
+    bool expecting_arg = false;
     while (first != last) {
+      if (expecting_arg) {
+        expecting_arg = false;
+      }
       ++first;
     }
 
-    return basic_parser_result<StringType>{};
+    return result;
   }
 
   template <typename StringType>
