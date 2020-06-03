@@ -115,6 +115,11 @@ namespace optionpp {
      */
     struct item {
       /**
+       * @brief Default constructor.
+       */
+      item() noexcept(noexcept(string_type())) {};
+
+      /**
        * @brief Constructor.
        * @param original_text The original text used on the command line.
        * @param is_option True if the data represents a program option,
@@ -187,7 +192,7 @@ namespace optionpp {
      *
      * Constructs an empty `basic_parser_result`.
      */
-    basic_parser_result() noexcept {}
+    basic_parser_result() noexcept(noexcept(string_type())) {}
     /**
      * @brief Construct from an initializer list.
      * @param il The `initializer_list` holding the parsed data.
