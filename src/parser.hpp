@@ -26,10 +26,12 @@
 #define OPTIONPP_PARSER_HPP
 
 #include <initializer_list>
+#include <iterator>
 #include <string>
 #include <vector>
 #include "option.hpp"
 #include "parser_result.hpp"
+#include "utility.hpp"
 
 /**
  * @brief Library namespace.
@@ -184,7 +186,9 @@ namespace optionpp {
      * @param last An iterator pointing to one past the last argument.
      * @param ignore_first If true, the first argument (typically the
      *                     program filename) is ignored.
-     * @return A `basic_parser_result` containing the parsed data.
+     * @return `basic_parser_result` containing the parsed data.
+     * @throw std::invalid_argument if an invalid option is entered or
+     *                              a mandatory argument is missing.
      * @see basic_parser_result
      */
     template <typename InputIt>
@@ -201,7 +205,9 @@ namespace optionpp {
      * @param argv All command-line arguments.
      * @param ignore_first If true, the first argument (typically the
      *                     program filename) is ignored.
-     * @return A `basic_parser_result` containing the parsed data.
+     * @return `basic_parser_result` containing the parsed data.
+     * @throw std::invalid_argument if an invalid option is entered or
+     *                              a mandatory argument is missing.
      * @see basic_parser_result
      */
     result_type parse(int argc, const char_type* argv[], bool ignore_first = true);
@@ -222,12 +228,16 @@ namespace optionpp {
      * @param delims Delimiters to use for splitting.
      * @param quotes Quote characters to use for quoting arguments.
      * @param escape_char Character that starts escape sequences.
-     * @return A `basic_parser_result` containing the parsed data.
+     * @return `basic_parser_result` containing the parsed data.
+     * @throw std::invalid_argument if an invalid option is entered or
+     *                              a mandatory argument is missing.
      * @see basic_parser_result
      */
-    result_type parse(const string_type& cmd_line, bool ignore_first,
-                      const string_type& delims, const string_type& quotes,
-                      char_type escape_char);
+    result_type parse(const string_type& cmd_line,
+                      bool ignore_first = false,
+                      const string_type& delims = " \t\r\n",
+                      const string_type& quotes = "\"\'",
+                      char_type escape_char = '\\');
 
   private:
     /**
@@ -242,6 +252,47 @@ namespace optionpp {
    * @brief Type alias for typical usage of `basic_parser`.
    */
   using parser = basic_parser<std::string>;
+
+
+  /* Implementation */
+
+  /*
+   * Doxygen has trouble with the trailing return types here, so we'll
+   * set it to ignore these. The actual docs are in the class
+   * declaration.
+   */
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+  template <typename StringType>
+  template <typename InputIt>
+  auto basic_parser<StringType>::parse(InputIt first, InputIt last,
+                                       bool ignore_first) -> result_type {
+    if (first != last && ignore_first)
+      ++first;
+
+    while (first != last) {
+      ++first;
+    }
+
+    return basic_parser_result<StringType>{};
+  }
+
+  template <typename StringType>
+  auto basic_parser<StringType>::parse(int argc, const char_type* argv[],
+                                       bool ignore_first) -> result_type {
+    return parse(argv, argv + argc, ignore_first);
+  }
+
+  template <typename StringType>
+  auto basic_parser<StringType>::parse(const string_type& cmd_line, bool ignore_first,
+                                       const string_type& delims, const string_type& quotes,
+                                       char_type escape_char) -> result_type {
+    std::vector<string_type> container;
+    utility::split(cmd_line, std::back_inserter(container), delims, quotes, escape_char);
+    return parse(container.begin(), container.end(), ignore_first);
+  }
+
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 } // End namespace
 
