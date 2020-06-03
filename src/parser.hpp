@@ -25,6 +25,7 @@
 #ifndef OPTIONPP_PARSER_HPP
 #define OPTIONPP_PARSER_HPP
 
+#include <algorithm>
 #include <initializer_list>
 #include <iterator>
 #include <string>
@@ -52,18 +53,7 @@ namespace optionpp {
    *
    * Specializations for `std::string` and
    * `std::basic_string<wchar_t>` are provided. To provide your own
-   * specializations, define the following static member functions: a
-   * `whitespace` function that returns a string containing whitespace
-   * delimiters, a `quotes` function that returns a string containing
-   * quote characters, an `escape_char` function that returns a
-   * character to be used for starting an escape sequence, a
-   * `long_option_prefix` function that returns the prefix to be used
-   * for long option names, a `short_option_prefix` function for short
-   * option names, an `end_of_options` function that gives the string
-   * that specifies that remaining arguments are non-options, and an
-   * `assignment` function that returns a string that is used for
-   * specifying an option argument.
-   *
+   * specializations, define the appropriate static member functions.
    * See the default specializations for examples.
    */
   template <typename StringType>
@@ -84,9 +74,19 @@ namespace optionpp {
      */
     using char_type = char;
     /**
-     * @brief Return whitespace delimiters.
-     * @return String containing characters used to separate
-     *         command line arguments.
+     * @brief Return the space character.
+     * @return Whitespace character.
+     */
+    static char_type space_char() noexcept { return ' '; }
+    /**
+     * @brief Return the newline sequence.
+     * @return String that indicates a newline.
+     */
+    static string_type newline() noexcept { return "\n"; }
+    /**
+     * @brief Return whitespace characters.
+     * @return String containing characters that should be
+     *         considered as whitespace.
      */
     static string_type whitespace() noexcept { return " \t\n\r"; }
     /**
@@ -138,9 +138,19 @@ namespace optionpp {
      */
     using char_type = wchar_t;
     /**
-     * @brief Return whitespace delimiters.
-     * @return String containing characters used to separate
-     *         command line arguments.
+     * @brief Return the space character.
+     * @return Whitespace character.
+     */
+    static char_type space_char() noexcept { return L' '; }
+    /**
+     * @brief Return the newline sequence.
+     * @return String that indicates a newline.
+     */
+    static string_type newline() noexcept { return L"\n"; }
+    /**
+     * @brief Return whitespace characters.
+     * @return String containing characters that should be
+     *         considered as whitespace.
      */
     static string_type whitespace() noexcept { return L" \t\n\r"; }
     /**
@@ -340,7 +350,7 @@ namespace optionpp {
      * @see basic_parser_result
      */
     template <typename InputIt>
-    result_type parse(InputIt first, InputIt last, bool ignore_first = true);
+    result_type parse(InputIt first, InputIt last, bool ignore_first = true) const;
 
     /**
      * @brief Parse command-line arguments.
@@ -358,7 +368,7 @@ namespace optionpp {
      *                              a mandatory argument is missing.
      * @see basic_parser_result
      */
-    result_type parse(int argc, const char_type* argv[], bool ignore_first = true);
+    result_type parse(int argc, const char_type* argv[], bool ignore_first = true) const;
 
     /**
      * @brief Parse command-line arguments from a string.
@@ -378,7 +388,7 @@ namespace optionpp {
      *                              a mandatory argument is missing.
      * @see basic_parser_result
      */
-    result_type parse(const string_type& cmd_line, bool ignore_first = false);
+    result_type parse(const string_type& cmd_line, bool ignore_first = false) const;
 
   private:
     /**
@@ -406,19 +416,67 @@ namespace optionpp {
   template <typename StringType, typename StringTraits>
   template <typename InputIt>
   auto basic_parser<StringType, StringTraits>::parse(InputIt first, InputIt last,
-                                                     bool ignore_first) -> result_type {
+                                                     bool ignore_first) const -> result_type {
     if (ignore_first && first != last)
       ++first;
 
-    result_type result;
-    typename result_type::item cur_item;
-    option_type* cur_option = nullptr;
-    bool expecting_arg = false;
-    while (first != last) {
+    InputIt it{first};
+
+    result_type result{};
+    typename result_type::item cur_item{};
+    auto cur_option = m_options.end();
+    bool expecting_arg{false};
+    bool ignore_options{false};
+    while (it != last) {
+      const string_type& arg = *it;
+
+      // If we are expecting a standalone option argument...
       if (expecting_arg) {
         expecting_arg = false;
+        // ...see if an argument was provided...
+        if (!utility::is_substr_at_pos(arg, traits_type::long_option_prefix())
+            && !utility::is_substr_at_pos(arg, traits_type::short_option_prefix())) {
+          cur_item.argument = arg;
+          cur_item.original_text += traits_type::space_char();
+          cur_item.original_text += arg;
+          result.push_back(cur_item);
+          cur_item = typename result_type::item{};
+          cur_option = m_options.end();
+        } else { // ...if not, make sure argument was optional
+          if (cur_option->is_argument_required())
+            throw std::invalid_argument{"[optionpp] missing mandatory argument"};
+          result.push_back(cur_item);
+          cur_item = typename result_type::item{};
+          cur_option = m_options.end();
+          continue; // Continue without incrementing 'it' in order to reevaluate current token
+        }
+      } else { // Not expecting a standalone option argument
+        // See if this is the end-of-options marker
+        if (!ignore_options && arg == traits_type::end_of_options()) {
+          ignore_options = true;
+        } else {
+          // If options are being ignored, just treat this as a non-option argument
+          if (ignore_options) {
+            cur_item.original_text = arg;
+            cur_item.is_option = false;
+            result.push_back(cur_item);
+            cur_item = typename result_type::item{};
+          } else if (utility::is_substr_at_pos(arg, traits_type::long_option_prefix())) {
+            // Long option was found
+            // expecting_arg = read_long_option(arg, result, cur_item, cur_option);
+          } else if (utility::is_substr_at_pos(arg, traits_type::short_option_prefix())) {
+            // Short options found
+            // expecting_arg = read_short_options(arg, result, cur_item, cur_option);
+          } else { // This is not an option argument
+            cur_item.original_text = arg;
+            cur_item.is_option = false;
+            result.push_back(cur_item);
+            cur_item = typename result_type::item{};
+          }
+        }
       }
-      ++first;
+
+      ++it;
     }
 
     return result;
@@ -426,13 +484,13 @@ namespace optionpp {
 
   template <typename StringType, typename StringTraits>
   auto basic_parser<StringType, StringTraits>::parse(int argc, const char_type* argv[],
-                                                     bool ignore_first) -> result_type {
+                                                     bool ignore_first) const -> result_type {
     return parse(argv, argv + argc, ignore_first);
   }
 
   template <typename StringType, typename StringTraits>
   auto basic_parser<StringType, StringTraits>::parse(const string_type& cmd_line,
-                                                     bool ignore_first) -> result_type {
+                                                     bool ignore_first) const -> result_type {
     std::vector<string_type> container;
     utility::split(cmd_line, std::back_inserter(container),
                    StringTraits::whitespace(),
