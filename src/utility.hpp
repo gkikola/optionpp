@@ -30,6 +30,9 @@
 
 namespace optionpp {
 
+  /**
+   * @brief Namespace for utility functions.
+   */
   namespace utility {
 
     /**
