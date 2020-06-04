@@ -21,9 +21,10 @@
 
 using namespace optionpp;
 
-option& option::argument(const std::string& name, argument_type type) {
+option& option::argument(const std::string& name, arg_type type, bool required) {
   m_arg_name = name;
-  m_arg_required = type == argument_type::required;
+  m_arg_required = required;
+  m_arg_type = type;
 
   return *this;
 }

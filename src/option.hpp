@@ -31,13 +31,6 @@
 namespace optionpp {
 
   /**
-   * @brief Flags for option arguments.
-   */
-  enum class argument_type { optional, //< Argument is optional
-                             required //< Argument is mandatory
-  };
-
-  /**
    * @brief Describes a valid program command-line option.
    *
    * A `option` can hold information about a program option that the
@@ -74,6 +67,16 @@ namespace optionpp {
    */
   class option {
   public:
+
+    /**
+     * @brief Holds the possible argument types.
+     */
+    enum arg_type { string_arg, //< Indicates a string argument.
+                    int_arg, //< Indicates an integer argument.
+                    uint_arg, //< Indicates an unsigned int argument.
+                    double_arg //< Indicates a floating-point argument.
+    };
+
     /**
      * @brief Default constructor.
      *
@@ -161,17 +164,17 @@ namespace optionpp {
     /**
      * @brief Set the option's argument information.
      *
-     * The name is used in the program help text and usage string. The
-     * type specifies whether the argument is optional
-     * (`argument_type::optional`) or mandatory
-     * (`argument_type::mandatory`).
+     * The name is used in the program help text and usage string.
      *
      * @param name Name of the argument (usually all uppercase).
-     * @param type Whether the argument is optional or mandatory.
+     * @param type Type of argument that is expected.
+     * @param required True if the option is mandatory, false if it
+     *                 is optional.
      * @return Reference to the current instance (for chaining calls).
      */
     option& argument(const std::string& name,
-                     argument_type type = argument_type::required);
+                     arg_type type = string_arg,
+                     bool required = true);
     /**
      * @brief Retrieve the option's argument name.
      *
@@ -185,6 +188,11 @@ namespace optionpp {
      * @return True if the argument is required and false if it is optional.
      */
     bool is_argument_required() const noexcept { return m_arg_required; }
+    /**
+     * @brief Return the type of argument.
+     * @return Expected argument type.
+     */
+    arg_type argument_type() const noexcept { return m_arg_type; }
 
     /**
      * @brief Set the option description.
@@ -233,6 +241,7 @@ namespace optionpp {
     char m_short_name{'\0'}; //< The short name.
     std::string m_arg_name; //< The name of the argument (for help text).
     bool m_arg_required{false}; //< True if argument is mandatory, false if optional.
+    arg_type m_arg_type{string_arg}; //< Type of argument that is expected.
     std::string m_desc; //< Description of option (for help text).
     std::string m_group_name; //< Name of option group.
   };

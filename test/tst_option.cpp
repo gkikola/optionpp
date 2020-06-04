@@ -29,10 +29,10 @@ TEST_CASE("option") {
   option long_and_short{"version", 'v'};
 
   option with_argument_req{"file", 'f'};
-  with_argument_req.argument("FILE", argument_type::required);
+  with_argument_req.argument("FILE", option::string_arg, true);
 
   option with_argument_opt{"dir", 'd'};
-  with_argument_opt.argument("DIRECTORY", argument_type::optional);
+  with_argument_opt.argument("DIRECTORY", option::string_arg, false);
 
   option combo;
   combo.long_name("all").short_name('a').description("show all").group("Main");
@@ -46,6 +46,7 @@ TEST_CASE("option") {
     REQUIRE(empty.description() == "");
     REQUIRE(empty.argument_name() == "");
     REQUIRE_FALSE(empty.is_argument_required());
+    REQUIRE(empty.argument_type() == option::string_arg);
     REQUIRE(empty.group() == "");
 
     REQUIRE(short_name_only.name() == "v");
@@ -73,9 +74,11 @@ TEST_CASE("option") {
   SECTION("setters") {
     REQUIRE(with_argument_req.argument_name() == "FILE");
     REQUIRE(with_argument_req.is_argument_required());
+    REQUIRE(with_argument_req.argument_type() == option::string_arg);
 
     REQUIRE(with_argument_opt.argument_name() == "DIRECTORY");
     REQUIRE_FALSE(with_argument_opt.is_argument_required());
+    REQUIRE(with_argument_opt.argument_type() == option::string_arg);
 
     REQUIRE(combo.name() == "all");
     REQUIRE(combo.long_name() == "all");
@@ -87,5 +90,14 @@ TEST_CASE("option") {
     REQUIRE(combo.name() == "line-numbers");
     REQUIRE(combo.long_name() == "line-numbers");
     REQUIRE(combo.short_name() == 'n');
+
+    combo.name("block-size", 'b')
+      .argument("SIZE", option::uint_arg, true);
+    REQUIRE(combo.name() == "block-size");
+    REQUIRE(combo.long_name() == "block-size");
+    REQUIRE(combo.short_name() == 'b');
+    REQUIRE(combo.argument_name() == "SIZE");
+    REQUIRE(combo.is_argument_required());
+    REQUIRE(combo.argument_type() == option::uint_arg);
   }
 }
