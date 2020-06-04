@@ -17,6 +17,7 @@
  */
 /* Written by Greg Kikola <gkikola@gmail.com>. */
 
+#include <exception>
 #include <string>
 #include <vector>
 #include <catch2/catch.hpp>
@@ -158,7 +159,7 @@ TEST_CASE("parser") {
   }
 
   SECTION("no options") {
-    auto result = example.parse("command1 \"command -n 2\" - 'command 3'");
+    auto result = example.parse(R"(command1 "command -n 2" - 'command 3')");
     REQUIRE(result.size() == 4);
     REQUIRE(result[0].original_text == "command1");
     REQUIRE_FALSE(result[0].is_option);
@@ -171,23 +172,127 @@ TEST_CASE("parser") {
   }
 
   SECTION("invalid options") {
-    REQUIRE_THROWS_AS(example.parse("myprog -q", true), std::invalid_argument);
-    REQUIRE_THROWS_AS(example.parse("cmd1 -nvb? --version"), std::invalid_argument);
-    REQUIRE_THROWS_AS(example.parse("--fix-broken"), std::invalid_argument);
+    try {
+      example.parse("myprog -q", true);
+      REQUIRE(false);
+    } catch(const parser::parse_error& e) {
+      REQUIRE(e.message() == "invalid option: '-q'");
+      REQUIRE(e.option() == "-q");
+    }
+
+    try {
+      example.parse("cmd1 -nvb? --version");
+      REQUIRE(false);
+    } catch(const parser::parse_error& e) {
+      REQUIRE(e.message() == "invalid option: '-b'");
+      REQUIRE(e.option() == "-b");
+    }
+
+    try {
+      example.parse("--fix-broken");
+      REQUIRE(false);
+    } catch(const parser::parse_error& e) {
+      REQUIRE(e.message() == "invalid option: '--fix-broken'");
+      REQUIRE(e.option() == "--fix-broken");
+    }
   }
 
   SECTION("missing argument") {
-    REQUIRE_THROWS_AS(example.parse("myprog -o"), std::invalid_argument);
-    REQUIRE_THROWS_AS(example.parse("command -o -n"), std::invalid_argument);
-    REQUIRE_THROWS_AS(example.parse("command -o --version"), std::invalid_argument);
+    try {
+      example.parse("myprog -o");
+      REQUIRE(false);
+    } catch(const parser::parse_error& e) {
+      REQUIRE(e.message() == "option '-o' requires an argument");
+      REQUIRE(e.option() == "-o");
+    }
+
+    try {
+      example.parse("command -o -n");
+      REQUIRE(false);
+    } catch(const parser::parse_error& e) {
+      REQUIRE(e.message() == "option '-o' requires an argument");
+      REQUIRE(e.option() == "-o");
+    }
+
+    try {
+      example.parse("command -o --version");
+      REQUIRE(false);
+    } catch(const parser::parse_error& e) {
+      REQUIRE(e.message() == "option '-o' requires an argument");
+      REQUIRE(e.option() == "-o");
+    }
+
+    try {
+      example.parse("command --output -- command2");
+      REQUIRE(false);
+    } catch(const parser::parse_error& e) {
+      REQUIRE(e.message() == "option '--output' requires an argument");
+      REQUIRE(e.option() == "--output");
+    }
+
+    try {
+      example.parse("command --output --version");
+      REQUIRE(false);
+    } catch(const parser::parse_error& e) {
+      REQUIRE(e.message() == "option '--output' requires an argument");
+      REQUIRE(e.option() == "--output");
+    }
+
+    // '=' should allow empty arguments
     REQUIRE_NOTHROW(example.parse("command --output= -n"));
-    REQUIRE_THROWS_AS(example.parse("command --output --version"), std::invalid_argument);
+
+    // Shouldn't throw if argument is provided
     REQUIRE_NOTHROW(example.parse("myprog -o out"));
   }
 
   SECTION("invalid arguments") {
-    REQUIRE_THROWS_AS(example.parse("command -fn=hello"), std::invalid_argument);
-    REQUIRE_THROWS_AS(example.parse("commnad --version=myversion"), std::invalid_argument);
+    try {
+      example.parse("command -fn=hello");
+      REQUIRE(false);
+    } catch(const parser::parse_error& e) {
+      REQUIRE(e.message() == "option '-n' does not accept arguments");
+      REQUIRE(e.option() == "-n");
+    }
+
+    try {
+      example.parse("command --version=myversion");
+      REQUIRE(false);
+    } catch(const parser::parse_error& e) {
+      REQUIRE(e.message() == "option '--version' does not accept arguments");
+      REQUIRE(e.option() == "--version");
+    }
+
+    try {
+      example.parse("cmd1 -= cmd2");
+      REQUIRE(false);
+    } catch(const parser::parse_error& e) {
+      REQUIRE(e.message() == "invalid option: '-='");
+      REQUIRE(e.option() == "-=");
+    }
+
+    try {
+      example.parse("cmd1 -=abc cmd2");
+      REQUIRE(false);
+    } catch(const parser::parse_error& e) {
+      REQUIRE(e.message() == "invalid option: '-='");
+      REQUIRE(e.option() == "-=");
+    }
+
+    try {
+      example.parse("cmd1 --= cmd2");
+      REQUIRE(false);
+    } catch(const parser::parse_error& e) {
+      REQUIRE(e.message() == "invalid option: '--='");
+      REQUIRE(e.option() == "--=");
+    }
+
+    try {
+      example.parse("cmd1 --=lalala cmd2");
+      REQUIRE(false);
+    } catch(const parser::parse_error& e) {
+      REQUIRE(e.message() == "invalid option: '--='");
+      REQUIRE(e.option() == "--=");
+    }
   }
 
   SECTION("arguments") {
@@ -293,6 +398,7 @@ TEST_CASE("parser") {
     REQUIRE(result[2].original_text == "-?");
     REQUIRE(result[3].original_text == "-n");
     REQUIRE(result[4].original_text == "-");
+    REQUIRE_FALSE(result[4].is_option);
     REQUIRE(result[5].original_text == "cmd2");
   }
 

@@ -123,6 +123,32 @@ namespace optionpp {
      * @return String used to assign an argument to an option.
      */
     static string_type assignment() noexcept { return "="; }
+    /**
+     * @brief Format an error message indicating an invalid option.
+     * @param option Name of the option.
+     * @return Formatted error message.
+     */
+    static string_type invalid_option_msg(const string_type& option) {
+      return "invalid option: '" + option + "'";
+    }
+    /**
+     * @brief Format an error message indicating a missing mandatory
+     *        argument.
+     * @param option Name of the option.
+     * @return Formatted error message.
+     */
+    static string_type missing_argument_msg(const string_type& option) {
+      return "option '" + option + "' requires an argument";
+    }
+    /**
+     * @brief Format an error message indicating that an unexpected
+     *        argument was encountered.
+     * @param option Name of the option.
+     * @return Formatted error message.
+     */
+    static string_type unexpected_argument_msg(const string_type& option) {
+      return "option '" + option + "' does not accept arguments";
+    }
   };
 
   /**
@@ -187,6 +213,32 @@ namespace optionpp {
      * @return String used to assign an argument to an option.
      */
     static string_type assignment() noexcept { return L"="; }
+    /**
+     * @brief Format an error message indicating an invalid option.
+     * @param option Name of the option.
+     * @return Formatted error message.
+     */
+    static string_type invalid_option_msg(const string_type& option) {
+      return L"invalid option: '" + option + L"'";
+    }
+    /**
+     * @brief Format an error message indicating a missing mandatory
+     *        argument.
+     * @param option Name of the option.
+     * @return Formatted error message.
+     */
+    static string_type missing_argument_msg(const string_type& option) {
+      return L"option '" + option + L"' requires an argument";
+    }
+    /**
+     * @brief Format an error message indicating that an unexpected
+     *        argument was encountered.
+     * @param option Name of the option.
+     * @return Formatted error message.
+     */
+    static string_type unexpected_argument_msg(const string_type& option) {
+      return L"option '" + option + L"' does not accept arguments";
+    }
   };
 
   /**
@@ -248,6 +300,41 @@ namespace optionpp {
      * @brief Type that stores the parsed result data.
      */
     using result_type = basic_parser_result<StringType>;
+
+    /**
+     * @brief Exception class indicating an invalid option.
+     */
+    class parse_error : public error {
+    public:
+      /**
+       * @brief Constructor.
+       * @param what_str C-style string describing the error.
+       * @param fn_name Name of the function that threw the exception.
+       * @param message Formatted message string.
+       * @param option Name of the option that triggered the error (if
+       *               any).
+       */
+      parse_error(const char* what_str, const char* fn_name,
+                  const string_type& message,
+                  const string_type& option = string_type{})
+        : error(what_str, fn_name), m_message{message}, m_option{option} {}
+
+      /**
+       * @brief Return formatted message string.
+       * @return Formatted message string describing the error.
+       */
+      const string_type& message() const noexcept { return m_message; }
+
+      /**
+       * @brief Return option name.
+       * @return Option that triggered the error, if any.
+       */
+      const string_type& option() const noexcept { return m_option; }
+
+    private:
+      string_type m_message; //< Formatted message.
+      string_type m_option; //< Option that triggered the error.
+    };
 
     /**
      * @brief Default constructor.
@@ -525,8 +612,12 @@ namespace optionpp {
           arg_info.original_text += arg;
           prev_type = cl_arg_type::non_option;
         } else { // ...if not, make sure argument was optional
-          if (prev_type == cl_arg_type::arg_required)
-            throw std::invalid_argument{"[optionpp] missing mandatory argument"};
+          if (prev_type == cl_arg_type::arg_required) {
+            const auto& opt_name = result.back().original_text;
+            throw parse_error{"missing mandatory argument",
+                "optionpp::basic_parser::parse",
+                traits_type::missing_argument_msg(opt_name), opt_name};
+          }
           prev_type = cl_arg_type::non_option;
           continue; // Continue without incrementing 'it' in order to reevaluate current token
         }
@@ -543,8 +634,12 @@ namespace optionpp {
     }
 
     // Make sure we don't still need a mandatory argument
-    if (prev_type == cl_arg_type::arg_required)
-      throw std::invalid_argument{"[optionpp] missing mandatory argument"};
+    if (prev_type == cl_arg_type::arg_required) {
+      const auto& opt_name = result.back().original_text;
+      throw parse_error{"missing mandatory argument",
+          "optionpp::basic_parser::parse",
+          traits_type::missing_argument_msg(opt_name), opt_name};
+    }
 
     return result;
   }
@@ -590,6 +685,16 @@ namespace optionpp {
       option_specifier = argument.substr(0, pos);
       pos += traits_type::assignment().size();
       option_argument = argument.substr(pos);
+
+      // Check for bad syntax like -= and --=
+      if (option_specifier == traits_type::short_option_prefix()
+          || option_specifier == traits_type::long_option_prefix()) {
+        option_specifier += traits_type::assignment();
+        throw parse_error{"invalid option",
+            "optionpp::basic_parser::parse_argument",
+            traits_type::invalid_option_msg(option_specifier),
+            option_specifier};
+      }
     }
 
     // Check option type
@@ -602,7 +707,9 @@ namespace optionpp {
       auto it = std::find_if(m_options.begin(), m_options.end(),
                              [&](const option_type& o) { return o.long_name() == option_name; });
       if (it == m_options.end())
-        throw std::invalid_argument{"[optionpp] Long option not found"};
+        throw parse_error{"invalid option",
+            "optionpp::basic_parser::parse_argument",
+            traits_type::invalid_option_msg(option_specifier), option_specifier};
 
       // Does this option take an argument?
       if (!it->argument_name().empty()) {
@@ -617,7 +724,10 @@ namespace optionpp {
         }
       } else { // Does not take an argument
         if (assignment_found) // Found an argument where there should be none
-          throw std::invalid_argument{"[optionpp] Option does not take argument"};
+          throw parse_error{"unexpected argument",
+                              "optionpp::basic_parser::parse_argument",
+                              traits_type::unexpected_argument_msg(option_specifier),
+                              option_specifier};
         type = cl_arg_type::no_arg;
       }
       opt_info.original_text = argument;
@@ -647,8 +757,13 @@ namespace optionpp {
       // Look up option info
       auto it = std::find_if(m_options.begin(), m_options.end(),
                              [&](const option_type& o) { return o.short_name() == short_names[pos]; });
-      if (it == m_options.end())
-        throw std::invalid_argument{"[optionpp] Short option not found"};
+      if (it == m_options.end()) {
+        auto opt_name = traits_type::short_option_prefix();
+        opt_name.push_back(short_names[pos]);
+        throw parse_error{"invalid option",
+            "optionpp::basic_parser::parse_short_option_group",
+            traits_type::invalid_option_msg(opt_name), opt_name};
+      }
 
       typename result_type::item opt_info;
       opt_info.original_text = traits_type::short_option_prefix();
@@ -689,8 +804,13 @@ namespace optionpp {
       }
 
       // If we make it here, then the current option does not take an argument
-      if (pos + 1 == short_names.size() && has_arg)
-        throw std::invalid_argument{"[optionpp] short option does not take an argument"};
+      if (pos + 1 == short_names.size() && has_arg) {
+        auto opt_name = traits_type::short_option_prefix();
+        opt_name.push_back(short_names[pos]);
+        throw parse_error{"option does not accept arguments",
+            "optionpp::basic_parser::parse_short_option_group",
+            traits_type::unexpected_argument_msg(opt_name), opt_name};
+      }
 
       result.push_back(std::move(opt_info));
       type = cl_arg_type::no_arg;

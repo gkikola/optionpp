@@ -28,10 +28,10 @@
 #include <algorithm>
 #include <cstddef>
 #include <initializer_list>
-#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
+#include "error.hpp"
 
 namespace optionpp {
 
@@ -310,7 +310,8 @@ namespace optionpp {
      */
     value_type& at(size_type index) {
       if (index >= size())
-        throw std::out_of_range{"[optionpp] out of bounds parser_result access"};
+        throw out_of_range("out of bounds parser_result access",
+                           "optionpp::basic_parser_result::at");
       return (*this)[index];
     }
     /**
@@ -318,7 +319,8 @@ namespace optionpp {
      */
     const value_type& at(size_type index) const {
       if (index >= size())
-        throw std::out_of_range{"[optionpp] out of bounds parser_result access"};
+        throw out_of_range("out of bounds parser_result access",
+                           "optionpp::basic_parser_result::at");
       return (*this)[index];
     }
 
@@ -342,7 +344,8 @@ namespace optionpp {
      */
     value_type& back() {
       if (empty())
-        throw std::out_of_range{"[optionpp] out of bounds parser_result access"};
+        throw out_of_range("out of bounds parser_result access",
+                           "optionpp::basic_parser_result::back");
       return m_items.back();
     }
 
@@ -351,7 +354,8 @@ namespace optionpp {
      */
     const value_type& back() const {
       if (empty())
-        throw std::out_of_range{"[optionpp] out of bounds parser_result access"};
+        throw out_of_range("out of bounds parser_result access",
+                           "optionpp::basic_parser_result::at");
       return m_items.back();
     }
 
