@@ -61,6 +61,20 @@ namespace optionpp {
       : error(msg, fn_name) {}
   };
 
+  /**
+   * @brief Exception indicating a type error.
+   */
+  class type_error : public error {
+  public:
+    /**
+     * @brief Constructor.
+     * @param msg Description of the error.
+     * @param fn_name Name of the function in which error occurred.
+     */
+    type_error(const std::string& msg, const std::string& fn_name)
+      : error(msg, fn_name) {}
+  };
+
 } // End namespace
 
 #endif
