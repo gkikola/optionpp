@@ -25,6 +25,7 @@
 #ifndef OPTIONPP_OPTION_HPP
 #define OPTIONPP_OPTION_HPP
 
+#include <functional>
 #include <string>
 
 namespace optionpp {
@@ -97,6 +98,35 @@ namespace optionpp {
      */
     option(std::string long_name, char short_name = '\0')
       : m_long_name{long_name}, m_short_name{short_name} {}
+
+    /**
+     * @brief Sets the long and short name for the option.
+     * @param long_name Long name form for the option.
+     * @param short_name Single-character short option name.
+     * @return Reference to the current instance (for chaining calls).
+     */
+    option& name(const std::string& long_name, char short_name = '\0') {
+      m_long_name = long_name;
+      m_short_name = short_name;
+      return *this;
+    }
+
+    /**
+     * @brief Returns a name for the option.
+     *
+     * This will be the long name if it exists, otherwise the short
+     * name is used. If neither name is set, returns an empty string.
+     *
+     * @return Option name.
+     */
+    std::string name() const noexcept {
+      if (!m_long_name.empty())
+        return m_long_name;
+      else if (m_short_name != '\0')
+        return std::string{m_short_name};
+      else
+        return "";
+    }
 
     /**
      * @brief Set the option's long name.
@@ -198,12 +228,13 @@ namespace optionpp {
     const std::string& group() const noexcept { return m_group_name; }
 
   private:
-    std::string m_long_name; //< The long name
-    char m_short_name{'\0'}; //< The short name
-    std::string m_arg_name; //< The name of the argument (for help text)
-    bool m_arg_required{false}; //< True if argument is mandatory, false if optional
-    std::string m_desc; //< Description of option (for help text)
-    std::string m_group_name; //< Name of option group
+    std::string m_id; //< The option's unique identifier.
+    std::string m_long_name; //< The long name.
+    char m_short_name{'\0'}; //< The short name.
+    std::string m_arg_name; //< The name of the argument (for help text).
+    bool m_arg_required{false}; //< True if argument is mandatory, false if optional.
+    std::string m_desc; //< Description of option (for help text).
+    std::string m_group_name; //< Name of option group.
   };
 
 } // End namespace
