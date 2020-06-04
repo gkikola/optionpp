@@ -285,6 +285,17 @@ TEST_CASE("parser") {
     REQUIRE(result[2].argument.empty());
   }
 
+  SECTION("hyphen argument") {
+    auto result = example.parse("cmd1 -a?n - cmd2");
+    REQUIRE(result.size() == 6);
+    REQUIRE(result[0].original_text == "cmd1");
+    REQUIRE(result[1].original_text == "-a");
+    REQUIRE(result[2].original_text == "-?");
+    REQUIRE(result[3].original_text == "-n");
+    REQUIRE(result[4].original_text == "-");
+    REQUIRE(result[5].original_text == "cmd2");
+  }
+
   SECTION("end-of-option separator") {
     auto result = example.parse("myprog --help -avofile.txt -- command --version -n --output", true);
     REQUIRE(result.size() == 8);
@@ -319,6 +330,7 @@ TEST_CASE("parser") {
     struct mystrings : public string_traits<std::string> {
       using string_type = std::string;
       using char_type = char;
+      static char_type space_char() { return '.'; }
       static string_type whitespace() { return "."; }
       static string_type quotes() { return "^"; }
       static char_type escape_char() { return '\\'; }
@@ -389,6 +401,24 @@ TEST_CASE("parser") {
 
     REQUIRE(result[6].original_text == "hello.world");
     REQUIRE_FALSE(result[6].is_option);
+
+    result = parser.parse("cmd1.:::.cmd2");
+    REQUIRE(result.size() == 3);
+    REQUIRE(result[0].original_text == "cmd1");
+    REQUIRE_FALSE(result[0].is_option);
+    REQUIRE(result[1].original_text == ":::");
+    REQUIRE_FALSE(result[1].is_option);
+    REQUIRE(result[2].original_text == "cmd2");
+    REQUIRE_FALSE(result[2].is_option);
+
+    result = parser.parse("cmd1.<>.cmd2");
+    REQUIRE(result.size() == 3);
+    REQUIRE(result[0].original_text == "cmd1");
+    REQUIRE_FALSE(result[0].is_option);
+    REQUIRE(result[1].original_text == "<>");
+    REQUIRE_FALSE(result[1].is_option);
+    REQUIRE(result[2].original_text == "cmd2");
+    REQUIRE_FALSE(result[2].is_option);
   }
 
   SECTION("wide strings") {
