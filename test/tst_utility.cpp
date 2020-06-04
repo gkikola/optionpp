@@ -153,41 +153,29 @@ TEST_CASE("utility::split") {
     REQUIRE(output.size() == 1);
     REQUIRE(output[0] == "abcdefgh");
   }
-
-  SECTION("wide strings") {
-    vector<std::basic_string<wchar_t>> loutput;
-    split<std::basic_string<wchar_t>>(L"Same as\\ it ever was",
-                                      back_inserter(loutput),
-                                      L" ", L"\"\'", L'\\');
-    REQUIRE(loutput.size() == 4);
-    REQUIRE(loutput[0] == L"Same");
-    REQUIRE(loutput[1] == L"as it");
-    REQUIRE(loutput[2] == L"ever");
-    REQUIRE(loutput[3] == L"was");
-  }
 }
 
 TEST_CASE("utility::is_substr_at_pos") {
-  REQUIRE(is_substr_at_pos<string>("Hello world", "wor", 6));
-  REQUIRE_FALSE(is_substr_at_pos<string>("Hello world", "wor", 5));
-  REQUIRE_FALSE(is_substr_at_pos<string>("Hello world", "wor", 4));
-  REQUIRE_FALSE(is_substr_at_pos<string>("Hello world", "wor", 7));
-  REQUIRE_FALSE(is_substr_at_pos<string>("Hello world", "wor", 8));
-  REQUIRE_FALSE(is_substr_at_pos<string>("Hello world", "wor", 99));
+  REQUIRE(is_substr_at_pos("Hello world", "wor", 6));
+  REQUIRE_FALSE(is_substr_at_pos("Hello world", "wor", 5));
+  REQUIRE_FALSE(is_substr_at_pos("Hello world", "wor", 4));
+  REQUIRE_FALSE(is_substr_at_pos("Hello world", "wor", 7));
+  REQUIRE_FALSE(is_substr_at_pos("Hello world", "wor", 8));
+  REQUIRE_FALSE(is_substr_at_pos("Hello world", "wor", 99));
 
-  REQUIRE(is_substr_at_pos<string>("This is not my beautiful house", "", 17));
-  REQUIRE(is_substr_at_pos<string>("This is not my beautiful house", "", 0));
-  REQUIRE(is_substr_at_pos<string>("Twister", "", 5));
-  REQUIRE(is_substr_at_pos<string>("Twister", "", 6));
-  REQUIRE(is_substr_at_pos<string>("Twister", "", 7));
-  REQUIRE_FALSE(is_substr_at_pos<string>("Twister", "", 8));
-  REQUIRE_FALSE(is_substr_at_pos<string>("Twister", "string", 6));
-  REQUIRE_FALSE(is_substr_at_pos<string>("Twister", "string", 7));
+  REQUIRE(is_substr_at_pos("This is not my beautiful house", "", 17));
+  REQUIRE(is_substr_at_pos("This is not my beautiful house", "", 0));
+  REQUIRE(is_substr_at_pos("Twister", "", 5));
+  REQUIRE(is_substr_at_pos("Twister", "", 6));
+  REQUIRE(is_substr_at_pos("Twister", "", 7));
+  REQUIRE_FALSE(is_substr_at_pos("Twister", "", 8));
+  REQUIRE_FALSE(is_substr_at_pos("Twister", "string", 6));
+  REQUIRE_FALSE(is_substr_at_pos("Twister", "string", 7));
 
-  REQUIRE(is_substr_at_pos<string>("--version", "--"));
-  REQUIRE_FALSE(is_substr_at_pos<string>("--version", "--", 1));
-  REQUIRE(is_substr_at_pos<string>("--version", "si", 5));
+  REQUIRE(is_substr_at_pos("--version", "--"));
+  REQUIRE_FALSE(is_substr_at_pos("--version", "--", 1));
+  REQUIRE(is_substr_at_pos("--version", "si", 5));
 
-  REQUIRE_FALSE(is_substr_at_pos<string>("small", "really really big", 2));
-  REQUIRE(is_substr_at_pos<string>("small", "small", 0));
+  REQUIRE_FALSE(is_substr_at_pos("small", "really really big", 2));
+  REQUIRE(is_substr_at_pos("small", "small", 0));
 }

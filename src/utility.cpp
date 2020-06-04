@@ -18,3 +18,18 @@
 /* Written by Greg Kikola <gkikola@gmail.com>. */
 
 #include "utility.hpp"
+
+using namespace optionpp;
+
+bool utility::is_substr_at_pos(const std::string& str, const std::string& substr,
+                               typename std::string::size_type pos) noexcept {
+  if (pos + substr.size() > str.size())
+    return false;
+
+  for (decltype(pos) i{0}; i < substr.size(); ++i) {
+    if (str[pos + i] != substr[i])
+      return false;
+  }
+
+  return true;
+}

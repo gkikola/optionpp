@@ -19,7 +19,7 @@
 
 /**
  * @file
- * @brief Header file for `basic_option` class.
+ * @brief Header file for `option` class.
  */
 
 #ifndef OPTIONPP_OPTION_HPP
@@ -39,8 +39,8 @@ namespace optionpp {
   /**
    * @brief Describes a valid program command-line option.
    *
-   * A `basic_option` can hold information about a program option that
-   * the user can pass through the command line. Among this information,
+   * A `option` can hold information about a program option that the
+   * user can pass through the command line. Among this information,
    * the most important are the long name and the short name.
    *
    * If an option has a long name, then the user can specify that option
@@ -67,41 +67,18 @@ namespace optionpp {
    * example, to create an option with a long name of `help`, a short
    * name of `?`, and an appropriate description, one could write:
    * ```
-   * basic_option help_opt{};
+   * option help_opt{};
    * help_opt.long_name("help").short_name('?').description("Show help text.");
    * ```
-   *
-   * @tparam StringType
-   * @parblock
-   * @brief The type of string used for storing option information.
-   *
-   * Usually this is `std::string` (i.e. `std::basic_string<char>`),
-   * which is used in the `option` type alias, but other string
-   * variants may be used instead.
-   * @endparblock
    */
-  template <typename StringType>
-  class basic_option {
+  class option {
   public:
-    /**
-     * @brief Type of string used for input/output.
-     */
-    using string_type = StringType;
-    /**
-     * @brief Type of character used in `string_type`.
-     */
-    using char_type = typename StringType::value_type;
-    /**
-     * @brief Type specifying character traits used in `string_type`.
-     */
-    using traits_type = typename StringType::traits_type;
-
     /**
      * @brief Default constructor.
      *
      * Constructs an option without initial information.
      */
-    basic_option() noexcept(noexcept(string_type())) {}
+    option() noexcept {}
     /**
      * @brief Construct an option with a given short name.
      *
@@ -109,7 +86,7 @@ namespace optionpp {
      *
      * @param short_name The short name for the option.
      */
-    basic_option(char_type short_name) : m_short_name{short_name} {}
+    option(char short_name) : m_short_name{short_name} {}
     /**
      * @brief Construct an option with given names.
      *
@@ -118,7 +95,7 @@ namespace optionpp {
      * @param long_name The long name for the option.
      * @param short_name The short name for the option.
      */
-    basic_option(string_type long_name, char_type short_name = char_type{})
+    option(std::string long_name, char short_name = '\0')
       : m_long_name{long_name}, m_short_name{short_name} {}
 
     /**
@@ -126,7 +103,7 @@ namespace optionpp {
      * @param name The long name to use.
      * @return Reference to the current instance (for chaining calls).
      */
-    basic_option& long_name(const string_type& name) {
+    option& long_name(const std::string& name) {
       m_long_name = name;
       return *this;
     }
@@ -134,14 +111,14 @@ namespace optionpp {
      * @brief Retrieve the option's long name.
      * @return The long name for the option.
      */
-    const string_type& long_name() const noexcept { return m_long_name; }
+    const std::string& long_name() const noexcept { return m_long_name; }
 
     /**
      * @brief Set the option's short name.
      * @param name The character to use as the short name.
      * @return Reference to the current instance (for chaining calls).
      */
-    basic_option& short_name(char_type name) noexcept {
+    option& short_name(char name) noexcept {
       m_short_name = name;
       return *this;
     }
@@ -149,7 +126,7 @@ namespace optionpp {
      * @brief Retrieve the option's short name.
      * @return The single-character short name for the option.
      */
-    char_type short_name() const noexcept { return m_short_name; }
+    char short_name() const noexcept { return m_short_name; }
 
     /**
      * @brief Set the option's argument information.
@@ -163,8 +140,8 @@ namespace optionpp {
      * @param type Whether the argument is optional or mandatory.
      * @return Reference to the current instance (for chaining calls).
      */
-    inline basic_option& argument(const string_type& name,
-                                  argument_type type = argument_type::required);
+    option& argument(const std::string& name,
+                     argument_type type = argument_type::required);
     /**
      * @brief Retrieve the option's argument name.
      *
@@ -172,7 +149,7 @@ namespace optionpp {
      *
      * @return The name of the argument.
      */
-    const string_type& argument_name() const noexcept { return m_arg_name; }
+    const std::string& argument_name() const noexcept { return m_arg_name; }
     /**
      * @brief Return true if the argument is mandatory.
      * @return True if the argument is required and false if it is optional.
@@ -187,7 +164,7 @@ namespace optionpp {
      * @param desc Description of the option.
      * @return Reference to the current instance (for chaining calls).
      */
-    basic_option& description(const string_type& desc) {
+    option& description(const std::string& desc) {
       m_desc = desc;
       return *this;
     }
@@ -195,7 +172,7 @@ namespace optionpp {
      * @brief Retrieve the option description.
      * @return Option description, used in generating program help text.
      */
-    const string_type& description() const noexcept { return m_desc; }
+    const std::string& description() const noexcept { return m_desc; }
 
     /**
      * @brief Set the option group.
@@ -206,7 +183,7 @@ namespace optionpp {
      * @param group_name Name of the group to which the option belongs.
      * @return Reference to the current instance (for chaining calls).
      */
-    basic_option& group(const string_type& group_name) {
+    option& group(const std::string& group_name) {
       m_group_name = group_name;
       return *this;
     }
@@ -218,33 +195,16 @@ namespace optionpp {
      *
      * @return Name of the group to which the option belongs, if any.
      */
-    const string_type& group() const noexcept { return m_group_name; }
+    const std::string& group() const noexcept { return m_group_name; }
 
   private:
-    string_type m_long_name; //< The long name
-    char_type m_short_name{}; //< The short name
-    string_type m_arg_name; //< The name of the argument (for help text)
-    bool m_arg_required{}; //< True if argument is mandatory, false if optional
-    string_type m_desc; //< Description of option (for help text)
-    string_type m_group_name; //< Name of option group
+    std::string m_long_name; //< The long name
+    char m_short_name{'\0'}; //< The short name
+    std::string m_arg_name; //< The name of the argument (for help text)
+    bool m_arg_required{false}; //< True if argument is mandatory, false if optional
+    std::string m_desc; //< Description of option (for help text)
+    std::string m_group_name; //< Name of option group
   };
-
-
-  /* Implementation */
-
-  template <typename S>
-  basic_option<S>&
-  basic_option<S>::argument(const string_type& name, argument_type type) {
-    m_arg_name = name;
-    m_arg_required = type == argument_type::required;
-
-    return *this;
-  }
-
-  /**
-   * @brief Type alias for typical usage of `basic_option`.
-   */
-  using option = basic_option<std::string>;
 
 } // End namespace
 

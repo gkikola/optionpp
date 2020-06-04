@@ -19,14 +19,12 @@
 
 /**
  * @file
- * @brief Header file for `basic_parser_result` class.
+ * @brief Header file for `parser_result` class.
  */
 
 #ifndef OPTIONPP_PARSER_RESULT_HPP
 #define OPTIONPP_PARSER_RESULT_HPP
 
-#include <algorithm>
-#include <cstddef>
 #include <initializer_list>
 #include <string>
 #include <utility>
@@ -38,43 +36,21 @@ namespace optionpp {
   /**
    * @brief Holds data that was parsed from the program command line.
    *
-   * This is a container of `basic_parser_result::item` structures
-   * that describe all the program options that were set on the
-   * command line as well as all non-option arguments, all in the
-   * order that they were originally specified.
+   * This is a container of `parser_result::item` structures that
+   * describe all the program options that were set on the command
+   * line as well as all non-option arguments, all in the order that
+   * they were originally specified.
    *
    * For example, if the user ran the program with the command
    * ```
    * myprogram -afn file1.txt file2.txt --verbose file3.txt
    * ```
-   * then the corresponding `basic_parser_result` would hold seven
-   * data items: `-a`, `-f`, `-n`, `file1.txt`, `file2.txt`,
-   * `--verbose`, `file3.txt`, in that order.
-   *
-   * @tparam StringType
-   * @parblock
-   * @brief The type of string used by the `basic_parser`.
-   *
-   * Usually this is `std::string` (i.e. `std::basic_string<char>`),
-   * which is used in the `parser_result` type alias, but other string
-   * variants may be used instead.
-   * @endparblock
+   * then the corresponding `parser_result` would hold seven data
+   * items: `-a`, `-f`, `-n`, `file1.txt`, `file2.txt`, `--verbose`,
+   * `file3.txt`, in that order.
    */
-  template <typename StringType>
-  class basic_parser_result {
+  class parser_result {
   public:
-    /**
-     * @brief Type of string used for input/output.
-     */
-    using string_type = StringType;
-    /**
-     * @brief Type of character used in `string_type`.
-     */
-    using char_type = typename StringType::value_type;
-    /**
-     * @brief Type specifying character traits used in `string_type`.
-     */
-    using traits_type = typename StringType::traits_type;
 
     /**
      * @brief Holds data parsed from the command line.
@@ -86,7 +62,7 @@ namespace optionpp {
       /**
        * @brief Default constructor.
        */
-      item() noexcept(noexcept(string_type())) {};
+      item() noexcept {};
 
       /**
        * @brief Constructor.
@@ -99,11 +75,11 @@ namespace optionpp {
        *                   an option).
        * @param argument The argument passed to the option, if any.
        */
-      explicit item(const string_type& original_text,
+      explicit item(const std::string& original_text,
                     bool is_option = false,
-                    const string_type& long_name = string_type{},
-                    char_type short_name = char_type{},
-                    const string_type& argument = string_type{})
+                    const std::string& long_name = "",
+                    char short_name = '\0',
+                    const std::string& argument = "")
         : original_text{original_text}, is_option{is_option},
           long_name{long_name}, short_name{short_name}, argument{argument} {}
 
@@ -119,7 +95,7 @@ namespace optionpp {
        * In addition, if an argument was given with the option, then
        * the argument will be included after the option name.
        */
-      string_type original_text;
+      std::string original_text;
 
       /**
        * @brief True if this `item` represents a program option, false
@@ -137,7 +113,7 @@ namespace optionpp {
        *
        * If `is_option` is false, this should be an empty string.
        */
-      string_type long_name;
+      std::string long_name;
 
       /**
        * @brief The short name of the option which this `item`
@@ -145,7 +121,7 @@ namespace optionpp {
        *
        * If `is_option` is false, this should be a null character.
        */
-      char_type short_name{};
+      char short_name{'\0'};
 
       /**
        * @brief The argument that was passed to the option, if any.
@@ -153,7 +129,7 @@ namespace optionpp {
        * If `is_option` is false, or if no argument was given, then
        * this should be an empty string.
        */
-      string_type argument;
+      std::string argument;
     };
 
     /**
@@ -189,14 +165,14 @@ namespace optionpp {
     /**
      * @brief Default constructor.
      *
-     * Constructs an empty `basic_parser_result`.
+     * Constructs an empty `parser_result`.
      */
-    basic_parser_result() noexcept(noexcept(string_type())) {}
+    parser_result() noexcept {}
     /**
      * @brief Construct from an initializer list.
      * @param il The `initializer_list` holding the parsed data.
      */
-    basic_parser_result(const std::initializer_list<value_type>& il)
+    parser_result(const std::initializer_list<value_type>& il)
       : m_items{il} {}
     /**
      * @brief Construct from a sequence.
@@ -205,7 +181,7 @@ namespace optionpp {
      * @param last Iterator pointing to one past the end of the sequence.
      */
     template <typename InputIt>
-    basic_parser_result(InputIt first, InputIt last) : m_items{first, last} {}
+    parser_result(InputIt first, InputIt last) : m_items{first, last} {}
 
     /**
      * @brief Add an `item` to the back of the container.
@@ -306,12 +282,12 @@ namespace optionpp {
      * @brief Range-checked subscript.
      * @param index The index of the data `item` to return.
      * @return The parsed data `item` corresponding to the `index`.
-     * @throw std::out_of_range Thrown if `index >= size()`.
+     * @throw out_of_range Thrown if `index >= size()`.
      */
     value_type& at(size_type index) {
       if (index >= size())
         throw out_of_range("out of bounds parser_result access",
-                           "optionpp::basic_parser_result::at");
+                           "optionpp::parser_result::at");
       return (*this)[index];
     }
     /**
@@ -320,7 +296,7 @@ namespace optionpp {
     const value_type& at(size_type index) const {
       if (index >= size())
         throw out_of_range("out of bounds parser_result access",
-                           "optionpp::basic_parser_result::at");
+                           "optionpp::parser_result::at");
       return (*this)[index];
     }
 
@@ -339,13 +315,13 @@ namespace optionpp {
 
     /**
      * @brief Access last `item` in the container.
-     * @throw std::out_of_range If container is empty.
+     * @throw out_of_range If container is empty.
      * @return Reference to last `item`.
      */
     value_type& back() {
       if (empty())
         throw out_of_range("out of bounds parser_result access",
-                           "optionpp::basic_parser_result::back");
+                           "optionpp::parser_result::back");
       return m_items.back();
     }
 
@@ -355,7 +331,7 @@ namespace optionpp {
     const value_type& back() const {
       if (empty())
         throw out_of_range("out of bounds parser_result access",
-                           "optionpp::basic_parser_result::at");
+                           "optionpp::parser_result::at");
       return m_items.back();
     }
 
@@ -365,24 +341,14 @@ namespace optionpp {
      * @return True if the option was present on the command-line,
      *         and false otherwise.
      */
-    bool is_option_set(const string_type& long_name) const noexcept {
-      if (long_name.empty())
-        return false;
-      else
-        return std::any_of(begin(), end(), [&](const item& i) { return i.is_option && i.long_name == long_name; });
-    }
+    bool is_option_set(const std::string& long_name) const noexcept;
     /**
      * @brief Returns whether the specified option is set.
      * @param short_name The short name for the option.
      * @return True if the option was present on the command-line,
      *         and false otherwise.
      */
-    bool is_option_set(char_type short_name) const noexcept {
-      if (short_name == char_type{})
-        return false;
-      else
-        return std::any_of(begin(), end(), [&](const item& i) { return i.is_option && i.short_name == short_name; });
-    }
+    bool is_option_set(char short_name) const noexcept;
 
     /**
      * @brief Get the argument for the specified option.
@@ -393,16 +359,7 @@ namespace optionpp {
      * @param long_name The long name for the option.
      * @return The argument given to the option.
      */
-    string_type get_argument(string_type long_name) const noexcept {
-      if (long_name == string_type{})
-        return string_type{};
-
-      auto it = std::find_if(begin(), end(), [&](const item& i) { return i.is_option && i.long_name == long_name; });
-      if (it != end())
-        return it->argument;
-      else
-        return string_type{};
-    }
+    std::string get_argument(std::string long_name) const noexcept;
     /**
      * @brief Get the argument for the specified option.
      *
@@ -412,25 +369,11 @@ namespace optionpp {
      * @param short_name The short name for the option.
      * @return The argument given to the option.
      */
-    string_type get_argument(char_type short_name) const noexcept {
-      if (short_name == char_type{})
-        return string_type{};
-
-      auto it = std::find_if(begin(), end(), [=](const item& i) { return i.is_option && i.short_name == short_name; });
-      if (it != end())
-        return it->argument;
-      else
-        return string_type{};
-    }
+    std::string get_argument(char short_name) const noexcept;
 
   private:
     container_type m_items; //< The internal container of `item` instances.
   };
-
-  /**
-   * @brief Type alias for typical usage of `basic_parser_result`.
-   */
-  using parser_result = basic_parser_result<std::string>;
 
 } // End namespace
 

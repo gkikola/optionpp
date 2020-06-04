@@ -18,3 +18,12 @@
 /* Written by Greg Kikola <gkikola@gmail.com>. */
 
 #include "option.hpp"
+
+using namespace optionpp;
+
+option& option::argument(const std::string& name, argument_type type) {
+  m_arg_name = name;
+  m_arg_required = type == argument_type::required;
+
+  return *this;
+}

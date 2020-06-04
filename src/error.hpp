@@ -26,6 +26,7 @@
 #define OPTIONPP_ERROR_HPP
 
 #include <stdexcept>
+#include <string>
 
 namespace optionpp {
 
@@ -39,11 +40,11 @@ namespace optionpp {
      * @param msg Description of the error.
      * @param fn_name Name of the function in which error occurred.
      */
-    error(const char* msg, const char* fn_name)
+    error(const std::string& msg, const std::string& fn_name)
       : logic_error(msg), m_function{fn_name} {}
 
   private:
-    const char* m_function; //< Function in which error occurred.
+    std::string m_function; //< Function in which error occurred.
   };
 
   /**
@@ -56,7 +57,7 @@ namespace optionpp {
      * @param msg Description of the error.
      * @param fn_name Name of the function in which error occurred.
      */
-    out_of_range(const char* msg, const char* fn_name)
+    out_of_range(const std::string& msg, const std::string& fn_name)
       : error(msg, fn_name) {}
   };
 
