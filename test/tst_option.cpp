@@ -29,10 +29,10 @@ TEST_CASE("option") {
   option long_and_short{"version", 'v'};
 
   option with_argument_req{"file", 'f'};
-  with_argument_req.argument("FILE", option::string_arg, true);
+  with_argument_req.argument("FILE", true);
 
   option with_argument_opt{"dir", 'd'};
-  with_argument_opt.argument("DIRECTORY", option::string_arg, false);
+  with_argument_opt.argument("DIRECTORY", false);
 
   option combo;
   combo.long_name("all").short_name('a').description("show all").group("Main");
@@ -46,7 +46,6 @@ TEST_CASE("option") {
     REQUIRE(empty.description() == "");
     REQUIRE(empty.argument_name() == "");
     REQUIRE_FALSE(empty.is_argument_required());
-    REQUIRE(empty.argument_type() == option::string_arg);
     REQUIRE(empty.group() == "");
 
     REQUIRE(short_name_only.name() == "v");
@@ -92,12 +91,54 @@ TEST_CASE("option") {
     REQUIRE(combo.short_name() == 'n');
 
     combo.name("block-size", 'b')
-      .argument("SIZE", option::uint_arg, true);
+      .argument("SIZE", true);
     REQUIRE(combo.name() == "block-size");
     REQUIRE(combo.long_name() == "block-size");
     REQUIRE(combo.short_name() == 'b');
     REQUIRE(combo.argument_name() == "SIZE");
     REQUIRE(combo.is_argument_required());
+  }
+
+  SECTION("variable binding") {
+    bool is_set{};
+    combo.bind_bool(&is_set);
+    REQUIRE_FALSE(is_set);
+    combo.write_bool(true);
+    REQUIRE(is_set);
+    combo.write_bool(false);
+    REQUIRE_FALSE(is_set);
+
+    std::string str_value;
+    combo.bind_string(&str_value);
+    REQUIRE(combo.argument_type() == option::string_arg);
+    combo.write_string("Hello world");
+    REQUIRE(str_value == "Hello world");
+    REQUIRE_THROWS_WITH(combo.write_int(-37),
+                        "option 'all' does not accept an int argument");
+    REQUIRE_THROWS_WITH(combo.write_uint(12),
+                        "option 'all' does not accept an unsigned int argument");
+    REQUIRE_THROWS_WITH(combo.write_double(42.0), "option 'all' does not accept a double argument");
+
+    int ivalue{};
+    combo.bind_int(&ivalue);
+    REQUIRE(combo.argument_type() == option::int_arg);
+    combo.write_int(-109);
+    REQUIRE(ivalue == -109);
+    REQUIRE_THROWS_WITH(combo.write_string("Hello"),
+                        "option 'all' does not accept a string argument");
+
+    unsigned uvalue{};
+    combo.bind_uint(&uvalue);
     REQUIRE(combo.argument_type() == option::uint_arg);
+    combo.write_uint(42);
+    REQUIRE(uvalue == 42);
+    REQUIRE_THROWS_WITH(combo.write_double(42.5),
+                        "option 'all' does not accept a double argument");
+
+    double dvalue{};
+    combo.bind_double(&dvalue);
+    REQUIRE(combo.argument_type() == option::double_arg);
+    combo.write_double(1.234);
+    REQUIRE(dvalue == Approx(1.234));
   }
 }

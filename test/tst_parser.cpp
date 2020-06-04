@@ -34,14 +34,14 @@ TEST_CASE("parser") {
   example.add_option().long_name("verbose").short_name('v')
     .description("Show verbose output");
   example.add_option().long_name("output").short_name('o')
-    .argument("FILE", option::string_arg, true)
+    .argument("FILE", true)
     .description("Write output to FILE").group("File options");
   example.add_option().short_name('n').description("Show line numbers")
     .group("File options");
   example.add_option().long_name("all").short_name('a')
     .description("Show all lines").group("Display options");
   example.add_option().long_name("indent")
-    .argument("WIDTH", option::uint_arg, false)
+    .argument("WIDTH", false)
     .description("Indent each line by WIDTH spaces (default: 2)")
     .group("Display options");
   example.add_option().long_name("force").short_name('f')

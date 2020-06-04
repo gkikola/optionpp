@@ -25,7 +25,6 @@
 #ifndef OPTIONPP_OPTION_HPP
 #define OPTIONPP_OPTION_HPP
 
-#include <functional>
 #include <string>
 
 namespace optionpp {
@@ -167,13 +166,11 @@ namespace optionpp {
      * The name is used in the program help text and usage string.
      *
      * @param name Name of the argument (usually all uppercase).
-     * @param type Type of argument that is expected.
      * @param required True if the option is mandatory, false if it
      *                 is optional.
      * @return Reference to the current instance (for chaining calls).
      */
     option& argument(const std::string& name,
-                     arg_type type = string_arg,
                      bool required = true);
     /**
      * @brief Retrieve the option's argument name.
@@ -193,6 +190,118 @@ namespace optionpp {
      * @return Expected argument type.
      */
     arg_type argument_type() const noexcept { return m_arg_type; }
+
+    /**
+     * @brief Designates a location to store whether the option was
+     *        set.
+     *
+     * If the option is encountered on the command line, the bound
+     * value is set to true. Otherwise, it is set to false.
+     *
+     * @param var Address of boolean to set.
+     * @return Reference to the current instance (for chaining calls).
+     */
+    option& bind_bool(bool* var) noexcept;
+    /**
+     * @brief Designates that the option should take a string argument
+     *        which should be stored in `*var`.
+     * @param var Address of string to receive argument value.
+     * @return Reference to the current instance (for chaining calls).
+     */
+    option& bind_string(std::string* var) noexcept;
+    /**
+     * @brief Designates that the option should take an integer
+     *        argument which should be stored in `*var`.
+     *
+     * If a non-integer argument is given, then the `parser` will
+     * throw a `parse_error` exception.
+     *
+     * @param var Address of integer to receive argument value.
+     * @return Reference to the current instance (for chaining calls).
+     */
+    option& bind_int(int* var) noexcept;
+    /**
+     * @brief Designates that the option should take an unsigned
+     *        integer argument which should be stored in `*var`.
+     *
+     * If a non-integer argument is given, or if a negative integer is
+     * encountered, then the `parser` will throw a `parse_error`
+     * exception.
+     *
+     * @param var Address of unsigned int to receive argument value.
+     * @return Reference to the current instance (for chaining calls).
+     */
+    option& bind_uint(unsigned int* var) noexcept;
+    /**
+     * @brief Designates that the option should take a
+     * double-precision floating point argument which should be stored
+     * in `*var`.
+     *
+     * If a non-numeric argument is given, then the `parser` will
+     * throw a `parse_error` exception.
+     *
+     * @param var Address of double to receive argument value.
+     * @return Reference to the current instance (for chaining calls).
+     */
+    option& bind_double(double* var) noexcept;
+    /**
+     * @brief Writes to the bound boolean variable that was specified
+     * in `bind_bool`.
+     *
+     * It is safe to call this function even when no boolean variable
+     * is currently bound. Doing so is effectively a no-op.
+     *
+     * @param value Value to write to the bound bool variable.
+     */
+    void write_bool(bool value) const noexcept;
+    /**
+     * @brief Writes to the bound string variable that was specified
+     * in `bind_string`.
+     *
+     * This method should not be called unless a string variable was
+     * previously bound. You can use the `argument_type` method to
+     * check what type of argument the option expects.
+     *
+     * @throw type_error If no string variable was bound.
+     * @param value Value to write to the bound string variable.
+     */
+    void write_string(const std::string& value) const;
+    /**
+     * @brief Writes to the bound integer variable that was specified
+     * in `bind_int`.
+     *
+     * This method should not be called unless an int variable was
+     * previously bound. You can use the `argument_type` method to
+     * check what type of argument the option expects.
+     *
+     * @throw type_error If no int variable was bound.
+     * @param value Value to write to the bound int variable.
+     */
+    void write_int(int value) const;
+    /**
+     * @brief Writes to the bound unsigned integer variable that was
+     * specified in `bind_uint`.
+     *
+     * This method should not be called unless an unsigned int
+     * variable was previously bound. You can use the `argument_type`
+     * method to check what type of argument the option expects.
+     *
+     * @throw type_error If no unsigned int variable was bound.
+     * @param value Value to write to the bound unsigned int variable.
+     */
+    void write_uint(unsigned int value) const;
+    /**
+     * @brief Writes to the bound double variable that was specified
+     * in `bind_double`.
+     *
+     * This method should not be called unless a double variable was
+     * previously bound. You can use the `argument_type` method to
+     * check what type of argument the option expects.
+     *
+     * @throw type_error If no double variable was bound.
+     * @param value Value to write to the bound double variable.
+     */
+    void write_double(double value) const;
 
     /**
      * @brief Set the option description.
@@ -236,14 +345,16 @@ namespace optionpp {
     const std::string& group() const noexcept { return m_group_name; }
 
   private:
-    std::string m_id; //< The option's unique identifier.
     std::string m_long_name; //< The long name.
     char m_short_name{'\0'}; //< The short name.
+    std::string m_desc; //< Description of option (for help text).
+    std::string m_group_name; //< Name of option group.
+
     std::string m_arg_name; //< The name of the argument (for help text).
     bool m_arg_required{false}; //< True if argument is mandatory, false if optional.
     arg_type m_arg_type{string_arg}; //< Type of argument that is expected.
-    std::string m_desc; //< Description of option (for help text).
-    std::string m_group_name; //< Name of option group.
+    bool* m_is_option_set = nullptr; //< Pointer to value to hold whether the option was set.
+    void* m_bound_variable = nullptr; //< Pointer to hold argument value.
   };
 
 } // End namespace
