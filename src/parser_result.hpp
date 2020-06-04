@@ -102,7 +102,7 @@ namespace optionpp {
       explicit item(const string_type& original_text,
                     bool is_option = false,
                     const string_type& long_name = string_type{},
-                    char_type short_name = '\0',
+                    char_type short_name = char_type{},
                     const string_type& argument = string_type{})
         : original_text{original_text}, is_option{is_option},
           long_name{long_name}, short_name{short_name}, argument{argument} {}
@@ -129,7 +129,7 @@ namespace optionpp {
        * argument (a separate command line argument that does not
        * begin with a hyphen).
        */
-      bool is_option;
+      bool is_option{false};
 
       /**
        * @brief The long name of the option which this `item`
@@ -143,9 +143,9 @@ namespace optionpp {
        * @brief The short name of the option which this `item`
        * represents.
        *
-       * If `is_option` is false, this should be an empty string.
+       * If `is_option` is false, this should be a null character.
        */
-      char_type short_name;
+      char_type short_name{};
 
       /**
        * @brief The argument that was passed to the option, if any.
@@ -306,7 +306,7 @@ namespace optionpp {
      * @brief Range-checked subscript.
      * @param index The index of the data `item` to return.
      * @return The parsed data `item` corresponding to the `index`.
-     * @exception std::out_of_range Thrown if `index >= size()`.
+     * @throw std::out_of_range Thrown if `index >= size()`.
      */
     value_type& at(size_type index) {
       if (index >= size())
@@ -336,6 +336,26 @@ namespace optionpp {
     }
 
     /**
+     * @brief Access last `item` in the container.
+     * @throw std::out_of_range If container is empty.
+     * @return Reference to last `item`.
+     */
+    value_type& back() {
+      if (empty())
+        throw std::out_of_range{"[optionpp] out of bounds parser_result access"};
+      return m_items.back();
+    }
+
+    /**
+     * @copydoc back
+     */
+    const value_type& back() const {
+      if (empty())
+        throw std::out_of_range{"[optionpp] out of bounds parser_result access"};
+      return m_items.back();
+    }
+
+    /**
      * @brief Returns whether the specified option is set.
      * @param long_name The long name for the option.
      * @return True if the option was present on the command-line,
@@ -354,7 +374,7 @@ namespace optionpp {
      *         and false otherwise.
      */
     bool is_option_set(char_type short_name) const noexcept {
-      if (short_name == '\0')
+      if (short_name == char_type{})
         return false;
       else
         return std::any_of(begin(), end(), [&](const item& i) { return i.is_option && i.short_name == short_name; });
@@ -389,7 +409,7 @@ namespace optionpp {
      * @return The argument given to the option.
      */
     string_type get_argument(char_type short_name) const noexcept {
-      if (short_name == '\0')
+      if (short_name == char_type{})
         return string_type{};
 
       auto it = std::find_if(begin(), end(), [=](const item& i) { return i.is_option && i.short_name == short_name; });

@@ -140,13 +140,14 @@ TEST_CASE("parser_result") {
     REQUIRE_FALSE(result.empty());
   }
 
-  SECTION("operator[] and at") {
+  SECTION("operator[], at, and back") {
     result = parser_result{version, help, non_option, file};
 
     REQUIRE(result[0].original_text == "--version");
     REQUIRE(result[1].original_text == "-?");
     REQUIRE(result[2].original_text == "command");
     REQUIRE(result[3].original_text == "-f myfile.txt");
+    REQUIRE(result.back().original_text == "-f myfile.txt");
 
     REQUIRE(result.at(0).original_text == "--version");
     REQUIRE(result.at(1).original_text == "-?");
@@ -162,10 +163,17 @@ TEST_CASE("parser_result") {
     REQUIRE(cresult.at(1).original_text == "-?");
     REQUIRE(cresult.at(2).original_text == "command");
     REQUIRE(cresult.at(3).original_text == "-f myfile.txt");
+    REQUIRE(cresult.back().original_text == "-f myfile.txt");
 
     REQUIRE_THROWS_AS(cresult.at(4), std::out_of_range);
     REQUIRE_THROWS_AS(cresult.at(5), std::out_of_range);
     REQUIRE_THROWS_AS(cresult.at(10), std::out_of_range);
+
+    parser_result empty = parser_result{};
+    REQUIRE_THROWS_AS(empty.back(), std::out_of_range);
+
+    const parser_result cempty = parser_result{};
+    REQUIRE_THROWS_AS(cempty.back(), std::out_of_range);
   }
 
   SECTION("is_option_set") {
