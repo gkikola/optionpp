@@ -55,6 +55,7 @@ TEST_CASE("parser") {
     REQUIRE(result.empty());
 
     cmd_line = {"myprog", "-afv", "--help", "command1", "-n", "--version", "command2"};
+    result = example.parse(cmd_line.begin(), cmd_line.end());
     REQUIRE(result.size() == 8);
     REQUIRE(result[0].original_text == "-a");
     REQUIRE(result[0].is_option);
@@ -121,7 +122,7 @@ TEST_CASE("parser") {
   }
 
   SECTION("no ignore_first") {
-    std::vector<std::string> cmd_line{"command1 -n command2"};
+    std::vector<std::string> cmd_line{"command1", "-n", "command2"};
     auto result = example.parse(cmd_line.begin(), cmd_line.end(), false);
     REQUIRE(result.size() == 3);
     REQUIRE(result[0].original_text == "command1");
@@ -179,10 +180,14 @@ TEST_CASE("parser") {
     REQUIRE_THROWS_AS(example.parse("myprog -o"), std::invalid_argument);
     REQUIRE_THROWS_AS(example.parse("command -o -n"), std::invalid_argument);
     REQUIRE_THROWS_AS(example.parse("command -o --version"), std::invalid_argument);
-    REQUIRE_THROWS_AS(example.parse("myprog -o= -n"), std::invalid_argument);
-    REQUIRE_THROWS_AS(example.parse("command --output= -n"), std::invalid_argument);
+    REQUIRE_NOTHROW(example.parse("command --output= -n"));
     REQUIRE_THROWS_AS(example.parse("command --output --version"), std::invalid_argument);
     REQUIRE_NOTHROW(example.parse("myprog -o out"));
+  }
+
+  SECTION("invalid arguments") {
+    REQUIRE_THROWS_AS(example.parse("command -fn=hello"), std::invalid_argument);
+    REQUIRE_THROWS_AS(example.parse("commnad --version=myversion"), std::invalid_argument);
   }
 
   SECTION("arguments") {
@@ -201,7 +206,7 @@ TEST_CASE("parser") {
     REQUIRE(result[0].argument == "4");
 
     result = example.parse("command -fo myfile.txt --indent=5 -n");
-    REQUIRE(result.size() == 4);
+    REQUIRE(result.size() == 5);
     REQUIRE(result[0].original_text == "command");
     REQUIRE_FALSE(result[0].is_option);
     REQUIRE(result[1].original_text == "-f");
@@ -220,6 +225,25 @@ TEST_CASE("parser") {
     REQUIRE(result[4].original_text == "-n");
     REQUIRE(result[4].is_option);
 
+    result = example.parse("-nfo=myfile.txt --indent 5");
+    REQUIRE(result.size() == 4);
+    REQUIRE(result[0].original_text == "-n");
+    REQUIRE(result[0].is_option);
+    REQUIRE(result[0].argument.empty());
+    REQUIRE(result[1].original_text == "-f");
+    REQUIRE(result[1].is_option);
+    REQUIRE(result[1].argument.empty());
+    REQUIRE(result[2].original_text == "-o=myfile.txt");
+    REQUIRE(result[2].is_option);
+    REQUIRE(result[2].long_name == "output");
+    REQUIRE(result[2].short_name == 'o');
+    REQUIRE(result[2].argument == "myfile.txt");
+    REQUIRE(result[3].original_text == "--indent 5");
+    REQUIRE(result[3].is_option);
+    REQUIRE(result[3].long_name == "indent");
+    REQUIRE(result[3].short_name == '\0');
+    REQUIRE(result[3].argument == "5");
+
     result = example.parse("--indent --version");
     REQUIRE(result.size() == 2);
     REQUIRE(result[0].original_text == "--indent");
@@ -236,6 +260,14 @@ TEST_CASE("parser") {
     REQUIRE(result[0].long_name == "output");
     REQUIRE(result[0].short_name == 'o');
     REQUIRE(result[0].argument == "myfile");
+
+    result = example.parse("-omy=file");
+    REQUIRE(result.size() == 1);
+    REQUIRE(result[0].original_text == "-omy=file");
+    REQUIRE(result[0].is_option);
+    REQUIRE(result[0].long_name == "output");
+    REQUIRE(result[0].short_name == 'o');
+    REQUIRE(result[0].argument == "my=file");
 
     result = example.parse("command -o=myfile -n");
     REQUIRE(result.size() == 3);

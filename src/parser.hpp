@@ -28,7 +28,9 @@
 #include <algorithm>
 #include <initializer_list>
 #include <iterator>
+#include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 #include "option.hpp"
 #include "parser_result.hpp"
@@ -345,7 +347,7 @@ namespace optionpp {
      * @param ignore_first If true, the first argument (typically the
      *                     program filename) is ignored.
      * @return `basic_parser_result` containing the parsed data.
-     * @throw std::invalid_argument if an invalid option is entered or
+     * @throw std::invalid_argument If an invalid option is entered or
      *                              a mandatory argument is missing.
      * @see basic_parser_result
      */
@@ -364,7 +366,7 @@ namespace optionpp {
      * @param ignore_first If true, the first argument (typically the
      *                     program filename) is ignored.
      * @return `basic_parser_result` containing the parsed data.
-     * @throw std::invalid_argument if an invalid option is entered or
+     * @throw std::invalid_argument If an invalid option is entered or
      *                              a mandatory argument is missing.
      * @see basic_parser_result
      */
@@ -384,13 +386,97 @@ namespace optionpp {
      * @param cmd_line The command-line arguments to parse.
      * @param ignore_first If true, the first argument is ignored.
      * @return `basic_parser_result` containing the parsed data.
-     * @throw std::invalid_argument if an invalid option is entered or
+     * @throw std::invalid_argument If an invalid option is entered or
      *                              a mandatory argument is missing.
      * @see basic_parser_result
      */
     result_type parse(const string_type& cmd_line, bool ignore_first = false) const;
 
   private:
+
+    /**
+     * @brief Determines whether an argument is an end-of-option
+     *        marker.
+     * @param argument Argument to check.
+     * @return True if the argument is an end-of-option marker.
+     */
+    static bool is_end_indicator(const string_type& argument) noexcept {
+      return argument == traits_type::end_of_options();
+    }
+
+    /**
+     * @brief Determines whether an argument is a long command-line
+     *        option.
+     * @param argument Argument to check.
+     * @return True if the argument begins with a long option prefix.
+     */
+    static bool is_long_option(const string_type& argument) noexcept {
+      auto prefix = traits_type::long_option_prefix();
+      return argument.size() > prefix.size() && utility::is_substr_at_pos(argument, prefix);
+    }
+
+    /**
+     * @brief Determines whether an argument is a short command-line
+     *        option group.
+     * @param argument Argument to check.
+     * @return True if the argument begins with a short option prefix.
+     */
+    static bool is_short_option_group(const string_type& argument) noexcept {
+      auto prefix = traits_type::short_option_prefix();
+      return argument.size() > prefix.size() && utility::is_substr_at_pos(argument, prefix);
+    }
+
+    /**
+     * @brief Determines whether an argument is a non-option argument.
+     * @param argument Argument to check.
+     * @return True if the argument is a non-option argument.
+     */
+    static bool is_non_option(const string_type& argument) noexcept {
+      return !is_end_indicator(argument)
+        && !is_long_option(argument)
+        && !is_short_option_group(argument);
+    }
+
+    /**
+     * @brief Represents the type of a command-line argument.
+     */
+    enum class cl_arg_type { non_option, //< If the argument is not an option.
+                             end_indicator, //< If the argument is an end-of-options marker.
+                             arg_required, //< If the argument ends with an option that needs a mandatory argument.
+                             arg_optional, //< If the argument ends with an option that can take an optional argument.
+                             no_arg //< If the argument ends with an option that does not take an argument (or an argument was already given).
+    };
+
+    /**
+     * @brief Parse a command-line argument.
+     * @param argument Argument to parse.
+     * @param result Current `parse_result`. New entries will be added
+     *               to the end.
+     * @param type Will be set to the appropriate option type.
+     * @throw std::invalid_argument Thrown if option is invalid or
+     *                              missing a required argument.
+     * @see cl_arg_type
+     */
+    void parse_argument(const string_type& argument,
+                        result_type& result, cl_arg_type& type) const;
+
+    /**
+     * @brief Parse a group of short options.
+     * @param short_names String of short option name characters to parse.
+     * @param argument Option argument that was provided, if any.
+     * @param has_arg Should be true if an argument was found (even an
+     *                empty one).
+     * @param result Current `parse_result`. New entries will be added
+     *               to the end.
+     * @param type Will be set to the appropriate option type.
+     * @throw std::invalid_argument Thrown if option is invalid or
+     *                              missing a required argument.
+     * @see cl_arg_type
+     */
+    void parse_short_option_group(const string_type& short_names,
+                                  const string_type& argument, bool has_arg,
+                                  result_type& result, cl_arg_type& type) const;
+
     /**
      * @brief Type used to hold `basic_option` objects.
      */
@@ -423,61 +509,42 @@ namespace optionpp {
     InputIt it{first};
 
     result_type result{};
-    typename result_type::item cur_item{};
-    auto cur_option = m_options.end();
-    bool expecting_arg{false};
-    bool ignore_options{false};
+    cl_arg_type prev_type{cl_arg_type::non_option};
     while (it != last) {
-      const string_type& arg = *it;
+      const string_type& arg{*it};
 
       // If we are expecting a standalone option argument...
-      if (expecting_arg) {
-        expecting_arg = false;
+      if (prev_type == cl_arg_type::arg_required
+          || prev_type == cl_arg_type::arg_optional) {
         // ...see if an argument was provided...
-        if (!utility::is_substr_at_pos(arg, traits_type::long_option_prefix())
-            && !utility::is_substr_at_pos(arg, traits_type::short_option_prefix())) {
-          cur_item.argument = arg;
-          cur_item.original_text += traits_type::space_char();
-          cur_item.original_text += arg;
-          result.push_back(cur_item);
-          cur_item = typename result_type::item{};
-          cur_option = m_options.end();
+        if (!is_end_indicator(arg) && !is_long_option(arg)
+            && !is_short_option_group(arg)) {
+          auto& arg_info = result.back();
+          arg_info.argument = arg;
+          arg_info.original_text += traits_type::space_char();
+          arg_info.original_text += arg;
+          prev_type = cl_arg_type::non_option;
         } else { // ...if not, make sure argument was optional
-          if (cur_option->is_argument_required())
+          if (prev_type == cl_arg_type::arg_required)
             throw std::invalid_argument{"[optionpp] missing mandatory argument"};
-          result.push_back(cur_item);
-          cur_item = typename result_type::item{};
-          cur_option = m_options.end();
+          prev_type = cl_arg_type::non_option;
           continue; // Continue without incrementing 'it' in order to reevaluate current token
         }
-      } else { // Not expecting a standalone option argument
-        // See if this is the end-of-options marker
-        if (!ignore_options && arg == traits_type::end_of_options()) {
-          ignore_options = true;
-        } else {
-          // If options are being ignored, just treat this as a non-option argument
-          if (ignore_options) {
-            cur_item.original_text = arg;
-            cur_item.is_option = false;
-            result.push_back(cur_item);
-            cur_item = typename result_type::item{};
-          } else if (utility::is_substr_at_pos(arg, traits_type::long_option_prefix())) {
-            // Long option was found
-            // expecting_arg = read_long_option(arg, result, cur_item, cur_option);
-          } else if (utility::is_substr_at_pos(arg, traits_type::short_option_prefix())) {
-            // Short options found
-            // expecting_arg = read_short_options(arg, result, cur_item, cur_option);
-          } else { // This is not an option argument
-            cur_item.original_text = arg;
-            cur_item.is_option = false;
-            result.push_back(cur_item);
-            cur_item = typename result_type::item{};
-          }
-        }
+      } else if (prev_type == cl_arg_type::end_indicator) { // Ignore options
+        typename result_type::item arg_info;
+        arg_info.original_text = arg;
+        arg_info.is_option = false;
+        result.push_back(std::move(arg_info));
+      } else { // Regular argument
+        parse_argument(arg, result, prev_type);
       }
 
       ++it;
     }
+
+    // Make sure we don't still need a mandatory argument
+    if (prev_type == cl_arg_type::arg_required)
+      throw std::invalid_argument{"[optionpp] missing mandatory argument"};
 
     return result;
   }
@@ -500,6 +567,136 @@ namespace optionpp {
   }
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
+
+  template <typename StringType, typename StringTraits>
+  void basic_parser<StringType, StringTraits>::parse_argument(const string_type& argument,
+                                                              result_type& result,
+                                                              cl_arg_type& type) const {
+    // Check for end-of-option marker
+    if (is_end_indicator(argument)) {
+      type = cl_arg_type::end_indicator;
+      return;
+    }
+
+    // Split string into components
+    string_type option_specifier;
+    string_type option_argument;
+    bool assignment_found = false;
+    auto pos = argument.find(traits_type::assignment());
+    if (pos == string_type::npos)
+      option_specifier = argument;
+    else {
+      assignment_found = true;
+      option_specifier = argument.substr(0, pos);
+      pos += traits_type::assignment().size();
+      option_argument = argument.substr(pos);
+    }
+
+    // Check option type
+    typename result_type::item opt_info;
+    if (is_long_option(option_specifier)) {
+      // Extract option name
+      string_type option_name = option_specifier.substr(traits_type::long_option_prefix().size());
+
+      // Look up option info
+      auto it = std::find_if(m_options.begin(), m_options.end(),
+                             [&](const option_type& o) { return o.long_name() == option_name; });
+      if (it == m_options.end())
+        throw std::invalid_argument{"[optionpp] Long option not found"};
+
+      // Does this option take an argument?
+      if (!it->argument_name().empty()) {
+        if (!assignment_found) { // No arg was found, caller should look for it
+          if (it->is_argument_required())
+            type = cl_arg_type::arg_required;
+          else
+            type = cl_arg_type::arg_optional;
+        } else { // Found an argument
+          type = cl_arg_type::no_arg; // Caller should not look for argument
+          opt_info.argument = option_argument;
+        }
+      } else { // Does not take an argument
+        if (assignment_found) // Found an argument where there should be none
+          throw std::invalid_argument{"[optionpp] Option does not take argument"};
+        type = cl_arg_type::no_arg;
+      }
+      opt_info.original_text = argument;
+      opt_info.is_option = true;
+      opt_info.long_name = option_name;
+      opt_info.short_name = it->short_name();
+      result.push_back(std::move(opt_info));
+    } else if (is_short_option_group(option_specifier)) { // Short options
+      parse_short_option_group(option_specifier.substr(traits_type::short_option_prefix().size()),
+                               option_argument, assignment_found,
+                               result, type);
+    } else {
+      // If we get here, this argument is not an option
+      type = cl_arg_type::non_option;
+      opt_info.original_text = argument;
+      opt_info.is_option = false;
+      result.push_back(std::move(opt_info));
+    }
+  }
+
+  template <typename StringType, typename StringTraits>
+  void basic_parser<StringType, StringTraits>
+  ::parse_short_option_group(const string_type& short_names,
+                             const string_type& argument, bool has_arg,
+                             result_type& result, cl_arg_type& type) const {
+    for (decltype(short_names.size()) pos = 0; pos != short_names.size(); ++pos) {
+      // Look up option info
+      auto it = std::find_if(m_options.begin(), m_options.end(),
+                             [&](const option_type& o) { return o.short_name() == short_names[pos]; });
+      if (it == m_options.end())
+        throw std::invalid_argument{"[optionpp] Short option not found"};
+
+      typename result_type::item opt_info;
+      opt_info.original_text = traits_type::short_option_prefix();
+      opt_info.original_text.push_back(short_names[pos]);
+      opt_info.is_option = true;
+      opt_info.long_name = it->long_name();
+      opt_info.short_name = short_names[pos];
+
+      // Check if option takes an argument
+      if (!it->argument_name().empty()) {
+        if (pos + 1 < short_names.size()) {
+          // This isn't the last option, so the rest of the string is an argument
+          opt_info.argument = short_names.substr(pos + 1);
+          if (has_arg) {
+            // The assignment symbol is actually part of the argument
+            opt_info.argument += traits_type::assignment();
+            opt_info.argument += argument;
+          }
+          opt_info.original_text += opt_info.argument;
+          result.push_back(std::move(opt_info));
+          type = cl_arg_type::no_arg;
+          break;
+        } else {
+          // This is the last option and it needs an argument
+          if (has_arg) {
+            opt_info.original_text += traits_type::assignment();
+            opt_info.original_text += argument;
+            opt_info.argument = argument;
+            type = cl_arg_type::no_arg;
+          } else if (it->is_argument_required()) {
+            type = cl_arg_type::arg_required;
+          } else {
+            type = cl_arg_type::arg_optional;
+          }
+          result.push_back(std::move(opt_info));
+          break;
+        }
+      }
+
+      // If we make it here, then the current option does not take an argument
+      if (pos + 1 == short_names.size() && has_arg)
+        throw std::invalid_argument{"[optionpp] short option does not take an argument"};
+
+      result.push_back(std::move(opt_info));
+      type = cl_arg_type::no_arg;
+      opt_info = typename result_type::item{};
+    } // End for loop
+  }
 
 } // End namespace
 
