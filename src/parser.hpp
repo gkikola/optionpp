@@ -296,6 +296,20 @@ namespace optionpp {
     }
 
     /**
+     * @brief Write to an option's bound argument variable.
+     *
+     * The argument will be converted to the appropriate type. If it
+     * cannot be converted, an exception is raised. If no variable was
+     * bound to the option, then nothing is done.
+     *
+     * @param opt `option` that is being set.
+     * @param item Object holding result item information for the
+     *             option, including the argument to assign.
+     */
+    void write_option_argument(const option& opt,
+                               const parser_result::item& item) const;
+
+    /**
      * @brief Represents the type of a command-line argument.
      */
     enum class cl_arg_type { non_option, //< If the argument is not an option.

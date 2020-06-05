@@ -26,25 +26,39 @@
 using namespace optionpp;
 
 TEST_CASE("parser") {
+  struct settings {
+    bool help{};
+    bool version{};
+    bool verbose{};
+    std::string file;
+    bool has_file{};
+    unsigned indent{2};
+    bool force{};
+    bool line_nos{};
+  };
+
+  settings data;
   parser empty{};
   parser example{};
   example.add_option().long_name("help").short_name('?')
-    .description("Show help information");
-  example.add_option().long_name("version").description("Get version info");
+    .description("Show help information").bind_bool(&data.help);
+  example.add_option().long_name("version").description("Get version info")
+    .bind_bool(&data.version);
   example.add_option().long_name("verbose").short_name('v')
-    .description("Show verbose output");
+    .description("Show verbose output").bind_bool(&data.verbose);
   example.add_option().long_name("output").short_name('o')
-    .argument("FILE", true)
+    .argument("FILE", true).bind_string(&data.file)
+    .bind_bool(&data.has_file)
     .description("Write output to FILE").group("File options");
-  example.add_option().short_name('n').description("Show line numbers")
-    .group("File options");
+  example.add_option().short_name('n').bind_bool(&data.line_nos)
+    .description("Show line numbers").group("File options");
   example.add_option().long_name("all").short_name('a')
     .description("Show all lines").group("Display options");
   example.add_option().long_name("indent")
-    .argument("WIDTH", false)
+    .argument("WIDTH", false).bind_uint(&data.indent)
     .description("Indent each line by WIDTH spaces (default: 2)")
     .group("Display options");
-  example.add_option().long_name("force").short_name('f')
+  example.add_option().long_name("force").short_name('f').bind_bool(&data.force)
     .description("Force file creation").group("File options");
 
   SECTION("simple parsing") {
@@ -412,5 +426,65 @@ TEST_CASE("parser") {
     REQUIRE_FALSE(result[1].is_option);
     REQUIRE(result[2].original_text == "cmd2");
     REQUIRE_FALSE(result[2].is_option);
+  }
+
+  SECTION("bound variables") {
+    REQUIRE_FALSE(data.help);
+    REQUIRE_FALSE(data.version);
+    REQUIRE_FALSE(data.verbose);
+    REQUIRE(data.file == "");
+    REQUIRE_FALSE(data.has_file);
+    REQUIRE_FALSE(data.force);
+    REQUIRE_FALSE(data.line_nos);
+
+    example.parse("command --help -no output.txt");
+    REQUIRE(data.help);
+    REQUIRE(data.line_nos);
+    REQUIRE(data.has_file);
+    REQUIRE(data.file == "output.txt");
+    REQUIRE_FALSE(data.force);
+    REQUIRE_FALSE(data.version);
+    REQUIRE_FALSE(data.verbose);
+
+    example.parse("--indent=4 command -fn");
+    REQUIRE(data.indent == 4);
+    REQUIRE(data.force);
+    REQUIRE(data.line_nos);
+  }
+
+  SECTION("type errors") {
+    struct settings_ex {
+      double temperature;
+      int net_worth;
+    } data_ex;
+    example.add_option().short_name('t').long_name("temperature")
+      .bind_double(&data_ex.temperature);
+    example.add_option().long_name("net-worth").bind_int(&data_ex.net_worth);
+
+    example.parse("--indent=13");
+    REQUIRE(data.indent == 13);
+    REQUIRE_THROWS_WITH(example.parse("--indent=-32"),
+                        "argument for option '--indent' must not be negative");
+    REQUIRE_THROWS_WITH(example.parse("--indent=two"),
+                        "argument for option '--indent' must be an integer");
+    REQUIRE_THROWS_WITH(example.parse("--indent=2.5"),
+                        "argument for option '--indent' must be an integer");
+
+    example.parse("command --net-worth=-48 -t=-12.08e+4");
+    REQUIRE(data_ex.net_worth == -48);
+    REQUIRE(data_ex.temperature == Approx(-12.08e4));
+
+    example.parse("command --net-worth 0 -t 2.559e-4");
+    REQUIRE(data_ex.net_worth == 0);
+    REQUIRE(data_ex.temperature == Approx(2.559e-4));
+
+    REQUIRE_THROWS_WITH(example.parse("--net-worth=-0.9"),
+                        "argument for option '--net-worth' must be an integer");
+    REQUIRE_THROWS_WITH(example.parse("--net-worth=5billion -fn"),
+                        "argument for option '--net-worth' must be an integer");
+    REQUIRE_THROWS_WITH(example.parse("-t=100f"),
+                        "argument for option '-t' must be a number");
+    REQUIRE_THROWS_WITH(example.parse("-t xxx"),
+                        "argument for option '-t' must be a number");
   }
 }

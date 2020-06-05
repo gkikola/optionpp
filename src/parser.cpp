@@ -19,6 +19,9 @@
 
 #include "parser.hpp"
 
+#include <limits>
+#include <stdexcept>
+
 using namespace optionpp;
 
 void parser::set_custom_strings(const std::string& delims,
@@ -36,6 +39,67 @@ void parser::set_custom_strings(const std::string& delims,
     m_end_of_options = end_indicator;
   if (!equals.empty())
     m_equals = equals;
+}
+
+void parser::write_option_argument(const option& opt,
+                                   const parser_result::item& item) const {
+  if (!opt.has_bound_argument_variable())
+    return;
+
+  std::string::size_type pos = 0;
+  const std::string& arg = item.argument;
+  const std::string& opt_name = item.original_without_argument;
+  const std::string& fn_name = "optionpp::parser::write_option_argument";
+
+  try {
+    switch (opt.argument_type()) {
+    case option::uint_arg: {
+      long long value = std::stoll(item.argument, &pos);
+      if (pos != arg.size())
+        throw std::invalid_argument{"invalid argument"};
+      if (value < 0)
+        throw parse_error{"argument for option '" + opt_name + "' must not be negative",
+            fn_name, opt_name};
+      else if (value > std::numeric_limits<unsigned>::max())
+        throw std::out_of_range{"out of range"};
+      opt.write_uint(static_cast<unsigned>(value));
+      break;
+    }
+    case option::int_arg: {
+      int value = std::stoi(item.argument, &pos);
+      if (pos != arg.size())
+        throw std::invalid_argument{"invalid argument"};
+      opt.write_int(value);
+      break;
+    }
+    case option::double_arg: {
+      double value = std::stod(item.argument, &pos);
+      if (pos != arg.size())
+        throw std::invalid_argument{"invalid argument"};
+      opt.write_double(value);
+      break;
+    }
+    default:
+    case option::string_arg:
+      opt.write_string(arg);
+      break;
+    }
+  } catch(const std::invalid_argument&) {
+    switch (opt.argument_type()) {
+    case option::uint_arg:
+    case option::int_arg:
+      throw parse_error{"argument for option '" + opt_name + "' must be an integer",
+                          fn_name, opt_name};
+    case option::double_arg:
+      throw parse_error{"argument for option '" + opt_name + "' must be a number",
+                          fn_name, opt_name};
+    default:
+      throw type_error{"type error in argument for option '" + opt_name + "'", fn_name};
+    }
+  } catch(const std::out_of_range&) {
+    throw parse_error{"argument for option '" + opt_name + "' is out of range",
+                        fn_name, opt_name};
+  }
 }
 
 template <typename InputIt>
@@ -61,6 +125,8 @@ parser_result parser::parse(InputIt first, InputIt last, bool ignore_first) cons
         arg_info.original_text.push_back(' ');
         arg_info.original_text += arg;
         prev_type = cl_arg_type::non_option;
+        if (arg_info.opt_info)
+          write_option_argument(*arg_info.opt_info, arg_info);
       } else { // ...if not, make sure argument was optional
         if (prev_type == cl_arg_type::arg_required) {
           const auto& opt_name = result.back().original_text;
@@ -134,7 +200,7 @@ void parser::parse_argument(const std::string& argument,
   }
 
   // Check option type
-  parser_result::item opt_info;
+  parser_result::item arg_info;
   if (is_long_option(option_specifier)) {
     // Extract option name
     std::string option_name = option_specifier.substr(m_long_option_prefix.size());
@@ -145,6 +211,7 @@ void parser::parse_argument(const std::string& argument,
     if (it == m_options.end())
       throw parse_error{"invalid option: '" + option_specifier + "'",
           "optionpp::parser::parse_argument", option_specifier};
+    arg_info.opt_info = &(*it);
 
     // Does this option take an argument?
     if (!it->argument_name().empty()) {
@@ -155,7 +222,7 @@ void parser::parse_argument(const std::string& argument,
           type = cl_arg_type::arg_optional;
       } else { // Found an argument
         type = cl_arg_type::no_arg; // Caller should not look for argument
-        opt_info.argument = option_argument;
+        arg_info.argument = option_argument;
       }
     } else { // Does not take an argument
       if (assignment_found) // Found an argument where there should be none
@@ -163,11 +230,15 @@ void parser::parse_argument(const std::string& argument,
                             "optionpp::parser::parse_argument", option_specifier};
       type = cl_arg_type::no_arg;
     }
-    opt_info.original_text = argument;
-    opt_info.is_option = true;
-    opt_info.long_name = option_name;
-    opt_info.short_name = it->short_name();
-    result.push_back(std::move(opt_info));
+    arg_info.original_text = argument;
+    arg_info.original_without_argument = option_specifier;
+    arg_info.is_option = true;
+    arg_info.long_name = option_name;
+    arg_info.short_name = it->short_name();
+    if (assignment_found)
+      write_option_argument(*it, arg_info);
+    it->write_bool(true);
+    result.push_back(std::move(arg_info));
   } else if (is_short_option_group(option_specifier)) { // Short options
     parse_short_option_group(option_specifier.substr(m_short_option_prefix.size()),
                              option_argument, assignment_found,
@@ -175,9 +246,9 @@ void parser::parse_argument(const std::string& argument,
   } else {
     // If we get here, this argument is not an option
     type = cl_arg_type::non_option;
-    opt_info.original_text = argument;
-    opt_info.is_option = false;
-    result.push_back(std::move(opt_info));
+    arg_info.original_text = argument;
+    arg_info.is_option = false;
+    result.push_back(std::move(arg_info));
   }
 }
 
@@ -196,40 +267,45 @@ void parser::parse_short_option_group(const std::string& short_names,
           "optionpp::parser::parse_short_option_group", opt_name};
     }
 
-    parser_result::item opt_info;
-    opt_info.original_text = m_short_option_prefix;
-    opt_info.original_text.push_back(short_names[pos]);
-    opt_info.is_option = true;
-    opt_info.long_name = it->long_name();
-    opt_info.short_name = short_names[pos];
+    parser_result::item arg_info;
+    arg_info.original_text = m_short_option_prefix;
+    arg_info.original_text.push_back(short_names[pos]);
+    arg_info.original_without_argument = arg_info.original_text;
+    arg_info.is_option = true;
+    arg_info.long_name = it->long_name();
+    arg_info.short_name = short_names[pos];
+    arg_info.opt_info = &(*it);
+    it->write_bool(true);
 
     // Check if option takes an argument
     if (!it->argument_name().empty()) {
       if (pos + 1 < short_names.size()) {
         // This isn't the last option, so the rest of the string is an argument
-        opt_info.argument = short_names.substr(pos + 1);
+        arg_info.argument = short_names.substr(pos + 1);
         if (has_arg) {
           // The assignment symbol is actually part of the argument
-          opt_info.argument += m_equals;
-          opt_info.argument += argument;
+          arg_info.argument += m_equals;
+          arg_info.argument += argument;
         }
-        opt_info.original_text += opt_info.argument;
-        result.push_back(std::move(opt_info));
+        arg_info.original_text += arg_info.argument;
+        write_option_argument(*it, arg_info);
+        result.push_back(std::move(arg_info));
         type = cl_arg_type::no_arg;
         break;
       } else {
         // This is the last option and it needs an argument
         if (has_arg) {
-          opt_info.original_text += m_equals;
-          opt_info.original_text += argument;
-          opt_info.argument = argument;
+          arg_info.original_text += m_equals;
+          arg_info.original_text += argument;
+          arg_info.argument = argument;
+          write_option_argument(*it, arg_info);
           type = cl_arg_type::no_arg;
         } else if (it->is_argument_required()) {
           type = cl_arg_type::arg_required;
         } else {
           type = cl_arg_type::arg_optional;
         }
-        result.push_back(std::move(opt_info));
+        result.push_back(std::move(arg_info));
         break;
       }
     }
@@ -242,8 +318,8 @@ void parser::parse_short_option_group(const std::string& short_names,
           "optionpp::parser::parse_short_option_group", opt_name};
     }
 
-    result.push_back(std::move(opt_info));
+    result.push_back(std::move(arg_info));
     type = cl_arg_type::no_arg;
-    opt_info = parser_result::item{};
+    arg_info = parser_result::item{};
   } // End for loop
 }
