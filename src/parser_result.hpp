@@ -30,6 +30,7 @@
 #include <utility>
 #include <vector>
 #include "error.hpp"
+#include "option.hpp"
 
 namespace optionpp {
 
@@ -98,6 +99,16 @@ namespace optionpp {
       std::string original_text;
 
       /**
+       * @brief The original text used on the command line but without
+       * any option argument.
+       *
+       * For example, if the user entered an option `--width=32`, then
+       * this field should be set to `"--width"` whereas
+       * `original_text` would contain the full string.
+       */
+      std::string original_without_argument;
+
+      /**
        * @brief True if this `item` represents a program option, false
        * otherwise.
        *
@@ -130,6 +141,12 @@ namespace optionpp {
        * this should be an empty string.
        */
       std::string argument;
+
+      /**
+       * @brief Pointer to the `option` instance representing this
+       * option, if any.
+       */
+      const option* opt_info{nullptr};
     };
 
     /**
