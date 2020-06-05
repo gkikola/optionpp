@@ -245,6 +245,16 @@ namespace optionpp {
      */
     option& bind_double(double* var) noexcept;
     /**
+     * @brief Returns true if a variable has been bound to the
+     *        option's argument.
+     *
+     * Note that binding a boolean value to the option does not affect
+     * the return value of this method.
+     *
+     * @return True if a variable is bound, false otherwise.
+     */
+    bool has_bound_argument_variable() const noexcept { return m_bound_variable; }
+    /**
      * @brief Writes to the bound boolean variable that was specified
      * in `bind_bool`.
      *

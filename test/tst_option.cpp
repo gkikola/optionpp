@@ -101,16 +101,19 @@ TEST_CASE("option") {
 
   SECTION("variable binding") {
     bool is_set{};
+    REQUIRE_FALSE(combo.has_bound_argument_variable());
     combo.bind_bool(&is_set);
     REQUIRE_FALSE(is_set);
     combo.write_bool(true);
     REQUIRE(is_set);
     combo.write_bool(false);
     REQUIRE_FALSE(is_set);
+    REQUIRE_FALSE(combo.has_bound_argument_variable());
 
     std::string str_value;
     combo.bind_string(&str_value);
     REQUIRE(combo.argument_type() == option::string_arg);
+    REQUIRE(combo.has_bound_argument_variable());
     combo.write_string("Hello world");
     REQUIRE(str_value == "Hello world");
     REQUIRE_THROWS_WITH(combo.write_int(-37),
