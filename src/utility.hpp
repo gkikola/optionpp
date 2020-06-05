@@ -36,11 +36,11 @@ namespace optionpp {
   namespace utility {
 
     /**
-     * @brief Split a string over delimiters into nonempty substrings.
+     * @brief Split a string over delimiters into substrings.
      *
-     * Splits a string into nonempty substring components using
-     * `delims` as token delimiters (though a component can be empty
-     * if it is quoted; see below).
+     * Splits a string into substring components using `delims` as
+     * token delimiters. If `allow_empty` is false, then empty
+     * components are skipped, unless enclosed in quotes.
      *
      * Delimiters appearing within quote characters (as specified by
      * the `quotes` parameter) are ignored. Within quotes, an escape
@@ -54,12 +54,63 @@ namespace optionpp {
      *               delimiters.
      * @param quotes String containing the allowed quote characters.
      * @param escape_char Character to use as escape character.
+     * @param allow_empty If true, consecutive delimiters will
+     *                    produce empty substrings.
      */
     template <typename OutputIt>
     void split(const std::string& str, OutputIt dest,
                const std::string& delims = " \t\n\r",
                const std::string& quotes = "\"\'",
-               char escape_char = '\\');
+               char escape_char = '\\',
+               bool allow_empty = false);
+
+    /**
+     * @brief Perform word-wrapping on a string.
+     *
+     * This function will take each line in the string and insert
+     * additional newlines in order to limit the maximum line length.
+     * Lines are only split between words unless there is no other
+     * choice.
+     *
+     * To get an unlimited line length, set `line_len <= 0`.
+     *
+     * The text can also be indented a certain number of spaces. The
+     * total line length includes the indentation.
+     *
+     * @param str Text to wrap.
+     * @param line_len Maximum desired line length, if any.
+     * @param indent Number of spaces to indent each line.
+     * @return Resulting word-wrapped string.
+     */
+    std::string wrap_text(const std::string& str,
+                          int line_len = 79,
+                          int indent = 0);
+
+    /**
+     * @brief Perform word-wrapping on a string.
+     *
+     * This function will take each line in the string and insert
+     * additional newlines in order to limit the maximum line length.
+     * Lines are only split between words unless there is no other
+     * choice.
+     *
+     * To get an unlimited line length, set `line_len <= 0`.
+     *
+     * The text can also be indented a certain number of spaces. The
+     * total line length includes the indentation.
+     *
+     * @param str Text to wrap.
+     * @param line_len Maximum desired line length, if any.
+     * @param indent Number of spaces to indent each line after the
+     *               first one.
+     * @param first_line_indent Number of spaces to indent the first
+     *                          line.
+     * @return Resulting word-wrapped string.
+     */
+    std::string wrap_text(const std::string& str,
+                          int line_len,
+                          int indent,
+                          int first_line_indent);
 
     /**
      * @brief Determine if a string occurs within another string at a
@@ -94,7 +145,8 @@ template <typename OutputIt>
 void optionpp::utility::split(const std::string& str, OutputIt dest,
                               const std::string& delims,
                               const std::string& quotes,
-                              char escape_char) {
+                              char escape_char,
+                              bool allow_empty) {
   using size_type = decltype(str.size());
   size_type pos{0};
   bool escape_next{false};
@@ -131,7 +183,7 @@ void optionpp::utility::split(const std::string& str, OutputIt dest,
             cur_token.push_back(str[pos]);
         }
       } else { // We hit a delimiter
-        if (!cur_token.empty())
+        if (!cur_token.empty() || allow_empty)
           *dest++ = cur_token;
         cur_token.clear();
       }
@@ -141,7 +193,7 @@ void optionpp::utility::split(const std::string& str, OutputIt dest,
   }
 
   // Do we have any characters leftover?
-  if (!cur_token.empty())
+  if (!cur_token.empty() || allow_empty)
     *dest++ = cur_token;
 }
 

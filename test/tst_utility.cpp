@@ -153,6 +153,239 @@ TEST_CASE("utility::split") {
     REQUIRE(output.size() == 1);
     REQUIRE(output[0] == "abcdefgh");
   }
+
+  SECTION("allow empty") {
+    split("\t hey   hello  ", back_inserter(output),
+          " \t\n\r", "", '\\', true);
+    REQUIRE(output.size() == 8);
+    REQUIRE(output[0] == "");
+    REQUIRE(output[1] == "");
+    REQUIRE(output[2] == "hey");
+    REQUIRE(output[3] == "");
+    REQUIRE(output[4] == "");
+    REQUIRE(output[5] == "hello");
+    REQUIRE(output[6] == "");
+    REQUIRE(output[7] == "");
+  }
+}
+
+TEST_CASE("utility::wrap_text") {
+  std::string text{"I am the very model of a modern Major-General, I've information vegetable, animal, and mineral, I know the kings of England, and I quote the fights historical, from Marathon to Waterloo, in order categorical."};
+
+  std::string multiline{R"(I'm Nobody! Who are you?
+Are you - Nobody - too?
+Then there's a pair of us!
+Don't tell! they'd advertise - you know!
+
+How dreary - to be - Somebody!
+How public - like a Frog -
+To tell one's name - the livelong June -
+To an admiring Bog!
+    - Emily Dickinson)"};
+
+  SECTION("unlimited length") {
+    REQUIRE(text == wrap_text(text, -1));
+    REQUIRE(multiline == wrap_text(multiline, 0));
+  }
+
+  SECTION("limited length") {
+    std::string text_wrapped{R"(I am the very model of a modern
+Major-General, I've information
+vegetable, animal, and mineral, I
+know the kings of England, and I
+quote the fights historical, from
+Marathon to Waterloo, in order
+categorical.)"};
+    REQUIRE(text_wrapped == wrap_text(text, 33));
+
+    std::string multi_wrapped{R"(I'm Nobody! Who are
+you?
+Are you - Nobody -
+too?
+Then there's a pair
+of us!
+Don't tell! they'd
+advertise - you
+know!
+
+How dreary - to be -
+Somebody!
+How public - like a
+Frog -
+To tell one's name -
+the livelong June -
+To an admiring Bog!
+    - Emily
+Dickinson)"};
+    REQUIRE(multi_wrapped == wrap_text(multiline, 20));
+  }
+
+  SECTION("indent") {
+    std::string text_indented{R"(      I am the very model of a modern
+      Major-General, I've information vegetable,
+      animal, and mineral, I know the kings of
+      England, and I quote the fights historical,
+      from Marathon to Waterloo, in order
+      categorical.)"};
+    REQUIRE(text_indented == wrap_text(text, 50, 6));
+
+    std::string multi_indented{R"(  I'm Nobody! Who are you?
+  Are you - Nobody - too?
+  Then there's a pair of us!
+  Don't tell! they'd advertise - you
+  know!
+
+  How dreary - to be - Somebody!
+  How public - like a Frog -
+  To tell one's name - the livelong June
+  -
+  To an admiring Bog!
+      - Emily Dickinson)"};
+    REQUIRE(multi_indented == wrap_text(multiline, 40, 2));
+  }
+
+  SECTION("first line indent") {
+    std::string text_indented{R"(  I am the very model of a modern
+     Major-General, I've information
+     vegetable, animal, and mineral, I
+     know the kings of England, and I
+     quote the fights historical, from
+     Marathon to Waterloo, in order
+     categorical.)"};
+    REQUIRE(text_indented == wrap_text(text, 40, 5, 2));
+
+    std::string multi_indented{R"(               I'm
+  Nobody! Who are
+  you?
+  Are you - Nobody -
+  too?
+  Then there's a
+  pair of us!
+  Don't tell! they'd
+  advertise - you
+  know!
+
+  How dreary - to be
+  - Somebody!
+  How public - like
+  a Frog -
+  To tell one's name
+  - the livelong
+  June -
+  To an admiring
+  Bog!
+      - Emily
+  Dickinson)"};
+    REQUIRE(multi_indented == wrap_text(multiline, 20, 2, 15));
+  }
+
+  SECTION("very short length") {
+    std::string text_short{R"(I am
+the
+very
+mode
+l of
+a
+mode
+rn
+Majo
+r-Ge
+nera
+l,
+I've
+info
+rmat
+ion
+vege
+tabl
+e,
+anim
+al,
+and
+mine
+ral,
+I
+know
+the
+king
+s of
+Engl
+and,
+and
+I
+quot
+e
+the
+figh
+ts
+hist
+oric
+al,
+from
+Mara
+thon
+to
+Wate
+rloo
+, in
+orde
+r
+cate
+gori
+cal.)"};
+    REQUIRE(text_short == wrap_text(text, 4));
+
+    std::string multiline_short{R"(I'm
+Nobody
+! Who
+are
+you?
+Are
+you -
+Nobody
+- too?
+Then
+there'
+s a
+pair
+of us!
+Don't
+tell!
+they'd
+advert
+ise -
+you
+know!
+
+How
+dreary
+- to
+be -
+Somebo
+dy!
+How
+public
+- like
+a Frog
+-
+To
+tell
+one's
+name -
+the
+livelo
+ng
+June -
+To an
+admiri
+ng
+Bog!
+    -
+Emily
+Dickin
+son)"};
+    REQUIRE(multiline_short == wrap_text(multiline, 6));
+  }
 }
 
 TEST_CASE("utility::is_substr_at_pos") {
