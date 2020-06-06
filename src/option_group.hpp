@@ -269,6 +269,17 @@ namespace optionpp {
      */
     void sort();
 
+    /**
+     * @brief Subscript operator.
+     *
+     * Returns the specified option or creates it if it doesn't exist.
+     */
+    option& operator[](const std::string long_name);
+    /**
+     * @copydoc operator[]
+     */
+    option& operator[](char short_name);
+
   private:
     std::string m_name; //< Group name.
     container_type m_options; //< Collection of program options.

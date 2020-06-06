@@ -38,6 +38,22 @@ option& option_group::add_option(const std::string& long_name,
   return m_options.back();
 }
 
+option& option_group::operator[](const std::string long_name) {
+  auto it = find(long_name);
+  if (it == end())
+    return add_option().long_name(long_name);
+  else
+    return *it;
+}
+
+option& option_group::operator[](char short_name) {
+  auto it = find(short_name);
+  if (it == end())
+    return add_option().short_name(short_name);
+  else
+    return *it;
+}
+
 auto option_group::find(const std::string& long_name) -> iterator {
   return std::find_if(m_options.begin(), m_options.end(),
                       [&](const option& o) { return o.long_name() == long_name; });
