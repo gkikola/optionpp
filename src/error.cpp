@@ -17,4 +17,9 @@
  */
 /* Written by Greg Kikola <gkikola@gmail.com>. */
 
+/**
+ * @file
+ * @brief Source file for exception classes.
+ */
+
 #include "error.hpp"

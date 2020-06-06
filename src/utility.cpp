@@ -17,6 +17,11 @@
  */
 /* Written by Greg Kikola <gkikola@gmail.com>. */
 
+/**
+ * @file
+ * @brief Source file for implementation of utility functions.
+ */
+
 #include "utility.hpp"
 
 #include <cctype>

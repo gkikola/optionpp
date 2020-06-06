@@ -17,6 +17,11 @@
  */
 /* Written by Greg Kikola <gkikola@gmail.com>. */
 
+/**
+ * @file
+ * @brief Source file for `parser` implementation.
+ */
+
 #include "parser.hpp"
 
 #include <limits>
