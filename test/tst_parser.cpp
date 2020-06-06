@@ -35,6 +35,7 @@ TEST_CASE("parser") {
     unsigned indent{2};
     bool force{};
     bool line_nos{};
+    std::string color;
   };
 
   settings data;
@@ -59,6 +60,8 @@ TEST_CASE("parser") {
     .description("Indent each line by WIDTH spaces (default: 2)");
   example.add_option().long_name("force").short_name('f').bind_bool(&data.force)
     .description("Force file creation");
+  example.add_option().long_name("color").short_name('c')
+    .argument("COLOR", false).bind_string(&data.color);
 
   SECTION("simple parsing") {
     std::vector<std::string> cmd_line;
@@ -196,13 +199,7 @@ TEST_CASE("parser") {
   SECTION("missing argument") {
     REQUIRE_THROWS_WITH(example.parse("myprog -o"),
                         "option '-o' requires an argument");
-    REQUIRE_THROWS_WITH(example.parse("command -o -n"),
-                        "option '-o' requires an argument");
-    REQUIRE_THROWS_WITH(example.parse("command -o --version"),
-                        "option '-o' requires an argument");
-    REQUIRE_THROWS_WITH(example.parse("command --output -- command2"),
-                        "option '--output' requires an argument");
-    REQUIRE_THROWS_WITH(example.parse("command --output --version"),
+    REQUIRE_THROWS_WITH(example.parse("myprog --output  "),
                         "option '--output' requires an argument");
 
     // '=' should allow empty arguments
@@ -289,6 +286,39 @@ TEST_CASE("parser") {
     REQUIRE(result[0].argument.empty());
     REQUIRE(result[1].original_text == "--version");
     REQUIRE(result[1].is_option);
+
+    // Optional argument for -c not provided
+    result = example.parse("command -c --version");
+    REQUIRE(result.size() == 3);
+    REQUIRE(result[0].original_text == "command");
+    REQUIRE_FALSE(result[0].is_option);
+    REQUIRE(result[1].original_text == "-c");
+    REQUIRE(result[1].is_option);
+    REQUIRE(result[2].original_text == "--version");
+    REQUIRE(result[2].is_option);
+    REQUIRE(data.color == "");
+
+    // Optional argument for --color not provided
+    result = example.parse("command --color -nv");
+    REQUIRE(result.size() == 4);
+    REQUIRE(result[0].original_text == "command");
+    REQUIRE_FALSE(result[0].is_option);
+    REQUIRE(result[1].original_text == "--color");
+    REQUIRE(result[1].is_option);
+    REQUIRE(result[2].original_text == "-n");
+    REQUIRE(result[2].is_option);
+    REQUIRE(result[3].original_text == "-v");
+    REQUIRE(result[3].is_option);
+    REQUIRE(data.color == "");
+
+    // Required argument: should interpret '--version' as argument
+    result = example.parse("cmd --output --version");
+    REQUIRE(result.size() == 2);
+    REQUIRE(result[0].original_text == "cmd");
+    REQUIRE_FALSE(result[0].is_option);
+    REQUIRE(result[1].original_text == "--output --version");
+    REQUIRE(result[1].is_option);
+    REQUIRE(result[1].argument == "--version");
 
     result = example.parse("-omyfile");
     REQUIRE(result.size() == 1);

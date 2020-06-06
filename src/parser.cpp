@@ -231,9 +231,10 @@ parser_result parser::parse(InputIt first, InputIt last, bool ignore_first) cons
     // If we are expecting a standalone option argument...
     if (prev_type == cl_arg_type::arg_required
         || prev_type == cl_arg_type::arg_optional) {
-      // ...see if an argument was provided...
-      if (!is_end_indicator(arg) && !is_long_option(arg)
-          && !is_short_option_group(arg)) {
+      // ...then this token should be a non-option; but if the
+      // argument is required we'll interpret it that way regardless
+      if (is_non_option(arg)
+          || prev_type == cl_arg_type::arg_required) {
         auto& arg_info = result.back();
         arg_info.argument = arg;
         arg_info.original_text.push_back(' ');
@@ -241,12 +242,7 @@ parser_result parser::parse(InputIt first, InputIt last, bool ignore_first) cons
         prev_type = cl_arg_type::non_option;
         if (arg_info.opt_info)
           write_option_argument(*arg_info.opt_info, arg_info);
-      } else { // ...if not, make sure argument was optional
-        if (prev_type == cl_arg_type::arg_required) {
-          const auto& opt_name = result.back().original_text;
-          throw parse_error{"option '" + opt_name + "' requires an argument",
-              "optionpp::parser::parse", opt_name};
-        }
+      } else { // Found an option, reset type and continue
         prev_type = cl_arg_type::non_option;
         continue; // Continue without incrementing 'it' in order to reevaluate current token
       }
