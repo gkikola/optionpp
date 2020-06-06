@@ -91,15 +91,18 @@ namespace optionpp {
      */
     option(char short_name) : m_short_name{short_name} {}
     /**
-     * @brief Construct an option with given names.
+     * @brief Construct an option with given information.
      *
      * The argument, description, and group fields are left empty.
      *
      * @param long_name The long name for the option.
      * @param short_name The short name for the option.
      */
-    option(std::string long_name, char short_name = '\0')
-      : m_long_name{long_name}, m_short_name{short_name} {}
+    option(const std::string& long_name,
+           char short_name = '\0',
+           const std::string& description = "",
+           const std::string& arg_name = "",
+           bool arg_required = false);
 
     /**
      * @brief Sets the long and short name for the option.

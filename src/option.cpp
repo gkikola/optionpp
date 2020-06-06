@@ -28,6 +28,13 @@
 
 using namespace optionpp;
 
+option::option(const std::string& long_name, char short_name,
+               const std::string& description,
+               const std::string& arg_name, bool arg_required) :
+  m_long_name{long_name}, m_short_name{short_name},
+  m_desc{description}, m_arg_name{arg_name},
+  m_arg_required{arg_required} {}
+
 option& option::argument(const std::string& name, bool required) {
   m_arg_name = name;
   m_arg_required = required;
