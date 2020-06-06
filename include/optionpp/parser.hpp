@@ -161,7 +161,12 @@ namespace optionpp {
     /**
      * @brief Add a program option.
      *
-     * @param opt The `option` to add.
+     * @param long_name Long name for the option.
+     * @param short_name Short name for the option.
+     * @param description Option description (for help message).
+     * @param arg_name Argument name, if any (usually uppercase)
+     * @param arg_required Set to true if argument is mandatory.
+     * @param group_name Name of group option should be added to.
      * @return Reference to the inserted `option`, for chaining.
      */
     option& add_option(const std::string& long_name,
@@ -172,7 +177,8 @@ namespace optionpp {
                        const std::string& group_name = "");
 
     /**
-     * @brief Parse command-line arguments.
+     * @brief Parse command-line arguments from a sequence of
+     *        strings.
      *
      * Accepts the usual arguments that are normally supplied to
      * `main`, scans them for program options (these will be arguments
@@ -231,7 +237,7 @@ namespace optionpp {
      *                     mandatory argument is missing.
      * @see parser_result
      */
-    parser_result parse(int argc, const char* argv[], bool ignore_first = true) const;
+    parser_result parse(int argc, char* argv[], bool ignore_first = true) const;
 
     /**
      * @brief Parse command-line arguments from a string.
@@ -297,11 +303,21 @@ namespace optionpp {
      * @brief Subscript operator.
      *
      * Returns the specified option or creates it if it doesn't exist.
+     *
+     * @param long_name Long name for the option.
+     * @return Matching option or newly created one if it didn't
+     *         already exist.
      */
     option& operator[](const std::string& long_name);
 
     /**
-     * @copydoc operator[]
+     * @brief Subscript operator.
+     *
+     * Returns the specified option or creates it if it doesn't exist.
+     *
+     * @param short_name Short name for the option.
+     * @return Matching option or newly created one if it didn't
+     *         already exist.
      */
     option& operator[](char short_name);
 
@@ -526,5 +542,66 @@ namespace optionpp {
   std::ostream& operator<<(std::ostream& os, const parser& parser);
 
 } // End namespace
+
+/* Implementation */
+
+// Doxygen seems to think that the parse implementation below is a new
+// function, so we'll ask it to skip this part of the header
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+template <typename InputIt>
+optionpp::parser_result
+optionpp::parser::parse(InputIt first, InputIt last, bool ignore_first) const {
+  if (ignore_first && first != last)
+    ++first;
+
+  InputIt it{first};
+
+  parser_result result{};
+  cl_arg_type prev_type{cl_arg_type::non_option};
+  while (it != last) {
+    const std::string& arg{*it};
+
+    // If we are expecting a standalone option argument...
+    if (prev_type == cl_arg_type::arg_required
+        || prev_type == cl_arg_type::arg_optional) {
+      // ...then this token should be a non-option; but if the
+      // argument is required we'll interpret it that way regardless
+      if (is_non_option(arg)
+          || prev_type == cl_arg_type::arg_required) {
+        auto& arg_info = result.back();
+        arg_info.argument = arg;
+        arg_info.original_text.push_back(' ');
+        arg_info.original_text += arg;
+        prev_type = cl_arg_type::non_option;
+        if (arg_info.opt_info)
+          write_option_argument(*arg_info.opt_info, arg_info);
+      } else { // Found an option, reset type and continue
+        prev_type = cl_arg_type::non_option;
+        continue; // Continue without incrementing 'it' in order to reevaluate current token
+      }
+    } else if (prev_type == cl_arg_type::end_indicator) { // Ignore options
+      parser_result::item arg_info;
+      arg_info.original_text = arg;
+      arg_info.is_option = false;
+      result.push_back(std::move(arg_info));
+    } else { // Regular argument
+      parse_argument(arg, result, prev_type);
+    }
+
+    ++it;
+  }
+
+  // Make sure we don't still need a mandatory argument
+  if (prev_type == cl_arg_type::arg_required) {
+    const auto& opt_name = result.back().original_text;
+    throw parse_error{"option '" + opt_name + "' requires an argument",
+        "optionpp::parser::parse", opt_name};
+  }
+
+  return result;
+}
+
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #endif

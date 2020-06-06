@@ -18,7 +18,7 @@
 /* Written by Greg Kikola <gkikola@gmail.com>. */
 
 #include <catch2/catch.hpp>
-#include "../src/option.hpp"
+#include <optionpp/option.hpp>
 
 using namespace optionpp;
 

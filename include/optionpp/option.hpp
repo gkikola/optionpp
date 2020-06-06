@@ -97,6 +97,10 @@ namespace optionpp {
      *
      * @param long_name The long name for the option.
      * @param short_name The short name for the option.
+     * @param description Description of the option.
+     * @param arg_name Name of the option's argument, if any (usually
+     *                 uppercase).
+     * @param arg_required Set to true if argument is mandatory.
      */
     option(const std::string& long_name,
            char short_name = '\0',

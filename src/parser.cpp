@@ -22,7 +22,7 @@
  * @brief Source file for `parser` implementation.
  */
 
-#include "parser.hpp"
+#include <optionpp/parser.hpp>
 
 #include <algorithm>
 #include <iostream>
@@ -124,11 +124,11 @@ std::ostream& parser::print_help(std::ostream& os,
     if (group.empty())
       continue;
 
-    // Add extra newline between groups
+    // Add extra newlines between groups
     if (first)
       first = false;
     else
-      os << "\n";
+      os << "\n\n";
 
     // Print group name
     if (!group.name().empty()) {
@@ -137,7 +137,14 @@ std::ostream& parser::print_help(std::ostream& os,
     }
 
     // Print options
+    bool first_opt = true;
     for (const auto& opt : group) {
+      // Add newline between options
+      if (first_opt)
+        first_opt = false;
+      else
+        os << "\n";
+
       std::string usage(option_indent, ' ');
 
       // Short name
@@ -183,8 +190,6 @@ std::ostream& parser::print_help(std::ostream& os,
         os << utility::wrap_text(usage, max_line_length,
                                  desc_multiline_indent, 0);
       }
-
-      os << "\n";
     }
   }
   return os;
@@ -305,59 +310,7 @@ void parser::write_option_argument(const option& opt,
   }
 }
 
-template <typename InputIt>
-parser_result parser::parse(InputIt first, InputIt last, bool ignore_first) const {
-  if (ignore_first && first != last)
-    ++first;
-
-  InputIt it{first};
-
-  parser_result result{};
-  cl_arg_type prev_type{cl_arg_type::non_option};
-  while (it != last) {
-    const std::string& arg{*it};
-
-    // If we are expecting a standalone option argument...
-    if (prev_type == cl_arg_type::arg_required
-        || prev_type == cl_arg_type::arg_optional) {
-      // ...then this token should be a non-option; but if the
-      // argument is required we'll interpret it that way regardless
-      if (is_non_option(arg)
-          || prev_type == cl_arg_type::arg_required) {
-        auto& arg_info = result.back();
-        arg_info.argument = arg;
-        arg_info.original_text.push_back(' ');
-        arg_info.original_text += arg;
-        prev_type = cl_arg_type::non_option;
-        if (arg_info.opt_info)
-          write_option_argument(*arg_info.opt_info, arg_info);
-      } else { // Found an option, reset type and continue
-        prev_type = cl_arg_type::non_option;
-        continue; // Continue without incrementing 'it' in order to reevaluate current token
-      }
-    } else if (prev_type == cl_arg_type::end_indicator) { // Ignore options
-      typename parser_result::item arg_info;
-      arg_info.original_text = arg;
-      arg_info.is_option = false;
-      result.push_back(std::move(arg_info));
-    } else { // Regular argument
-      parse_argument(arg, result, prev_type);
-    }
-
-    ++it;
-  }
-
-  // Make sure we don't still need a mandatory argument
-  if (prev_type == cl_arg_type::arg_required) {
-    const auto& opt_name = result.back().original_text;
-    throw parse_error{"option '" + opt_name + "' requires an argument",
-        "optionpp::parser::parse", opt_name};
-  }
-
-  return result;
-}
-
-parser_result parser::parse(int argc, const char* argv[], bool ignore_first) const {
+parser_result parser::parse(int argc, char* argv[], bool ignore_first) const {
   return parse(argv, argv + argc, ignore_first);
 }
 
@@ -521,6 +474,6 @@ void parser::parse_short_option_group(const std::string& short_names,
   } // End for loop
 }
 
-std::ostream& optionpp::operator<<(std::ostream& os, const parser& parser) {
-  return parser.print_help(os);
+std::ostream& optionpp::operator<<(std::ostream& os, const parser& opt_parser) {
+  return opt_parser.print_help(os);
 }

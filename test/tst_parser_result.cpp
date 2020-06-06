@@ -19,7 +19,7 @@
 
 #include <vector>
 #include <catch2/catch.hpp>
-#include "../src/parser_result.hpp"
+#include <optionpp/parser_result.hpp>
 
 using namespace optionpp;
 

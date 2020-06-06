@@ -22,9 +22,9 @@
  * @brief Source file for `option` class implementation.
  */
 
-#include "option.hpp"
+#include <optionpp/option.hpp>
 
-#include "error.hpp"
+#include <optionpp/error.hpp>
 
 using namespace optionpp;
 

@@ -22,7 +22,7 @@
  * @brief Source file for implementation of utility functions.
  */
 
-#include "utility.hpp"
+#include <optionpp/utility.hpp>
 
 #include <cctype>
 #include <iterator>

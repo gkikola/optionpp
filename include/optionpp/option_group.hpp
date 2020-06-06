@@ -273,10 +273,20 @@ namespace optionpp {
      * @brief Subscript operator.
      *
      * Returns the specified option or creates it if it doesn't exist.
+     *
+     * @param long_name Long name for the option.
+     * @return The matching `option`, or a newly created one if it
+     *         didn't already exist.
      */
     option& operator[](const std::string long_name);
     /**
-     * @copydoc operator[]
+     * @brief Subscript operator.
+     *
+     * Returns the specified option or creates it if it doesn't exist.
+     *
+     * @param short_name Short name for the option.
+     * @return The matching `option`, or a newly created one if it
+     *         didn't already exist.
      */
     option& operator[](char short_name);
 

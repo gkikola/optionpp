@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 #include <catch2/catch.hpp>
-#include "../src/parser.hpp"
+#include <optionpp/parser.hpp>
 
 using namespace optionpp;
 
@@ -130,7 +130,7 @@ TEST_CASE("parser") {
   SECTION("argc, argv") {
     int argc = 4;
     const char* argv[] = { "myprog", "command", "-an", "--help" };
-    auto result = example.parse(argc, argv);
+    auto result = example.parse(argc, const_cast<char**>(argv));
     REQUIRE(result.size() == 4);
     REQUIRE(result[0].original_text == "command");
     REQUIRE_FALSE(result[0].is_option);
@@ -536,8 +536,7 @@ Output options
   -o, --output=FILE           Write output to FILE
   -n                          Show line numbers
       --indent[=WIDTH]        Indent each line by WIDTH spaces (default: 2)
-  -c, --color[=COLOR]         Set the color of the output
-)";
+  -c, --color[=COLOR]         Set the color of the output)";
     oss << example;
     REQUIRE(oss.str() == desired);
 
@@ -561,8 +560,7 @@ Output options
                       (default: 2)
         -c, --color[=COLOR]
                     Set the color of the
-                      output
-)";
+                      output)";
     oss.str("");
     example.print_help(oss, 40, 4, 8, 20, 22);
     REQUIRE(oss.str() == desired);
@@ -586,8 +584,7 @@ Show line numbers
     --indent[=WIDTH]
 Indent each line by WIDTH spaces (default: 2)
 -c, --color[=COLOR]
-Set the color of the output
-)";
+Set the color of the output)";
     oss.str("");
     example.print_help(oss, 0, 0, 0, 0, 0);
     REQUIRE(oss.str() == desired);
@@ -606,8 +603,7 @@ Output options
                                                           WIDTH spaces (default:
                                                           2)
   -c, --color[=COLOR]                                       Set the color of the
-                                                          output
-)";
+                                                          output)";
     oss.str("");
     example.print_help(oss, 80, 0, 2, 60, 58);
     REQUIRE(oss.str() == desired);

@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 #include <catch2/catch.hpp>
-#include "../src/utility.hpp"
+#include <optionpp/utility.hpp>
 
 using std::back_inserter;
 using std::string;

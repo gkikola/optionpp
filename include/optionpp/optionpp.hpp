@@ -19,7 +19,12 @@
 
 /**
  * @file
- * @brief Source file for exception classes.
+ * @brief Main include file for library users.
  */
 
-#include <optionpp/error.hpp>
+#ifndef OPTIONPP_OPTIONPP_HPP
+#define OPTIONPP_OPTIONPP_HPP
+
+#include "parser.hpp"
+
+#endif

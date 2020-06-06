@@ -22,7 +22,7 @@
  * @brief Source file for `parser_result` class implementation.
  */
 
-#include "parser_result.hpp"
+#include <optionpp/parser_result.hpp>
 
 #include <algorithm>
 

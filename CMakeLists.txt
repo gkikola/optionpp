@@ -17,12 +17,15 @@ set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 set (CMAKE_CXX_EXTENSIONS OFF)
 
+# Export symbols on Windows
+set (CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
 # See if Doxygen is available
 if (OPTIONPP_DOCS)
   find_package (Doxygen)
   if (DOXYGEN_FOUND)
     # Generate Doxygen config file
-    set (DOXYGEN_IN "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in")
+    set (DOXYGEN_IN "${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in")
     set (DOXYGEN_OUT "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile")
 
     configure_file ("${DOXYGEN_IN}" "${DOXYGEN_OUT}")
@@ -37,25 +40,50 @@ if (OPTIONPP_DOCS)
   endif ()
 endif ()
 
-add_executable (
-  run_tests
+set (OPTIONPP_SOURCE_FILES
   src/error.cpp
   src/option.cpp
   src/option_group.cpp
   src/parser.cpp
   src/parser_result.cpp
   src/utility.cpp
+  )
+
+set (OPTIONPP_TEST_FILES
   test/tst_main.cpp
   test/tst_option.cpp
   test/tst_parser.cpp
   test/tst_parser_result.cpp
   test/tst_utility.cpp
   )
-target_include_directories (
-  run_tests
-  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party"
+
+set (OPTIONPP_EXAMPLES
+  docs/examples/basic.cpp
   )
+
+include_directories (include)
+
+# Build library
+add_library (optionpp SHARED "${OPTIONPP_SOURCE_FILES}")
+
+# Build test executable
+add_executable (run_tests "${OPTIONPP_TEST_FILES}")
+target_link_libraries(run_tests PRIVATE optionpp)
 add_test (NAME run_tests COMMAND run_tests)
+
+# Build examples
+foreach (example IN LISTS OPTIONPP_EXAMPLES)
+  get_filename_component (CURRENT_EXAMPLE "${example}" NAME_WE)
+  set (CURRENT_EXAMPLE "example_${CURRENT_EXAMPLE}")
+  add_executable (
+    ${CURRENT_EXAMPLE}
+    "${example}"
+    )
+  target_link_libraries (
+    ${CURRENT_EXAMPLE}
+    PRIVATE optionpp
+    )
+endforeach ()
 
 # Set max warning level
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

@@ -43,6 +43,12 @@ namespace optionpp {
     error(const std::string& msg, const std::string& fn_name)
       : logic_error(msg), m_function{fn_name} {}
 
+    /**
+     * @brief Return the name of function that threw the exception.
+     * @return Name of function that threw the exception.
+     */
+    const std::string& function() const { return m_function; }
+
   private:
     std::string m_function; //< Function in which error occurred.
   };

@@ -22,7 +22,7 @@
  * @brief Source file for `option_group` class implementation.
  */
 
-#include "option_group.hpp"
+#include <optionpp/option_group.hpp>
 
 #include <algorithm>
 
