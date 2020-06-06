@@ -41,6 +41,7 @@ add_executable (
   run_tests
   src/error.cpp
   src/option.cpp
+  src/option_group.cpp
   src/parser.cpp
   src/parser_result.cpp
   src/utility.cpp
