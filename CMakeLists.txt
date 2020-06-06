@@ -61,7 +61,10 @@ set (OPTIONPP_EXAMPLES
   docs/examples/basic.cpp
   )
 
-include_directories (include)
+include_directories (
+  include
+  third_party
+  )
 
 # Build library
 add_library (optionpp SHARED "${OPTIONPP_SOURCE_FILES}")
