@@ -17,6 +17,11 @@
  */
 /* Written by Greg Kikola <gkikola@gmail.com>. */
 
+/**
+ * @file
+ * @brief Source file for `option` class implementation.
+ */
+
 #include "option.hpp"
 
 #include "error.hpp"

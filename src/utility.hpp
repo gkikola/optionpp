@@ -132,7 +132,7 @@ namespace optionpp {
      *         false otherwise.
      */
     bool is_substr_at_pos(const std::string& str, const std::string& substr,
-                          typename std::string::size_type pos = 0) noexcept;
+                          std::string::size_type pos = 0) noexcept;
 
   } // End namespace
 

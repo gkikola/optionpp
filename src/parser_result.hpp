@@ -161,23 +161,23 @@ namespace optionpp {
      * @brief Unsigned integer type (usually `std::size_t`) that can
      * hold container size.
      */
-    using size_type = typename container_type::size_type;
+    using size_type = container_type::size_type;
     /**
      * @brief Plain iterator type.
      */
-    using iterator = typename container_type::iterator;
+    using iterator = container_type::iterator;
     /**
      * @brief Constant iterator type.
      */
-    using const_iterator = typename container_type::const_iterator;
+    using const_iterator = container_type::const_iterator;
     /**
      * @brief Reverse iterator type.
      */
-    using reverse_iterator = typename container_type::reverse_iterator;
+    using reverse_iterator = container_type::reverse_iterator;
     /**
      * @brief Constant reverse iterator type.
      */
-    using const_reverse_iterator = typename container_type::const_reverse_iterator;
+    using const_reverse_iterator = container_type::const_reverse_iterator;
 
     /**
      * @brief Default constructor.
