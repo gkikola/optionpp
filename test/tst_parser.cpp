@@ -49,17 +49,16 @@ TEST_CASE("parser") {
   example.add_option().long_name("output").short_name('o')
     .argument("FILE", true).bind_string(&data.file)
     .bind_bool(&data.has_file)
-    .description("Write output to FILE").group("File options");
+    .description("Write output to FILE");
   example.add_option().short_name('n').bind_bool(&data.line_nos)
-    .description("Show line numbers").group("File options");
+    .description("Show line numbers");
   example.add_option().long_name("all").short_name('a')
-    .description("Show all lines").group("Display options");
+    .description("Show all lines");
   example.add_option().long_name("indent")
     .argument("WIDTH", false).bind_uint(&data.indent)
-    .description("Indent each line by WIDTH spaces (default: 2)")
-    .group("Display options");
+    .description("Indent each line by WIDTH spaces (default: 2)");
   example.add_option().long_name("force").short_name('f').bind_bool(&data.force)
-    .description("Force file creation").group("File options");
+    .description("Force file creation");
 
   SECTION("simple parsing") {
     std::vector<std::string> cmd_line;

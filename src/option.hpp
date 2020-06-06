@@ -331,34 +331,10 @@ namespace optionpp {
      */
     const std::string& description() const noexcept { return m_desc; }
 
-    /**
-     * @brief Set the option group.
-     *
-     * Options that are in the same group will be grouped together in
-     * the program's help text.
-     *
-     * @param group_name Name of the group to which the option belongs.
-     * @return Reference to the current instance (for chaining calls).
-     */
-    option& group(const std::string& group_name) {
-      m_group_name = group_name;
-      return *this;
-    }
-    /**
-     * @brief Retrieve the option group.
-     *
-     * Options that are in the same group will be grouped together in
-     * the program help text.
-     *
-     * @return Name of the group to which the option belongs, if any.
-     */
-    const std::string& group() const noexcept { return m_group_name; }
-
   private:
     std::string m_long_name; //< The long name.
     char m_short_name{'\0'}; //< The short name.
     std::string m_desc; //< Description of option (for help text).
-    std::string m_group_name; //< Name of option group.
 
     std::string m_arg_name; //< The name of the argument (for help text).
     bool m_arg_required{false}; //< True if argument is mandatory, false if optional.

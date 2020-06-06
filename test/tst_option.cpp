@@ -35,7 +35,7 @@ TEST_CASE("option") {
   with_argument_opt.argument("DIRECTORY", false);
 
   option combo;
-  combo.long_name("all").short_name('a').description("show all").group("Main");
+  combo.long_name("all").short_name('a').description("show all");
 
   SECTION("constructors") {
     REQUIRE_NOTHROW(option{});
@@ -46,7 +46,6 @@ TEST_CASE("option") {
     REQUIRE(empty.description() == "");
     REQUIRE(empty.argument_name() == "");
     REQUIRE_FALSE(empty.is_argument_required());
-    REQUIRE(empty.group() == "");
 
     REQUIRE(short_name_only.name() == "v");
     REQUIRE(short_name_only.long_name() == "");
@@ -54,7 +53,6 @@ TEST_CASE("option") {
     REQUIRE(short_name_only.description() == "");
     REQUIRE(short_name_only.argument_name() == "");
     REQUIRE_FALSE(short_name_only.is_argument_required());
-    REQUIRE(short_name_only.group() == "");
 
     REQUIRE(long_name_only.long_name() == "version");
     REQUIRE(long_name_only.long_name() == "version");
@@ -62,7 +60,6 @@ TEST_CASE("option") {
     REQUIRE(long_name_only.description() == "");
     REQUIRE(long_name_only.argument_name() == "");
     REQUIRE_FALSE(long_name_only.is_argument_required());
-    REQUIRE(long_name_only.group() == "");
 
     REQUIRE(long_and_short.name() == "version");
     REQUIRE(long_and_short.long_name() == "version");
@@ -83,7 +80,6 @@ TEST_CASE("option") {
     REQUIRE(combo.long_name() == "all");
     REQUIRE(combo.short_name() == 'a');
     REQUIRE(combo.description() == "show all");
-    REQUIRE(combo.group() == "Main");
 
     combo.name("line-numbers", 'n');
     REQUIRE(combo.name() == "line-numbers");
