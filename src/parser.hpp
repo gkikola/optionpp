@@ -262,6 +262,24 @@ namespace optionpp {
                             const std::string& equals = "");
 
     /**
+     * @brief Sorts the groups by name.
+     *
+     * By default groups are kept in the order that they were added.
+     */
+    void sort_groups();
+
+    /**
+     * @brief Sorts all options by name.
+     *
+     * By default, options within each group are kept in the order
+     * that they were added. This method will sort all the options in
+     * each group so that they are ordered by name (either by their
+     * long name, or by their short name if the long name doesn't
+     * exist).
+     */
+    void sort_options();
+
+    /**
      * @brief Subscript operator.
      *
      * Returns the specified option or creates it if it doesn't exist.

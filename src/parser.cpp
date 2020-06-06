@@ -73,6 +73,18 @@ void parser::set_custom_strings(const std::string& delims,
     m_equals = equals;
 }
 
+void parser::sort_groups() {
+  std::sort(m_groups.begin(), m_groups.end(),
+            [](const option_group& a, const option_group& b) {
+              return a.name() < b.name();
+            });
+}
+
+void parser::sort_options() {
+  std::for_each(m_groups.begin(), m_groups.end(),
+                [](option_group& g) { g.sort(); });
+}
+
 option& parser::operator[](const std::string& long_name) {
   option* opt = find_option(long_name);
   if (opt)
