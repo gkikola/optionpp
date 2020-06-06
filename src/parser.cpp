@@ -24,10 +24,37 @@
 
 #include "parser.hpp"
 
+#include <algorithm>
+#include <iterator>
 #include <limits>
 #include <stdexcept>
 
 using namespace optionpp;
+
+option& parser::add_option(const option& opt) {
+  auto it = find_group("");
+  if (it == m_groups.end()) {
+    m_groups.emplace_back("");
+    return m_groups.back().add_option(opt);
+  } else {
+    return it->add_option(opt);
+  }
+}
+
+option_group& parser::group(const std::string& name) {
+  // We'll use reverse iterators since the user is more likely to
+  // access a recently-added group
+  auto it = std::find_if(m_groups.rbegin(), m_groups.rend(),
+                         [&](const option_group& g) {
+                           return g.name() == name;
+                         });
+  if (it == m_groups.rend()) {
+    m_groups.emplace_back(name);
+    return m_groups.back();
+  } else {
+    return *it;
+  }
+}
 
 void parser::set_custom_strings(const std::string& delims,
                                 const std::string& short_prefix,
@@ -44,6 +71,60 @@ void parser::set_custom_strings(const std::string& delims,
     m_end_of_options = end_indicator;
   if (!equals.empty())
     m_equals = equals;
+}
+
+auto parser::find_group(const std::string& name) -> group_iterator {
+  return std::find_if(m_groups.begin(), m_groups.end(),
+                      [&](const option_group& g) {
+                        return g.name() == name;
+                      });
+}
+
+auto parser::find_group(const std::string& name) const -> group_const_iterator {
+  return std::find_if(m_groups.begin(), m_groups.end(),
+                      [&](const option_group& g) {
+                        return g.name() == name;
+                      });
+}
+
+option* parser::find_option(const std::string& long_name) {
+  for (auto& group : m_groups) {
+    auto it = group.find(long_name);
+    if (it != group.end())
+      return &(*it);
+  }
+
+  return nullptr;
+}
+
+const option* parser::find_option(const std::string& long_name) const {
+  for (const auto& group : m_groups) {
+    auto it = group.find(long_name);
+    if (it != group.end())
+      return &(*it);
+  }
+
+  return nullptr;
+}
+
+option* parser::find_option(char short_name) {
+  for (auto& group : m_groups) {
+    auto it = group.find(short_name);
+    if (it != group.end())
+      return &(*it);
+  }
+
+  return nullptr;
+}
+
+const option* parser::find_option(char short_name) const {
+  for (const auto& group : m_groups) {
+    auto it = group.find(short_name);
+    if (it != group.end())
+      return &(*it);
+  }
+
+  return nullptr;
 }
 
 void parser::write_option_argument(const option& opt,
@@ -211,17 +292,16 @@ void parser::parse_argument(const std::string& argument,
     std::string option_name = option_specifier.substr(m_long_option_prefix.size());
 
     // Look up option info
-    auto it = std::find_if(m_options.begin(), m_options.end(),
-                           [&](const option& o) { return o.long_name() == option_name; });
-    if (it == m_options.end())
+    const option* opt = find_option(option_name);
+    if (!opt)
       throw parse_error{"invalid option: '" + option_specifier + "'",
           "optionpp::parser::parse_argument", option_specifier};
-    arg_info.opt_info = &(*it);
+    arg_info.opt_info = &(*opt);
 
     // Does this option take an argument?
-    if (!it->argument_name().empty()) {
+    if (!opt->argument_name().empty()) {
       if (!assignment_found) { // No arg was found, caller should look for it
-        if (it->is_argument_required())
+        if (opt->is_argument_required())
           type = cl_arg_type::arg_required;
         else
           type = cl_arg_type::arg_optional;
@@ -239,10 +319,10 @@ void parser::parse_argument(const std::string& argument,
     arg_info.original_without_argument = option_specifier;
     arg_info.is_option = true;
     arg_info.long_name = option_name;
-    arg_info.short_name = it->short_name();
+    arg_info.short_name = opt->short_name();
     if (assignment_found)
-      write_option_argument(*it, arg_info);
-    it->write_bool(true);
+      write_option_argument(*opt, arg_info);
+    opt->write_bool(true);
     result.push_back(std::move(arg_info));
   } else if (is_short_option_group(option_specifier)) { // Short options
     parse_short_option_group(option_specifier.substr(m_short_option_prefix.size()),
@@ -263,9 +343,8 @@ void parser::parse_short_option_group(const std::string& short_names,
   using sz_t = std::string::size_type;
   for (sz_t pos = 0; pos != short_names.size(); ++pos) {
     // Look up option info
-    auto it = std::find_if(m_options.begin(), m_options.end(),
-                           [&](const option& o) { return o.short_name() == short_names[pos]; });
-    if (it == m_options.end()) {
+    const option* opt = find_option(short_names[pos]);
+    if (!opt) {
       auto opt_name = m_short_option_prefix;
       opt_name.push_back(short_names[pos]);
       throw parse_error{"invalid option: '" + opt_name + "'",
@@ -277,13 +356,13 @@ void parser::parse_short_option_group(const std::string& short_names,
     arg_info.original_text.push_back(short_names[pos]);
     arg_info.original_without_argument = arg_info.original_text;
     arg_info.is_option = true;
-    arg_info.long_name = it->long_name();
+    arg_info.long_name = opt->long_name();
     arg_info.short_name = short_names[pos];
-    arg_info.opt_info = &(*it);
-    it->write_bool(true);
+    arg_info.opt_info = &(*opt);
+    opt->write_bool(true);
 
     // Check if option takes an argument
-    if (!it->argument_name().empty()) {
+    if (!opt->argument_name().empty()) {
       if (pos + 1 < short_names.size()) {
         // This isn't the last option, so the rest of the string is an argument
         arg_info.argument = short_names.substr(pos + 1);
@@ -293,7 +372,7 @@ void parser::parse_short_option_group(const std::string& short_names,
           arg_info.argument += argument;
         }
         arg_info.original_text += arg_info.argument;
-        write_option_argument(*it, arg_info);
+        write_option_argument(*opt, arg_info);
         result.push_back(std::move(arg_info));
         type = cl_arg_type::no_arg;
         break;
@@ -303,9 +382,9 @@ void parser::parse_short_option_group(const std::string& short_names,
           arg_info.original_text += m_equals;
           arg_info.original_text += argument;
           arg_info.argument = argument;
-          write_option_argument(*it, arg_info);
+          write_option_argument(*opt, arg_info);
           type = cl_arg_type::no_arg;
-        } else if (it->is_argument_required()) {
+        } else if (opt->is_argument_required()) {
           type = cl_arg_type::arg_required;
         } else {
           type = cl_arg_type::arg_optional;

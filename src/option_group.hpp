@@ -80,20 +80,6 @@ namespace optionpp {
      */
     option_group(const std::string& name) : m_name{name} {}
     /**
-     * @brief Construct from an initializer list.
-     *
-     * Each `option` provided in the list specifies a program option
-     * that can be given on the command line or elsewhere.
-     *
-     * @param name Group name.
-     * @param il The `initializer_list` containing the program
-     *           options.
-     * @see option
-     */
-    option_group(const std::string& name,
-                 const std::initializer_list<option>& il)
-      : m_name{name}, m_options{il} {}
-    /**
      * @brief Construct from a sequence.
      *
      * Each `option` in the sequence specifies a program option that

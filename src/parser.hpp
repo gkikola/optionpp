@@ -25,14 +25,12 @@
 #ifndef OPTIONPP_PARSER_HPP
 #define OPTIONPP_PARSER_HPP
 
-#include <algorithm>
 #include <initializer_list>
-#include <iterator>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
-#include "option.hpp"
+#include "option_group.hpp"
 #include "parser_result.hpp"
 #include "utility.hpp"
 
@@ -98,20 +96,25 @@ namespace optionpp {
     /**
      * @brief Construct from an initializer list.
      *
-     * Each `option provided` in the list specifies an acceptable
+     * Each `option` provided in the list specifies an acceptable
      * program option that can be given on the command line.
+     *
+     * The options are added to the nameless default group.
      *
      * @param il The `initializer_list` containing the acceptable
      *           program options.
      * @see option
      */
-    parser(const std::initializer_list<option>& il)
-      : m_options{il} {}
+    parser(const std::initializer_list<option>& il) {
+      m_groups.emplace_back("", il.begin(), il.end());
+    }
     /**
      * @brief Construct from a sequence.
      *
      * Each `option` in the sequence specifies an acceptable program
      * option that can be given on the command line.
+     *
+     * The options are added to the nameless default group.
      *
      * @tparam InputIt The iterator type (usually deduced).
      * @param first The iterator pointing to the start of the
@@ -120,14 +123,25 @@ namespace optionpp {
      *             sequence.
      */
     template <typename InputIt>
-    parser(InputIt first, InputIt last) : m_options{first, last} {}
+    parser(InputIt first, InputIt last) { m_groups.emplace_back("", first, last); }
 
     /**
-     * @brief Add a valid program option.
+     * @brief Returns a reference to a particular group.
      *
-     * The given `option` (if any) will specify information about a
-     * program option that the user can set on the command line, such
-     * as the option's long name, short name, description, and so on.
+     * The group is created if it does not exist.
+     *
+     * @param name Name of the group.
+     * @return Reference to the group.
+     */
+    option_group& group(const std::string& name);
+
+    /**
+     * @brief Add a program option.
+     *
+     * The given `option` instance (if any) will specify information
+     * about a program option that the user can set on the command
+     * line, such as the option's long name, short name, description,
+     * and so on.
      *
      * Note that the method returns a reference to the instance of the
      * `option` that was inserted to allow chaining. For example:
@@ -141,10 +155,7 @@ namespace optionpp {
      * @param opt The `option` to add.
      * @return Reference to the inserted `option`, for chaining.
      */
-    option& add_option(const option& opt = option{}) {
-      m_options.push_back(opt);
-      return m_options.back();
-    }
+    option& add_option(const option& opt = option{});
 
     /**
      * @brief Parse command-line arguments.
@@ -253,6 +264,61 @@ namespace optionpp {
   private:
 
     /**
+     * @brief Type used to hold `option_group` objects.
+     */
+    using group_container = std::vector<option_group>;
+    /**
+     * @brief Iterator type for the group container.
+     */
+    using group_iterator = group_container::iterator;
+    /**
+     * @brief `const_iterator` type for the group container.
+     */
+    using group_const_iterator = group_container::const_iterator;
+    /**
+     * @brief Iterator type for iterating over options.
+     */
+    using option_iterator = option_group::iterator;
+    /**
+     * @brief `const_iterator` for iterating over options.
+     */
+    using option_const_iterator = option_group::const_iterator;
+
+    /**
+     * @brief Search for a group by name.
+     * @param name Group name.
+     * @return Iterator pointing to the group, or to the end if not
+     *         found.
+     */
+    group_iterator find_group(const std::string& name);
+    /**
+     * @copydoc find_group
+     */
+    group_const_iterator find_group(const std::string& name) const;
+
+    /**
+     * @brief Search for an option by long name.
+     * @param long_name Long name for the option.
+     * @return Pointer to the option, or `nullptr` if not found.
+     */
+    option* find_option(const std::string& long_name);
+    /**
+     * @copydoc find_option
+     */
+    const option* find_option(const std::string& long_name) const;
+
+    /**
+     * @brief Search for an option by short name.
+     * @param short_name Short name for the option.
+     * @return Pointer to the option, or `nullptr` if not found.
+     */
+    option* find_option(char short_name);
+    /**
+     * @copydoc find_option
+     */
+    const option* find_option(char short_name) const;
+
+    /**
      * @brief Determines whether an argument is an end-of-option
      *        marker.
      * @param argument Argument to check.
@@ -349,11 +415,7 @@ namespace optionpp {
                                   const std::string& argument, bool has_arg,
                                   parser_result& result, cl_arg_type& type) const;
 
-    /**
-     * @brief Type used to hold `option` objects.
-     */
-    using opt_container = std::vector<option>;
-    opt_container m_options; //< The container of `option` objects.
+    group_container m_groups; //< The container of option groups.
 
     std::string m_delims{" \t\n\r"}; //< Delimiters used to separate command-line arguments.
     std::string m_short_option_prefix{"-"}; //< String that indicates a group of short option names.
