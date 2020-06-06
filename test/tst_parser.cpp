@@ -18,6 +18,8 @@
 /* Written by Greg Kikola <gkikola@gmail.com>. */
 
 #include <exception>
+#include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <catch2/catch.hpp>
@@ -47,21 +49,23 @@ TEST_CASE("parser") {
     .bind_bool(&data.version);
   example.add_option().long_name("verbose").short_name('v')
     .description("Show verbose output").bind_bool(&data.verbose);
-  example.add_option().long_name("output").short_name('o')
+  example.group("Output options").add_option()
+    .long_name("output").short_name('o')
     .argument("FILE", true).bind_string(&data.file)
     .bind_bool(&data.has_file)
     .description("Write output to FILE");
-  example.add_option().short_name('n').bind_bool(&data.line_nos)
+  example.group("Output options").add_option()
+    .short_name('n').bind_bool(&data.line_nos)
     .description("Show line numbers");
   example.add_option().long_name("all").short_name('a')
     .description("Show all lines");
-  example.add_option().long_name("indent")
+  example.group("Output options").add_option().long_name("indent")
     .argument("WIDTH", false).bind_uint(&data.indent)
     .description("Indent each line by WIDTH spaces (default: 2)");
   example.add_option().long_name("force").short_name('f').bind_bool(&data.force)
     .description("Force file creation");
-  example.add_option().long_name("color").short_name('c')
-    .argument("COLOR", false).bind_string(&data.color);
+  example.add_option("color", 'c', "Set the color of the output",
+                     "COLOR", false, "Output options").bind_string(&data.color);
 
   SECTION("simple parsing") {
     std::vector<std::string> cmd_line;
@@ -515,5 +519,97 @@ TEST_CASE("parser") {
                         "argument for option '-t' must be a number");
     REQUIRE_THROWS_WITH(example.parse("-t xxx"),
                         "argument for option '-t' must be a number");
+  }
+
+  SECTION("help message") {
+    std::ostringstream oss;
+    oss << empty;
+    REQUIRE(oss.str() == "");
+
+    std::string desired = R"(  -?, --help                  Show help information
+      --version               Get version info
+  -v, --verbose               Show verbose output
+  -a, --all                   Show all lines
+  -f, --force                 Force file creation
+
+Output options
+  -o, --output=FILE           Write output to FILE
+  -n                          Show line numbers
+      --indent[=WIDTH]        Indent each line by WIDTH spaces (default: 2)
+  -c, --color[=COLOR]         Set the color of the output
+)";
+    oss << example;
+    REQUIRE(oss.str() == desired);
+
+    desired = R"(        -?, --help  Show help
+                      information
+            --version
+                    Get version info
+        -v, --verbose
+                    Show verbose output
+        -a, --all   Show all lines
+        -f, --force
+                    Force file creation
+
+    Output options
+        -o, --output=FILE
+                    Write output to FILE
+        -n          Show line numbers
+            --indent[=WIDTH]
+                    Indent each line by
+                      WIDTH spaces
+                      (default: 2)
+        -c, --color[=COLOR]
+                    Set the color of the
+                      output
+)";
+    oss.str("");
+    example.print_help(oss, 40, 4, 8, 20, 22);
+    REQUIRE(oss.str() == desired);
+
+    desired = R"(-?, --help
+Show help information
+    --version
+Get version info
+-v, --verbose
+Show verbose output
+-a, --all
+Show all lines
+-f, --force
+Force file creation
+
+Output options
+-o, --output=FILE
+Write output to FILE
+-n
+Show line numbers
+    --indent[=WIDTH]
+Indent each line by WIDTH spaces (default: 2)
+-c, --color[=COLOR]
+Set the color of the output
+)";
+    oss.str("");
+    example.print_help(oss, 0, 0, 0, 0, 0);
+    REQUIRE(oss.str() == desired);
+
+    desired = R"(  -?, --help                                                Show help
+                                                          information
+      --version                                             Get version info
+  -v, --verbose                                             Show verbose output
+  -a, --all                                                 Show all lines
+  -f, --force                                               Force file creation
+
+Output options
+  -o, --output=FILE                                         Write output to FILE
+  -n                                                        Show line numbers
+      --indent[=WIDTH]                                      Indent each line by
+                                                          WIDTH spaces (default:
+                                                          2)
+  -c, --color[=COLOR]                                       Set the color of the
+                                                          output
+)";
+    oss.str("");
+    example.print_help(oss, 80, 0, 2, 60, 58);
+    REQUIRE(oss.str() == desired);
   }
 }

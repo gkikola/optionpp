@@ -25,6 +25,7 @@
 #include "parser.hpp"
 
 #include <algorithm>
+#include <iostream>
 #include <iterator>
 #include <limits>
 #include <stdexcept>
@@ -39,6 +40,16 @@ option& parser::add_option(const option& opt) {
   } else {
     return it->add_option(opt);
   }
+}
+
+option& parser::add_option(const std::string& long_name,
+                           char short_name,
+                           const std::string& description,
+                           const std::string& arg_name,
+                           bool arg_required,
+                           const std::string& group_name) {
+  return group(group_name).add_option(long_name, short_name)
+    .description(description).argument(arg_name, arg_required);
 }
 
 option_group& parser::group(const std::string& name) {
@@ -99,6 +110,84 @@ option& parser::operator[](char short_name) {
     return *opt;
   else
     return add_option().short_name(short_name);
+}
+
+std::ostream& parser::print_help(std::ostream& os,
+                                 int max_line_length,
+                                 int group_indent,
+                                 int option_indent,
+                                 int desc_first_line_indent,
+                                 int desc_multiline_indent) const {
+  bool first = true;
+
+  for (const auto& group : m_groups) {
+    if (group.empty())
+      continue;
+
+    // Add extra newline between groups
+    if (first)
+      first = false;
+    else
+      os << "\n";
+
+    // Print group name
+    if (!group.name().empty()) {
+      os << utility::wrap_text(group.name(), max_line_length, group_indent)
+         << "\n";
+    }
+
+    // Print options
+    for (const auto& opt : group) {
+      std::string usage(option_indent, ' ');
+
+      // Short name
+      if (opt.short_name() != '\0') {
+        usage += m_short_option_prefix;
+        usage += opt.short_name();
+
+        if (!opt.long_name().empty())
+          usage += ", ";
+      } else {
+        usage += std::string(m_short_option_prefix.size() + 3, ' ');
+      }
+
+      // Long name
+      if (!opt.long_name().empty()) {
+        usage += m_long_option_prefix;
+        usage += opt.long_name();
+      }
+
+      // Argument
+      if (!opt.argument_name().empty()) {
+        if (opt.is_argument_required())
+          usage += m_equals + opt.argument_name();
+        else
+          usage += "[" + m_equals + opt.argument_name() + "]";
+      }
+
+      // Description
+      int spacing = desc_first_line_indent - usage.size();
+      if (spacing <= 1) {
+        os << utility::wrap_text(usage, max_line_length);
+        if (!opt.description().empty()) {
+          os << "\n" << utility::wrap_text(opt.description(),
+                                           max_line_length,
+                                           desc_multiline_indent,
+                                           desc_first_line_indent);
+        }
+      } else {
+        if (!opt.description().empty()) {
+          usage += std::string(spacing, ' ');
+          usage += opt.description();
+        }
+        os << utility::wrap_text(usage, max_line_length,
+                                 desc_multiline_indent, 0);
+      }
+
+      os << "\n";
+    }
+  }
+  return os;
 }
 
 auto parser::find_group(const std::string& name) -> group_iterator {
@@ -430,4 +519,8 @@ void parser::parse_short_option_group(const std::string& short_names,
     type = cl_arg_type::no_arg;
     arg_info = parser_result::item{};
   } // End for loop
+}
+
+std::ostream& optionpp::operator<<(std::ostream& os, const parser& parser) {
+  return parser.print_help(os);
 }

@@ -26,6 +26,7 @@
 #define OPTIONPP_PARSER_HPP
 
 #include <initializer_list>
+#include <iosfwd>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -156,6 +157,19 @@ namespace optionpp {
      * @return Reference to the inserted `option`, for chaining.
      */
     option& add_option(const option& opt = option{});
+
+    /**
+     * @brief Add a program option.
+     *
+     * @param opt The `option` to add.
+     * @return Reference to the inserted `option`, for chaining.
+     */
+    option& add_option(const std::string& long_name,
+                       char short_name = '\0',
+                       const std::string& description = "",
+                       const std::string& arg_name = "",
+                       bool arg_required = false,
+                       const std::string& group_name = "");
 
     /**
      * @brief Parse command-line arguments.
@@ -290,6 +304,46 @@ namespace optionpp {
      * @copydoc operator[]
      */
     option& operator[](char short_name);
+
+    /**
+     * @brief Print program help message.
+     *
+     * This will write all program options, organized by group, to the
+     * given output stream. The additional parameters control the
+     * formatting.
+     *
+     * The options are presented in the order that they were added to
+     * each group; if desired, you can call `sort_options` first to
+     * sort the options by name within each group.
+     *
+     * Option names and descriptions are displayed in columns, with
+     * option names on the left and descriptions on the right. The
+     * first line of a description will begin on the same line as the
+     * option names, unless there's not enough room, in which case a
+     * new line is started.
+     *
+     * The indentation levels are not cumulative: each parameter gives
+     * the total level of indentation, counted from the leftmost
+     * character of the line.
+     *
+     * @param os Output stream.
+     * @param max_line_length Text will be wrapped so that each line
+     *                        is at most this many characters.
+     * @param group_indent Number of spaces to indent group names.
+     * @param option_indent Number of spaces to indent option names.
+     * @param desc_first_line_indent Number of spaces to indent first
+     *                               line of each description.
+     * @param desc_multiline_indent Number of spaces to indent
+     *                              descriptions after the first line.
+     * @return The output stream that was initially given.
+     */
+    std::ostream& print_help(std::ostream& os,
+                             int max_line_length = 78,
+                             int group_indent = 0,
+                             int option_indent = 2,
+                             int desc_first_line_indent = 30,
+                             int desc_multiline_indent = 32) const;
+
 
   private:
 
@@ -453,6 +507,23 @@ namespace optionpp {
     std::string m_end_of_options{"--"}; //< String that marks the end of the program options.
     std::string m_equals{"="}; //< String used to specify an explicit argument to an option.
   };
+
+  /**
+   * @brief Output operator.
+   *
+   * Writes program help text to an output stream using the default
+   * options for printing. For finer control, use
+   * `parser::print_help`.
+   *
+   * By default, options are presented in the same order that they
+   * were inserted within each group. If desired, you can call
+   * `parser::sort_options` first to sort by name.
+   *
+   * @param os Output stream to write output to.
+   * @param parser Parser containing the program option information.
+   * @return The given output stream.
+   */
+  std::ostream& operator<<(std::ostream& os, const parser& parser);
 
 } // End namespace
 
