@@ -468,12 +468,10 @@ namespace optionpp {
      * cannot be converted, an exception is raised. If no variable was
      * bound to the option, then nothing is done.
      *
-     * @param opt `option` that is being set.
      * @param entry Object holding parsed result information for the
      *              option, including the argument to assign.
      */
-    void write_option_argument(const option& opt,
-                               const parsed_entry& entry) const;
+    void write_option_argument(const parsed_entry& entry) const;
 
     /**
      * @brief Represents the type of a command-line argument.
@@ -575,7 +573,7 @@ optionpp::parser::parse(InputIt first, InputIt last, bool ignore_first) const {
         arg_info.original_text += arg;
         prev_type = cl_arg_type::non_option;
         if (arg_info.opt_info)
-          write_option_argument(*arg_info.opt_info, arg_info);
+          write_option_argument(arg_info);
       } else { // Found an option, reset type and continue
         prev_type = cl_arg_type::non_option;
         continue; // Continue without incrementing 'it' in order to reevaluate current token

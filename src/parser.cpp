@@ -260,8 +260,11 @@ parser_result parser::parse(const std::string& cmd_line, bool ignore_first) cons
   return parse(container.begin(), container.end(), ignore_first);
 }
 
-void parser::write_option_argument(const option& opt,
-                                   const parsed_entry& entry) const {
+void parser::write_option_argument(const parsed_entry& entry) const {
+  if (!entry.opt_info)
+    return;
+
+  const option& opt = *entry.opt_info;
   if (!opt.has_bound_argument_variable())
     return;
 
@@ -387,7 +390,7 @@ void parser::parse_argument(const std::string& argument,
     arg_info.long_name = option_name;
     arg_info.short_name = opt->short_name();
     if (assignment_found)
-      write_option_argument(*opt, arg_info);
+      write_option_argument(arg_info);
     opt->write_bool(true);
     result.push_back(std::move(arg_info));
   } else if (is_short_option_group(option_specifier)) { // Short options
@@ -438,7 +441,7 @@ void parser::parse_short_option_group(const std::string& short_names,
           arg_info.argument += argument;
         }
         arg_info.original_text += arg_info.argument;
-        write_option_argument(*opt, arg_info);
+        write_option_argument(arg_info);
         result.push_back(std::move(arg_info));
         type = cl_arg_type::no_arg;
         break;
@@ -448,7 +451,7 @@ void parser::parse_short_option_group(const std::string& short_names,
           arg_info.original_text += m_equals;
           arg_info.original_text += argument;
           arg_info.argument = argument;
-          write_option_argument(*opt, arg_info);
+          write_option_argument(arg_info);
           type = cl_arg_type::no_arg;
         } else if (opt->is_argument_required()) {
           type = cl_arg_type::arg_required;
