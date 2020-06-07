@@ -203,20 +203,4 @@ TEST_CASE("parser_result") {
     REQUIRE(result.get_argument("") == "");
     REQUIRE(result.get_argument('\0') == "");
   }
-
-  SECTION("non_option_iterator") {
-    result = parser_result{version, help, non_option, file};
-    auto it = non_option_iterator{result};
-    REQUIRE(it != end(it));
-    REQUIRE(it->original_text == "command");
-    ++it;
-    REQUIRE(it == end(it));
-    --it;
-    REQUIRE(it->original_text == "command");
-    REQUIRE_THROWS_WITH(--it, "out of bounds parser_result access");
-
-    result = parser_result{version, help, file };
-    it = non_option_iterator{result};
-    REQUIRE(it == end(it));
-  }
 }

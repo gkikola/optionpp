@@ -46,6 +46,7 @@ set (OPTIONPP_SOURCE_FILES
   src/option_group.cpp
   src/parser.cpp
   src/parser_result.cpp
+  src/result_iterator.cpp
   src/utility.cpp
   )
 
@@ -54,6 +55,7 @@ set (OPTIONPP_TEST_FILES
   test/tst_option.cpp
   test/tst_parser.cpp
   test/tst_parser_result.cpp
+  test/tst_result_iterator.cpp
   test/tst_utility.cpp
   )
 
