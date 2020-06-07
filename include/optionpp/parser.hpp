@@ -31,9 +31,9 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "option_group.hpp"
-#include "parser_result.hpp"
-#include "utility.hpp"
+#include <optionpp/option_group.hpp>
+#include <optionpp/parser_result.hpp>
+#include <optionpp/utility.hpp>
 
 /**
  * @brief Library namespace.

@@ -29,8 +29,8 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "error.hpp"
-#include "option.hpp"
+#include <optionpp/error.hpp>
+#include <optionpp/option.hpp>
 
 namespace optionpp {
 

@@ -25,6 +25,6 @@
 #ifndef OPTIONPP_OPTIONPP_HPP
 #define OPTIONPP_OPTIONPP_HPP
 
-#include "parser.hpp"
+#include <optionpp/parser.hpp>
 
 #endif
