@@ -42,6 +42,7 @@ TEST_CASE("result_iterator") {
     auto result = p.parse("cmd1 -Eif file.txt cmd2 --version cmd3");
     auto it = non_option_iterator{result};
     auto it_end = end(it);
+    REQUIRE_THROWS_WITH(*it_end, "tried to dereference a nullptr");
     REQUIRE(it->original_text == "cmd1");
     REQUIRE_FALSE(it->is_option);
     REQUIRE((it++)->original_text == "cmd1");
@@ -55,6 +56,7 @@ TEST_CASE("result_iterator") {
     REQUIRE(it_end == it);
     REQUIRE(it_end == it_end);
     REQUIRE(it == it);
+    REQUIRE_THROWS_WITH(*it, "tried to dereference past-the-end iterator");
 
     REQUIRE((it--) == it_end);
     REQUIRE(it->original_text == "cmd3");
@@ -67,6 +69,7 @@ TEST_CASE("result_iterator") {
     const auto result = p.parse("--file output.txt command another command --ignore-case");
     auto it = non_option_const_iterator{result};
     auto it_end = end(it);
+    REQUIRE_THROWS_WITH(*it_end, "tried to dereference a nullptr");
     REQUIRE(it != it_end);
     REQUIRE(it->original_text == "command");
     REQUIRE_FALSE(it->is_option);
@@ -79,6 +82,7 @@ TEST_CASE("result_iterator") {
     REQUIRE(it_end == it);
     REQUIRE(it_end == it_end);
     REQUIRE(it == it);
+    REQUIRE_THROWS_WITH(*it, "tried to dereference past-the-end iterator");
     REQUIRE((--it)->original_text == "command");
     REQUIRE(it != it_end);
     REQUIRE(it_end != it);
@@ -88,22 +92,26 @@ TEST_CASE("result_iterator") {
     auto result = p.parse("cmd1 -Eif file.txt cmd2 --version cmd3");
     auto it = option_iterator{result};
     auto it_end = end(it);
+    REQUIRE_THROWS_WITH(*it_end, "tried to dereference a nullptr");
     REQUIRE(it != it_end);
     REQUIRE(it->original_text == "-E");
     REQUIRE((++it)->original_text == "-i");
     REQUIRE((++it)->original_text == "-f file.txt");
     REQUIRE((++it)->original_text == "--version");
     REQUIRE(++it == it_end);
+    REQUIRE_THROWS_WITH(*it, "tried to dereference past-the-end iterator");
   }
 
   SECTION("option_const_iterator") {
     const auto result = p.parse("--file output.txt command another command --ignore-case");
     auto it = option_const_iterator{result};
     auto it_end = end(it);
+    REQUIRE_THROWS_WITH(*it_end, "tried to dereference a nullptr");
     REQUIRE(it != it_end);
     REQUIRE(it->original_text == "--file output.txt");
     REQUIRE((++it)->original_text == "--ignore-case");
     REQUIRE(++it == it_end);
+    REQUIRE_THROWS_WITH(*it, "tried to dereference past-the-end iterator");
     REQUIRE(--it != it_end);
     REQUIRE(it->original_text == "--ignore-case");
     REQUIRE((it--)->original_text == "--ignore-case");
