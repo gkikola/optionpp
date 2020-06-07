@@ -26,57 +26,59 @@
 
 #include <algorithm>
 
-using namespace optionpp;
+namespace optionpp {
 
-option& option_group::add_option(const std::string& long_name,
-                                 char short_name,
-                                 const std::string& description,
-                                 const std::string& arg_name,
-                                 bool arg_required) {
-  m_options.emplace_back(long_name, short_name, description,
-                         arg_name, arg_required);
-  return m_options.back();
-}
+  option& option_group::add_option(const std::string& long_name,
+                                   char short_name,
+                                   const std::string& description,
+                                   const std::string& arg_name,
+                                   bool arg_required) {
+    m_options.emplace_back(long_name, short_name, description,
+                           arg_name, arg_required);
+    return m_options.back();
+  }
 
-option& option_group::operator[](const std::string long_name) {
-  auto it = find(long_name);
-  if (it == end())
-    return add_option().long_name(long_name);
-  else
-    return *it;
-}
+  option& option_group::operator[](const std::string long_name) {
+    auto it = find(long_name);
+    if (it == end())
+      return add_option().long_name(long_name);
+    else
+      return *it;
+  }
 
-option& option_group::operator[](char short_name) {
-  auto it = find(short_name);
-  if (it == end())
-    return add_option().short_name(short_name);
-  else
-    return *it;
-}
+  option& option_group::operator[](char short_name) {
+    auto it = find(short_name);
+    if (it == end())
+      return add_option().short_name(short_name);
+    else
+      return *it;
+  }
 
-auto option_group::find(const std::string& long_name) -> iterator {
-  return std::find_if(m_options.begin(), m_options.end(),
-                      [&](const option& o) { return o.long_name() == long_name; });
-}
+  auto option_group::find(const std::string& long_name) -> iterator {
+    return std::find_if(m_options.begin(), m_options.end(),
+                        [&](const option& o) { return o.long_name() == long_name; });
+  }
 
-auto option_group::find(const std::string& long_name) const -> const_iterator {
-  return std::find_if(m_options.begin(), m_options.end(),
-                      [&](const option& o) { return o.long_name() == long_name; });
-}
+  auto option_group::find(const std::string& long_name) const -> const_iterator {
+    return std::find_if(m_options.begin(), m_options.end(),
+                        [&](const option& o) { return o.long_name() == long_name; });
+  }
 
-auto option_group::find(char short_name) -> iterator {
-  return std::find_if(m_options.begin(), m_options.end(),
-                      [&](const option& o) { return o.short_name() == short_name; });
-}
+  auto option_group::find(char short_name) -> iterator {
+    return std::find_if(m_options.begin(), m_options.end(),
+                        [&](const option& o) { return o.short_name() == short_name; });
+  }
 
-auto option_group::find(char short_name) const -> const_iterator {
-  return std::find_if(m_options.begin(), m_options.end(),
-                      [&](const option& o) { return o.short_name() == short_name; });
-}
+  auto option_group::find(char short_name) const -> const_iterator {
+    return std::find_if(m_options.begin(), m_options.end(),
+                        [&](const option& o) { return o.short_name() == short_name; });
+  }
 
-void option_group::sort() {
-  std::sort(m_options.begin(), m_options.end(),
-            [](const option& a, const option& b) {
-              return a.name() < b.name();
-            });
-}
+  void option_group::sort() {
+    std::sort(m_options.begin(), m_options.end(),
+              [](const option& a, const option& b) {
+                return a.name() < b.name();
+              });
+  }
+
+} // End namespace

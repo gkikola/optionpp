@@ -28,9 +28,9 @@
 #include <iterator>
 #include <vector>
 
-// Wrap cctype functions in order to handle signed chars properly
 namespace optionpp {
   namespace utility {
+
     /**
      * @brief Determine if a character is whitespace.
      * @param c Character to check.
@@ -56,113 +56,107 @@ namespace optionpp {
     std::string wrap_line(const std::string& str,
                           int line_len,
                           int indent,
-                          int first_line_indent);
-  }
-}
+                          int first_line_indent) {
+      // Check for unlimited length
+      if (line_len <= 0)
+        return std::string(first_line_indent, ' ') + str;
 
-using namespace optionpp;
+      // Validate indentation
+      if (indent < 0)
+        indent = 0;
+      else if (indent > line_len - 1)
+        indent = line_len - 1;
+      if (first_line_indent < 0)
+        first_line_indent = 0;
+      else if (first_line_indent > line_len - 1)
+        first_line_indent = line_len - 1;
 
-std::string utility::wrap_line(const std::string& str,
-                               int line_len,
-                               int indent,
-                               int first_line_indent) {
-  // Check for unlimited length
-  if (line_len <= 0)
-    return std::string(first_line_indent, ' ') + str;
+      std::string result;
+      std::string::size_type pos{0};
 
-  // Validate indentation
-  if (indent < 0)
-    indent = 0;
-  else if (indent > line_len - 1)
-    indent = line_len - 1;
-  if (first_line_indent < 0)
-    first_line_indent = 0;
-  else if (first_line_indent > line_len - 1)
-    first_line_indent = line_len - 1;
+      while (pos < str.size()) {
+        int cur_indent = result.empty() ? first_line_indent : indent;
+        auto start = pos;
 
-  std::string result;
-  std::string::size_type pos{0};
+        // After the first line, new lines should start at non-whitespace
+        // characters
+        if (!result.empty()) {
+          while (start < str.size() && is_space(str[start]))
+            ++start;
+        }
 
-  while (pos < str.size()) {
-    int cur_indent = result.empty() ? first_line_indent : indent;
-    auto start = pos;
+        // Find ideal end point
+        auto end = start + line_len - cur_indent;
+        if (end > str.size())
+          end = str.size();
 
-    // After the first line, new lines should start at non-whitespace
-    // characters
-    if (!result.empty()) {
-      while (start < str.size() && is_space(str[start]))
-        ++start;
+        // We don't want to split in the middle of a word unless we don't
+        // have a choice
+        if (end < str.size()) {
+          auto word_start = end;
+          while (word_start > start && !is_space(str[word_start]))
+            --word_start;
+
+          if (word_start > start)
+            end = word_start;
+        }
+
+        // Mark position of next line
+        pos = end;
+
+        // We don't want trailing whitespace
+        while (end > start && is_space(str[end - 1]))
+          --end;
+
+        // Add line to result
+        if (end > start) {
+          if (!result.empty())
+            result.push_back('\n');
+          if (cur_indent > 0)
+            result += std::string(cur_indent, ' ');
+          result += str.substr(start, end - start);
+        }
+      }
+
+      return result;
     }
 
-    // Find ideal end point
-    auto end = start + line_len - cur_indent;
-    if (end > str.size())
-      end = str.size();
-
-    // We don't want to split in the middle of a word unless we don't
-    // have a choice
-    if (end < str.size()) {
-      auto word_start = end;
-      while (word_start > start && !is_space(str[word_start]))
-        --word_start;
-
-      if (word_start > start)
-        end = word_start;
+    std::string wrap_text(const std::string& str,
+                          int line_len,
+                          int indent) {
+      return wrap_text(str, line_len, indent, indent);
     }
 
-    // Mark position of next line
-    pos = end;
+    std::string wrap_text(const std::string& str,
+                          int line_len,
+                          int indent,
+                          int first_line_indent) {
+      std::vector<std::string> lines;
+      split(str, std::back_inserter(lines), "\n", "", '\0', true);
 
-    // We don't want trailing whitespace
-    while (end > start && is_space(str[end - 1]))
-      --end;
+      std::string result;
+      for (const auto& line : lines) {
+        if (!result.empty())
+          result.push_back('\n');
+        result += wrap_line(line, line_len, indent, first_line_indent);
+        first_line_indent = indent;
+      }
 
-    // Add line to result
-    if (end > start) {
-      if (!result.empty())
-        result.push_back('\n');
-      if (cur_indent > 0)
-        result += std::string(cur_indent, ' ');
-      result += str.substr(start, end - start);
+      return result;
     }
-  }
 
-  return result;
-}
+    bool is_substr_at_pos(const std::string& str, const std::string& substr,
+                          typename std::string::size_type pos) noexcept {
+      if (pos + substr.size() > str.size())
+        return false;
 
-std::string utility::wrap_text(const std::string& str,
-                               int line_len,
-                               int indent) {
-  return wrap_text(str, line_len, indent, indent);
-}
+      for (decltype(pos) i{0}; i < substr.size(); ++i) {
+        if (str[pos + i] != substr[i])
+          return false;
+      }
 
-std::string utility::wrap_text(const std::string& str,
-                               int line_len,
-                               int indent,
-                               int first_line_indent) {
-  std::vector<std::string> lines;
-  split(str, std::back_inserter(lines), "\n", "", '\0', true);
+      return true;
+    }
 
-  std::string result;
-  for (const auto& line : lines) {
-    if (!result.empty())
-      result.push_back('\n');
-    result += wrap_line(line, line_len, indent, first_line_indent);
-    first_line_indent = indent;
-  }
-
-  return result;
-}
-
-bool utility::is_substr_at_pos(const std::string& str, const std::string& substr,
-                               typename std::string::size_type pos) noexcept {
-  if (pos + substr.size() > str.size())
-    return false;
-
-  for (decltype(pos) i{0}; i < substr.size(); ++i) {
-    if (str[pos + i] != substr[i])
-      return false;
-  }
-
-  return true;
-}
+  } // End namespace utility
+} // End namespace optionpp

@@ -27,52 +27,54 @@
 #include <algorithm>
 #include <optionpp/error.hpp>
 
-using namespace optionpp;
+namespace optionpp {
 
-bool parser_result::is_option_set(const std::string& long_name) const noexcept {
-  if (long_name.empty())
-    return false;
-  else
-    return std::any_of(begin(), end(),
-                       [&](const parsed_entry& i) {
-                         return i.is_option && i.long_name == long_name;
-                       });
-}
-
-bool parser_result::is_option_set(char short_name) const noexcept {
-  if (short_name == '\0')
-    return false;
-  else
-    return std::any_of(begin(), end(),
-                       [&](const parsed_entry& i) {
-                         return i.is_option && i.short_name == short_name;
-                       });
-}
-
-std::string parser_result::get_argument(std::string long_name) const noexcept {
-  if (long_name == "")
-    return "";
-
-  auto it = std::find_if(rbegin(), rend(),
+  bool parser_result::is_option_set(const std::string& long_name) const noexcept {
+    if (long_name.empty())
+      return false;
+    else
+      return std::any_of(begin(), end(),
                          [&](const parsed_entry& i) {
                            return i.is_option && i.long_name == long_name;
                          });
-  if (it != rend())
-    return it->argument;
-  else
-    return "";
-}
+  }
 
-std::string parser_result::get_argument(char short_name) const noexcept {
-  if (short_name == '\0')
-    return "";
-
-  auto it = std::find_if(rbegin(), rend(),
-                         [=](const parsed_entry& i) {
+  bool parser_result::is_option_set(char short_name) const noexcept {
+    if (short_name == '\0')
+      return false;
+    else
+      return std::any_of(begin(), end(),
+                         [&](const parsed_entry& i) {
                            return i.is_option && i.short_name == short_name;
                          });
-  if (it != rend())
-    return it->argument;
-  else
-    return "";
-}
+  }
+
+  std::string parser_result::get_argument(std::string long_name) const noexcept {
+    if (long_name == "")
+      return "";
+
+    auto it = std::find_if(rbegin(), rend(),
+                           [&](const parsed_entry& i) {
+                             return i.is_option && i.long_name == long_name;
+                           });
+    if (it != rend())
+      return it->argument;
+    else
+      return "";
+  }
+
+  std::string parser_result::get_argument(char short_name) const noexcept {
+    if (short_name == '\0')
+      return "";
+
+    auto it = std::find_if(rbegin(), rend(),
+                           [=](const parsed_entry& i) {
+                             return i.is_option && i.short_name == short_name;
+                           });
+    if (it != rend())
+      return it->argument;
+    else
+      return "";
+  }
+
+} // End namespace
