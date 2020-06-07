@@ -34,129 +34,131 @@
 
 namespace optionpp {
 
+
+  /**
+   * @brief Holds data parsed from the command line.
+   *
+   * Each `parsed_entry` instance represents either a program option
+   * or a non-option argument that was passed on the command line.
+   */
+  struct parsed_entry {
+    /**
+     * @brief Default constructor.
+     */
+    parsed_entry() noexcept {};
+
+    /**
+     * @brief Constructor.
+     * @param original_text The original text used on the command line.
+     * @param is_option True if the data represents a program option,
+     *                  false for non-option arguments.
+     * @param long_name The long name of the option (empty string if
+     *                  this is not an option).
+     * @param short_name The short name of the option (0 if this is not
+     *                   an option).
+     * @param argument The argument passed to the option, if any.
+     */
+    explicit parsed_entry(const std::string& original_text,
+                          bool is_option = false,
+                          const std::string& long_name = "",
+                          char short_name = '\0',
+                          const std::string& argument = "")
+      : original_text{original_text}, is_option{is_option},
+        long_name{long_name}, short_name{short_name}, argument{argument} {}
+
+    /**
+     * @brief The original text used on the command line.
+     *
+     * For non-option arguments, the text is stored verbatim. If this
+     * `parsed_entry` represents an option, then this field will take
+     * the form `-X` if the short name was used (where `X` is the
+     * short name) or `--XXX` if the long name was used (where `XXX`
+     * is the long name).
+     *
+     * In addition, if an argument was given with the option, then
+     * the argument will be included after the option name.
+     */
+    std::string original_text;
+
+    /**
+     * @brief The original text used on the command line but without
+     * any option argument.
+     *
+     * For example, if the user entered an option `--width=32`, then
+     * this field should be set to `"--width"` whereas
+     * `original_text` would contain the full string.
+     */
+    std::string original_without_argument;
+
+    /**
+     * @brief True if this `parsed_entry` represents a program option,
+     * false otherwise.
+     *
+     * This field will be false if the `parsed_entry` is a non-option
+     * argument (a separate command line argument that does not begin
+     * with a hyphen, or one that occurs after the end-of-options
+     * marker `--`).
+     */
+    bool is_option{false};
+
+    /**
+     * @brief The long name of the option which this `parsed_entry`
+     * represents.
+     *
+     * If `is_option` is false, this should be an empty string.
+     */
+    std::string long_name;
+
+    /**
+     * @brief The short name of the option which this `parsed_entry`
+     * represents.
+     *
+     * If `is_option` is false, this should be a null character.
+     */
+    char short_name{'\0'};
+
+    /**
+     * @brief The argument that was passed to the option, if any.
+     *
+     * If `is_option` is false, or if no argument was given, then
+     * this should be an empty string.
+     */
+    std::string argument;
+
+    /**
+     * @brief Pointer to the `option` instance representing this
+     * option, if any.
+     */
+    const option* opt_info{nullptr};
+  };
+
   /**
    * @brief Holds data that was parsed from the program command line.
    *
-   * This is a container of `parser_result::item` structures that
-   * describe all the program options that were set on the command
-   * line as well as all non-option arguments, all in the order that
-   * they were originally specified.
+   * This is a container of `parsed_entry` instances that describe all
+   * the program options that were set on the command line as well as
+   * all non-option arguments, all in the order in which they were
+   * originally specified.
    *
    * For example, if the user ran the program with the command
    * ```
    * myprogram -afn file1.txt file2.txt --verbose file3.txt
    * ```
    * then the corresponding `parser_result` would hold seven data
-   * items: `-a`, `-f`, `-n`, `file1.txt`, `file2.txt`, `--verbose`,
+   * entries: `-a`, `-f`, `-n`, `file1.txt`, `file2.txt`, `--verbose`,
    * `file3.txt`, in that order.
    */
   class parser_result {
   public:
 
     /**
-     * @brief Holds data parsed from the command line.
-     *
-     * Each `item` instance represents either a program option or a
-     * non-option argument that was passed on the command line.
-     */
-    struct item {
-      /**
-       * @brief Default constructor.
-       */
-      item() noexcept {};
-
-      /**
-       * @brief Constructor.
-       * @param original_text The original text used on the command line.
-       * @param is_option True if the data represents a program option,
-       *                  false for non-option arguments.
-       * @param long_name The long name of the option (empty string if
-       *                  this is not an option).
-       * @param short_name The short name of the option (0 if this is not
-       *                   an option).
-       * @param argument The argument passed to the option, if any.
-       */
-      explicit item(const std::string& original_text,
-                    bool is_option = false,
-                    const std::string& long_name = "",
-                    char short_name = '\0',
-                    const std::string& argument = "")
-        : original_text{original_text}, is_option{is_option},
-          long_name{long_name}, short_name{short_name}, argument{argument} {}
-
-      /**
-       * @brief The original text used on the command line.
-       *
-       * For non-option arguments, the text is stored verbatim. If
-       * this `item` represents an option, then this field will take
-       * the form `-X` if the short name was used (where `X` is the
-       * short name) or `--XXX` if the long name was used (where `XXX`
-       * is the long name).
-       *
-       * In addition, if an argument was given with the option, then
-       * the argument will be included after the option name.
-       */
-      std::string original_text;
-
-      /**
-       * @brief The original text used on the command line but without
-       * any option argument.
-       *
-       * For example, if the user entered an option `--width=32`, then
-       * this field should be set to `"--width"` whereas
-       * `original_text` would contain the full string.
-       */
-      std::string original_without_argument;
-
-      /**
-       * @brief True if this `item` represents a program option, false
-       * otherwise.
-       *
-       * This field will be false if the `item` is a non-option
-       * argument (a separate command line argument that does not
-       * begin with a hyphen).
-       */
-      bool is_option{false};
-
-      /**
-       * @brief The long name of the option which this `item`
-       * represents.
-       *
-       * If `is_option` is false, this should be an empty string.
-       */
-      std::string long_name;
-
-      /**
-       * @brief The short name of the option which this `item`
-       * represents.
-       *
-       * If `is_option` is false, this should be a null character.
-       */
-      char short_name{'\0'};
-
-      /**
-       * @brief The argument that was passed to the option, if any.
-       *
-       * If `is_option` is false, or if no argument was given, then
-       * this should be an empty string.
-       */
-      std::string argument;
-
-      /**
-       * @brief Pointer to the `option` instance representing this
-       * option, if any.
-       */
-      const option* opt_info{nullptr};
-    };
-
-    /**
      * @brief Type used for storing argument data.
      */
-    using value_type = item;
+    using value_type = parsed_entry;
     /**
-     * @brief Type of container used to store the data items.
+     * @brief Type of container used to store the data entries.
      */
-    using container_type = std::vector<item>;
+    using container_type = std::vector<value_type>;
     /**
      * @brief Unsigned integer type (usually `std::size_t`) that can
      * hold container size.
@@ -190,61 +192,61 @@ namespace optionpp {
      * @param il The `initializer_list` holding the parsed data.
      */
     parser_result(const std::initializer_list<value_type>& il)
-      : m_items{il} {}
+      : m_entries{il} {}
     /**
      * @brief Construct from a sequence.
      * @tparam InputIt The type of iterator (usually deduced).
-     * @param first Iterator pointing to the beginning of the `item` sequence.
+     * @param first Iterator pointing to the beginning of the sequence.
      * @param last Iterator pointing to one past the end of the sequence.
      */
     template <typename InputIt>
-    parser_result(InputIt first, InputIt last) : m_items{first, last} {}
+    parser_result(InputIt first, InputIt last) : m_entries{first, last} {}
 
     /**
-     * @brief Add an `item` to the back of the container.
-     * @param item The parsed data item to add.
+     * @brief Add a `parsed_entry` to the back of the container.
+     * @param entry The parsed data entry to add.
      */
-    void push_back(const value_type& item) { m_items.push_back(item); }
+    void push_back(const value_type& entry) { m_entries.push_back(entry); }
     /**
      * @copydoc push_back
      */
-    void push_back(value_type&& item) { m_items.push_back(std::move(item)); }
+    void push_back(value_type&& entry) { m_entries.push_back(std::move(entry)); }
 
     /**
-     * @brief Erase all data `item` objects currently stored.
+     * @brief Erase all data entries currently stored.
      */
-    void clear() noexcept { m_items.clear(); }
+    void clear() noexcept { m_entries.clear(); }
 
     /**
-     * @brief Return the number of data items.
+     * @brief Return the number of data entries.
      *
      * This will be the total number of options and non-option
      * arguments that were specified.
      *
      * @return The number of option and non-option argument data
-     *         items.
+     *         entries.
      */
-    size_type size() const noexcept { return m_items.size(); }
+    size_type size() const noexcept { return m_entries.size(); }
     /**
      * @brief Return whether the container is empty.
-     * @return True if the `item` container is empty, false otherwise.
+     * @return True if the entry container is empty, false otherwise.
      */
-    bool empty() const noexcept { return m_items.empty(); }
+    bool empty() const noexcept { return m_entries.empty(); }
 
     /**
      * @brief Return an `iterator` to the beginning of the container.
-     * @return An `iterator` pointing to the first data `item`.
+     * @return An `iterator` pointing to the first entry.
      */
-    iterator begin() noexcept { return m_items.begin(); }
+    iterator begin() noexcept { return m_entries.begin(); }
     /**
      * @copydoc cbegin
      */
     const_iterator begin() const noexcept { return cbegin(); }
     /**
      * @brief Return an `iterator` to the end of the container.
-     * @return An `iterator` pointing to one past the last data `item`.
+     * @return An `iterator` pointing to one past the last entry.
      */
-    iterator end() noexcept { return m_items.end(); }
+    iterator end() noexcept { return m_entries.end(); }
     /**
      * @copydoc cend
      */
@@ -252,31 +254,31 @@ namespace optionpp {
 
     /**
      * @brief Return a `const_iterator` to the beginning of the container.
-     * @return A `const_iterator` pointing to the first data `item`.
+     * @return A `const_iterator` pointing to the first entry.
      */
-    const_iterator cbegin() const noexcept { return m_items.cbegin(); }
+    const_iterator cbegin() const noexcept { return m_entries.cbegin(); }
     /**
      * @brief Return a `const_iterator` to the end of the container.
-     * @return A `const_iterator` pointing to one past the last `item`.
+     * @return A `const_iterator` pointing to one past the last entry.
      */
-    const_iterator cend() const noexcept { return m_items.cend(); }
+    const_iterator cend() const noexcept { return m_entries.cend(); }
 
     /**
      * @brief Return a `reverse_iterator` to the beginning.
-     * @return A `reverse_iterator` pointing to the first `item` in
-     *         the reversed sequence.
+     * @return A `reverse_iterator` pointing to the first entry in the
+     *         reversed sequence.
      */
-    reverse_iterator rbegin() noexcept { return m_items.rbegin(); }
+    reverse_iterator rbegin() noexcept { return m_entries.rbegin(); }
     /**
      * @copydoc crbegin
      */
     const_reverse_iterator rbegin() const noexcept { return crbegin(); }
     /**
      * @brief Return a `reverse_iterator` to the end.
-     * @return A `reverse_iterator` pointing to one past the last `item`
-     *         in the reversed sequence.
+     * @return A `reverse_iterator` pointing to one past the last
+     *         entry in the reversed sequence.
      */
-    reverse_iterator rend() noexcept { return m_items.rend(); }
+    reverse_iterator rend() noexcept { return m_entries.rend(); }
     /**
      * @copydoc crend
      */
@@ -284,21 +286,21 @@ namespace optionpp {
 
     /**
      * @brief Return a `const_reverse_iterator` to the beginning.
-     * @return A `const_reverse_iterator` pointing to the first `item`
+     * @return A `const_reverse_iterator` pointing to the first entry
      *         in the reversed sequence.
      */
-    const_reverse_iterator crbegin() const noexcept { return m_items.crbegin(); }
+    const_reverse_iterator crbegin() const noexcept { return m_entries.crbegin(); }
     /**
      * @brief Return a `const_reverse_iterator` to the end.
      * @return A `const_reverse_iterator` pointing to one past the last
-     *         `item` in the reversed sequence.
+     *         entry in the reversed sequence.
      */
-    const_reverse_iterator crend() const noexcept { return m_items.crend(); }
+    const_reverse_iterator crend() const noexcept { return m_entries.crend(); }
 
     /**
      * @brief Range-checked subscript.
-     * @param index The index of the data `item` to return.
-     * @return The parsed data `item` corresponding to the `index`.
+     * @param index The index of the `parsed_entry` to return.
+     * @return The parsed data entry corresponding to the `index`.
      * @throw out_of_range Thrown if `index >= size()`.
      */
     value_type& at(size_type index) {
@@ -319,27 +321,27 @@ namespace optionpp {
 
     /**
      * @brief Subscript operator.
-     * @param index The index of the data `item` to return.
-     * @return The parsed data `item` corresponding to the `index`.
+     * @param index The index of the data entry to return.
+     * @return The `parsed_entry` corresponding to the `index`.
      */
-    value_type& operator[](size_type index) { return m_items[index]; }
+    value_type& operator[](size_type index) { return m_entries[index]; }
     /**
      * @copydoc operator[]
      */
     const value_type& operator[](size_type index) const {
-      return m_items[index];
+      return m_entries[index];
     }
 
     /**
-     * @brief Access last `item` in the container.
+     * @brief Access last entry in the container.
      * @throw out_of_range If container is empty.
-     * @return Reference to last `item`.
+     * @return Reference to last `parsed_entry`.
      */
     value_type& back() {
       if (empty())
         throw out_of_range("out of bounds parser_result access",
                            "optionpp::parser_result::back");
-      return m_items.back();
+      return m_entries.back();
     }
 
     /**
@@ -349,7 +351,7 @@ namespace optionpp {
       if (empty())
         throw out_of_range("out of bounds parser_result access",
                            "optionpp::parser_result::at");
-      return m_items.back();
+      return m_entries.back();
     }
 
     /**
@@ -371,7 +373,7 @@ namespace optionpp {
      * @brief Get the argument for the specified option.
      *
      * If no argument was given, an empty string is returned. If
-     * multiple arguments were given, only the first is returned.
+     * multiple arguments were given, the last is returned.
      *
      * @param long_name The long name for the option.
      * @return The argument given to the option.
@@ -381,7 +383,7 @@ namespace optionpp {
      * @brief Get the argument for the specified option.
      *
      * If no argument was given, an empty string is returned. If
-     * multiple arguments were given, only the first is returned.
+     * multiple arguments were given, the last is returned.
      *
      * @param short_name The short name for the option.
      * @return The argument given to the option.
@@ -389,7 +391,7 @@ namespace optionpp {
     std::string get_argument(char short_name) const noexcept;
 
   private:
-    container_type m_items; //< The internal container of `item` instances.
+    container_type m_entries; //< The internal container of `parsed_entry` instances.
   };
 
 } // End namespace

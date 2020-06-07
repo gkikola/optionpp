@@ -33,7 +33,9 @@ bool parser_result::is_option_set(const std::string& long_name) const noexcept {
     return false;
   else
     return std::any_of(begin(), end(),
-                       [&](const item& i) { return i.is_option && i.long_name == long_name; });
+                       [&](const parsed_entry& i) {
+                         return i.is_option && i.long_name == long_name;
+                       });
 }
 
 bool parser_result::is_option_set(char short_name) const noexcept {
@@ -41,16 +43,20 @@ bool parser_result::is_option_set(char short_name) const noexcept {
     return false;
   else
     return std::any_of(begin(), end(),
-                       [&](const item& i) { return i.is_option && i.short_name == short_name; });
+                       [&](const parsed_entry& i) {
+                         return i.is_option && i.short_name == short_name;
+                       });
 }
 
 std::string parser_result::get_argument(std::string long_name) const noexcept {
   if (long_name == "")
     return "";
 
-  auto it = std::find_if(begin(), end(),
-                         [&](const item& i) { return i.is_option && i.long_name == long_name; });
-  if (it != end())
+  auto it = std::find_if(rbegin(), rend(),
+                         [&](const parsed_entry& i) {
+                           return i.is_option && i.long_name == long_name;
+                         });
+  if (it != rend())
     return it->argument;
   else
     return "";
@@ -60,9 +66,11 @@ std::string parser_result::get_argument(char short_name) const noexcept {
   if (short_name == '\0')
     return "";
 
-  auto it = std::find_if(begin(), end(),
-                         [=](const item& i) { return i.is_option && i.short_name == short_name; });
-  if (it != end())
+  auto it = std::find_if(rbegin(), rend(),
+                         [=](const parsed_entry& i) {
+                           return i.is_option && i.short_name == short_name;
+                         });
+  if (it != rend())
     return it->argument;
   else
     return "";

@@ -26,12 +26,12 @@ using namespace optionpp;
 TEST_CASE("parser_result") {
   parser_result result;
 
-  parser_result::item version { "--version", true, "version", '\0', "" };
-  parser_result::item help { "-?", true, "help", '?', "" };
-  parser_result::item non_option { "command", false, "", '\0', "" };
-  parser_result::item file { "-f myfile.txt", true, "file", 'f', "myfile.txt" };
-  parser_result::item file_sonly { "-f myfile.txt", true, "", 'f', "myfile.txt" };
-  parser_result::item file_lonly { "--file=myfile.txt", false, "file", '\0', "myfile.txt" };
+  parsed_entry version { "--version", true, "version", '\0', "" };
+  parsed_entry help { "-?", true, "help", '?', "" };
+  parsed_entry non_option { "command", false, "", '\0', "" };
+  parsed_entry file { "-f myfile.txt", true, "file", 'f', "myfile.txt" };
+  parsed_entry file_sonly { "-f myfile.txt", true, "", 'f', "myfile.txt" };
+  parsed_entry file_lonly { "--file=myfile.txt", false, "file", '\0', "myfile.txt" };
 
   SECTION("constructors, push_back, size, and empty") {
     result = parser_result{};
@@ -51,7 +51,7 @@ TEST_CASE("parser_result") {
     REQUIRE_FALSE(result.empty());
     REQUIRE(result.size() == 4);
 
-    std::vector<parser_result::item> items;
+    std::vector<parsed_entry> items;
     items.push_back(version);
     items.push_back(help);
     items.push_back(non_option);
@@ -64,7 +64,7 @@ TEST_CASE("parser_result") {
     REQUIRE_FALSE(result3.empty());
     REQUIRE(result3.size() == 3);
 
-    parser_result::item non_opt2{"another command", false, "", '\0', ""};
+    parsed_entry non_opt2{"another command", false, "", '\0', ""};
     result3.push_back(std::move(non_opt2));
     REQUIRE_FALSE(result3.empty());
     REQUIRE(result3.size() == 4);

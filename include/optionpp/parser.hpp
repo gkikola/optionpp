@@ -43,6 +43,32 @@
 namespace optionpp {
 
   /**
+   * @brief Exception class indicating an invalid option.
+   */
+  class parse_error : public error {
+  public:
+    /**
+     * @brief Constructor.
+     * @param msg String describing the error.
+     * @param fn_name Name of the function that threw the exception.
+     * @param option Name of the option that triggered the error (if
+     *               any).
+     */
+    parse_error(const std::string msg, const std::string fn_name,
+                const std::string option = "")
+      : error(msg, fn_name), m_option{option} {}
+
+    /**
+     * @brief Return option name.
+     * @return Option that triggered the error, if any.
+     */
+    const std::string& option() const noexcept { return m_option; }
+
+  private:
+    std::string m_option; //< Option that triggered the error.
+  };
+
+  /**
    * @brief Parses program options.
    *
    * A `parser` accepts program option information in the form of
@@ -60,32 +86,6 @@ namespace optionpp {
    */
   class parser {
   public:
-
-    /**
-     * @brief Exception class indicating an invalid option.
-     */
-    class parse_error : public error {
-    public:
-      /**
-       * @brief Constructor.
-       * @param msg String describing the error.
-       * @param fn_name Name of the function that threw the exception.
-       * @param option Name of the option that triggered the error (if
-       *               any).
-       */
-      parse_error(const std::string msg, const std::string fn_name,
-                  const std::string option = "")
-        : error(msg, fn_name), m_option{option} {}
-
-      /**
-       * @brief Return option name.
-       * @return Option that triggered the error, if any.
-       */
-      const std::string& option() const noexcept { return m_option; }
-
-    private:
-      std::string m_option; //< Option that triggered the error.
-    };
 
     /**
      * @brief Default constructor.
@@ -469,11 +469,11 @@ namespace optionpp {
      * bound to the option, then nothing is done.
      *
      * @param opt `option` that is being set.
-     * @param item Object holding result item information for the
-     *             option, including the argument to assign.
+     * @param entry Object holding parsed result information for the
+     *              option, including the argument to assign.
      */
     void write_option_argument(const option& opt,
-                               const parser_result::item& item) const;
+                               const parsed_entry& entry) const;
 
     /**
      * @brief Represents the type of a command-line argument.
@@ -581,7 +581,7 @@ optionpp::parser::parse(InputIt first, InputIt last, bool ignore_first) const {
         continue; // Continue without incrementing 'it' in order to reevaluate current token
       }
     } else if (prev_type == cl_arg_type::end_indicator) { // Ignore options
-      parser_result::item arg_info;
+      parsed_entry arg_info;
       arg_info.original_text = arg;
       arg_info.is_option = false;
       result.push_back(std::move(arg_info));

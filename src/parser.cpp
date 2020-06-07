@@ -249,20 +249,31 @@ const option* parser::find_option(char short_name) const {
   return nullptr;
 }
 
+parser_result parser::parse(int argc, char* argv[], bool ignore_first) const {
+  return parse(argv, argv + argc, ignore_first);
+}
+
+parser_result parser::parse(const std::string& cmd_line, bool ignore_first) const {
+  std::vector<std::string> container;
+  utility::split(cmd_line, std::back_inserter(container),
+                 m_delims, "\"'", '\\');
+  return parse(container.begin(), container.end(), ignore_first);
+}
+
 void parser::write_option_argument(const option& opt,
-                                   const parser_result::item& item) const {
+                                   const parsed_entry& entry) const {
   if (!opt.has_bound_argument_variable())
     return;
 
   std::string::size_type pos = 0;
-  const std::string& arg = item.argument;
-  const std::string& opt_name = item.original_without_argument;
+  const std::string& arg = entry.argument;
+  const std::string& opt_name = entry.original_without_argument;
   const std::string& fn_name = "optionpp::parser::write_option_argument";
 
   try {
     switch (opt.argument_type()) {
     case option::uint_arg: {
-      long long value = std::stoll(item.argument, &pos);
+      long long value = std::stoll(entry.argument, &pos);
       if (pos != arg.size())
         throw std::invalid_argument{"invalid argument"};
       if (value < 0)
@@ -274,14 +285,14 @@ void parser::write_option_argument(const option& opt,
       break;
     }
     case option::int_arg: {
-      int value = std::stoi(item.argument, &pos);
+      int value = std::stoi(entry.argument, &pos);
       if (pos != arg.size())
         throw std::invalid_argument{"invalid argument"};
       opt.write_int(value);
       break;
     }
     case option::double_arg: {
-      double value = std::stod(item.argument, &pos);
+      double value = std::stod(entry.argument, &pos);
       if (pos != arg.size())
         throw std::invalid_argument{"invalid argument"};
       opt.write_double(value);
@@ -308,17 +319,6 @@ void parser::write_option_argument(const option& opt,
     throw parse_error{"argument for option '" + opt_name + "' is out of range",
                         fn_name, opt_name};
   }
-}
-
-parser_result parser::parse(int argc, char* argv[], bool ignore_first) const {
-  return parse(argv, argv + argc, ignore_first);
-}
-
-parser_result parser::parse(const std::string& cmd_line, bool ignore_first) const {
-  std::vector<std::string> container;
-  utility::split(cmd_line, std::back_inserter(container),
-                 m_delims, "\"'", '\\');
-  return parse(container.begin(), container.end(), ignore_first);
 }
 
 void parser::parse_argument(const std::string& argument,
@@ -352,7 +352,7 @@ void parser::parse_argument(const std::string& argument,
   }
 
   // Check option type
-  parser_result::item arg_info;
+  parsed_entry arg_info;
   if (is_long_option(option_specifier)) {
     // Extract option name
     std::string option_name = option_specifier.substr(m_long_option_prefix.size());
@@ -417,7 +417,7 @@ void parser::parse_short_option_group(const std::string& short_names,
           "optionpp::parser::parse_short_option_group", opt_name};
     }
 
-    parser_result::item arg_info;
+    parsed_entry arg_info;
     arg_info.original_text = m_short_option_prefix;
     arg_info.original_text.push_back(short_names[pos]);
     arg_info.original_without_argument = arg_info.original_text;
@@ -470,7 +470,7 @@ void parser::parse_short_option_group(const std::string& short_names,
 
     result.push_back(std::move(arg_info));
     type = cl_arg_type::no_arg;
-    arg_info = parser_result::item{};
+    arg_info = parsed_entry{};
   } // End for loop
 }
 
