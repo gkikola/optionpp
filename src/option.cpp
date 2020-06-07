@@ -50,32 +50,40 @@ option& option::bind_bool(bool* var) noexcept {
 }
 
 option& option::bind_string(std::string* var) noexcept {
-  if (var && m_arg_name.empty())
+  if (var && m_arg_name.empty()) {
     m_arg_name = "STRING";
+    m_arg_required = true;
+  }
   m_arg_type = string_arg;
   m_bound_variable = var;
   return *this;
 }
 
 option& option::bind_int(int* var) noexcept {
-  if (var && m_arg_name.empty())
+  if (var && m_arg_name.empty()) {
     m_arg_name = "INTEGER";
+    m_arg_required = true;
+  }
   m_arg_type = int_arg;
   m_bound_variable = var;
   return *this;
 }
 
 option& option::bind_uint(unsigned int* var) noexcept {
-  if (var && m_arg_name.empty())
+  if (var && m_arg_name.empty()) {
     m_arg_name = "INTEGER";
+    m_arg_required = true;
+  }
   m_arg_type = uint_arg;
   m_bound_variable = var;
   return *this;
 }
 
 option& option::bind_double(double* var) noexcept {
-  if (var && m_arg_name.empty())
+  if (var && m_arg_name.empty()) {
     m_arg_name = "NUMBER";
+    m_arg_required = true;
+  }
   m_arg_type = double_arg;
   m_bound_variable = var;
   return *this;
