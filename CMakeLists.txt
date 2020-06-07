@@ -63,18 +63,15 @@ set (OPTIONPP_EXAMPLES
   docs/examples/basic.cpp
   )
 
-include_directories (
-  include
-  third_party
-  )
-
 # Build library
 add_library (optionpp SHARED "${OPTIONPP_SOURCE_FILES}")
+target_include_directories (optionpp PRIVATE include)
 
 # Build test executable
-add_executable (run_tests "${OPTIONPP_TEST_FILES}")
-target_link_libraries(run_tests PRIVATE optionpp)
-add_test (NAME run_tests COMMAND run_tests)
+add_executable (test "${OPTIONPP_TEST_FILES}")
+target_link_libraries (test PRIVATE optionpp)
+target_include_directories (test PRIVATE include third_party)
+add_test (NAME test COMMAND test)
 
 # Build examples
 foreach (example IN LISTS OPTIONPP_EXAMPLES)
@@ -84,15 +81,14 @@ foreach (example IN LISTS OPTIONPP_EXAMPLES)
     ${CURRENT_EXAMPLE}
     "${example}"
     )
-  target_link_libraries (
-    ${CURRENT_EXAMPLE}
-    PRIVATE optionpp
-    )
+  target_include_directories (${CURRENT_EXAMPLE} PRIVATE single_header)
 endforeach ()
 
 # Set max warning level
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(run_tests PRIVATE -Wall -Wextra -pedantic)
+  target_compile_options(optionpp PRIVATE -Wall -Wextra -pedantic)
+  target_compile_options(test PRIVATE -Wall -Wextra -pedantic)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  target_compile_options(run_tests PRIVATE /W4)
+  target_compile_options(optionpp PRIVATE /W4)
+  target_compile_options(test PRIVATE /W4)
 endif ()

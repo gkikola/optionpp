@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+
+#define OPTIONPP_MAIN
 #include <optionpp/optionpp.hpp>
 
 struct Settings {
