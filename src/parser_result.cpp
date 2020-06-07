@@ -25,6 +25,7 @@
 #include <optionpp/parser_result.hpp>
 
 #include <algorithm>
+#include <optionpp/error.hpp>
 
 using namespace optionpp;
 
@@ -74,4 +75,60 @@ std::string parser_result::get_argument(char short_name) const noexcept {
     return it->argument;
   else
     return "";
+}
+
+optionpp::non_option_iterator
+::non_option_iterator(parser_result& result)
+  : m_result{&result}, m_index{0} {
+  if (!result.empty() && result[0].is_option)
+    ++(*this);
+}
+
+auto optionpp::non_option_iterator::operator++() -> non_option_iterator& {
+  if (m_result) {
+    do {
+      ++m_index;
+    } while (m_index < m_result->size()
+             && (*m_result)[m_index].is_option);
+  }
+  return *this;
+}
+
+auto optionpp::non_option_iterator::operator++(int) -> non_option_iterator {
+  non_option_iterator copy{*this};
+  ++(*this);
+  return copy;
+}
+
+auto optionpp::non_option_iterator::operator--() -> non_option_iterator& {
+  if (m_result) {
+    do {
+      if (m_index == 0)
+        throw out_of_range{"out of bounds parser_result access",
+                           "optionpp::non_option_iterator::operator--"};
+      --m_index;
+    } while ((*m_result)[m_index].is_option);
+  }
+  return *this;
+}
+
+auto optionpp::non_option_iterator::operator--(int) -> non_option_iterator {
+  non_option_iterator copy{*this};
+  --(*this);
+  return copy;
+}
+
+bool optionpp::operator==(const non_option_iterator& a,
+                          const non_option_iterator& b) {
+  bool a_default = !a.m_result;
+  bool b_default = !b.m_result;
+  bool a_at_end = a_default || a.m_result->size() == a.m_index;
+  bool b_at_end = b_default || b.m_result->size() == b.m_index;
+
+  if (!a_default && !b_default)
+    return a.m_index == b.m_index && a.m_result == b.m_result;
+  else if (a_at_end && b_at_end)
+    return true;
+  else
+    return false;
 }
