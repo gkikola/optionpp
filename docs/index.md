@@ -50,7 +50,7 @@ Here is a simple program that demonstrates how you can use Option++:
 
 @include{lineno} basic.cpp
 
-See the @ref examples "Examples page" for many more examples.
+See the @ref example_programs "Examples" page for many more examples.
 
 
 # Copyright
