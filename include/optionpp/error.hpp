@@ -68,6 +68,21 @@ namespace optionpp {
   };
 
   /**
+   * @brief Exception indicating a nullptr dereference.
+   */
+  class bad_dereference : public error {
+  public:
+    /**
+     * @brief Constructor.
+     * @param msg Description of the error.
+     * @param fn_name Name of the function in which error occurred.
+     */
+    bad_dereference(const std::string& msg,
+                    const std::string& fn_name)
+      : error(msg, fn_name) {}
+  };
+
+  /**
    * @brief Exception indicating a type error.
    */
   class type_error : public error {
