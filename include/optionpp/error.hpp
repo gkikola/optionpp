@@ -68,7 +68,7 @@ namespace optionpp {
   };
 
   /**
-   * @brief Exception indicating a nullptr dereference.
+   * @brief Exception indicating an invalid iterator was dereferenced.
    */
   class bad_dereference : public error {
   public:
