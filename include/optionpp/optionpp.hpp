@@ -26,5 +26,6 @@
 #define OPTIONPP_OPTIONPP_HPP
 
 #include <optionpp/parser.hpp>
+#include <optionpp/result_iterator.hpp>
 
 #endif
