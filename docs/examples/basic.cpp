@@ -10,6 +10,8 @@ struct Settings {
 };
 
 using optionpp::parser;
+using optionpp::parser_result;
+using optionpp::non_option_const_iterator;
 
 void print_version() {
   std::cout << "My Program 1.0" << std::endl;
@@ -20,26 +22,28 @@ int main(int argc, char* argv[]) {
   parser opt_parser;
 
   // Set up options
+  opt_parser["help"].short_name('?')
+    .description("Show help information")
+    .bind_bool(&settings.show_help);
+  opt_parser["version"]
+    .description("Show program version information")
+    .bind_bool(&settings.show_version);
+  opt_parser["verbose"].short_name('v')
+    .description("Display additional explanations")
+    .bind_bool(&settings.verbose);
+  opt_parser["output"].short_name('o')
+    .description("File to write output")
+    .bind_string(&settings.output_file);
+
+  parser_result result;
+
+  // Parse options
   try {
-    opt_parser["help"].short_name('?')
-      .description("Show help information")
-      .bind_bool(&settings.show_help);
-    opt_parser["version"]
-      .description("Show program version information")
-      .bind_bool(&settings.show_version);
-    opt_parser["verbose"].short_name('v')
-      .description("Display additional explanations")
-      .bind_bool(&settings.verbose);
-    opt_parser["output"].short_name('o')
-      .description("File to write output")
-      .bind_string(&settings.output_file);
+    result = opt_parser.parse(argc, argv);
   } catch(const optionpp::error& e) {
     std::cerr << "Error: " << e.what() << std::endl;
     return 1;
   }
-
-  // Parse options
-  opt_parser.parse(argc, argv);
 
   // Show help/version info
   if (settings.show_help) {
@@ -66,24 +70,13 @@ int main(int argc, char* argv[]) {
     // Write output...
   }
 
-  /*
-   * Example input: example_basic -omyfile.txt --verbose
-   * Example output:
-   * Writing output to myfile.txt
-   */
-
-  /*
-   * Example input: example_basic --help
-   * Example output:
-   * My Program 1.0
-   * This program does important stuff.
-   *
-   * My Program accepts the following options:
-   *   -?, --help Show help information
-   *       --version Show program version information
-   *   -v, --verbose Display additional explanations
-   *   -o, --output[=STRING] File to write output
-   */
+  // Iterate over non-option arguments
+  for (const auto& entry : non_option_const_iterator(result)) {
+    if (!entry.is_option)
+      std::cout << "Received argument '"
+                << entry.original_text
+                << "'" << std::endl;
+  }
 
   return 0;
 }
