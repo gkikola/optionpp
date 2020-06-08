@@ -4,7 +4,8 @@ C++ library for reading command-line program options.
 
 @tableofcontents
 
-@ref start "Getting Started"
+- @ref start "Getting Started"
+- @ref example_programs "Example Programs"
 
 
 # Introduction
