@@ -4,12 +4,17 @@ C++ library for reading command-line program options.
 
 @tableofcontents
 
+@ref start "Getting Started"
+
 
 # Introduction
 
 Option++ provides an easy way to read, validate, and process
 command-line options. It can also generate a detailed, properly
 formatted help message.
+
+There is a single-header version of the library provided, or you can
+build and link to the shared library.
 
 
 # Features

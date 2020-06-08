@@ -17,8 +17,8 @@ remaining command-line arguments do not get parsed by Option++.
 
 ### Requirements
 
-In addition to a compiler supporting C++11, you will also need CMake
-version 3.10 or higher.
+In addition to a compiler supporting C++11, you will also need
+[CMake](https://cmake.org/) version 3.10 or higher.
 
 
 ### Unix-like Environments

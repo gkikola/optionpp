@@ -61,6 +61,8 @@ set (OPTIONPP_TEST_FILES
 
 set (OPTIONPP_EXAMPLES
   docs/examples/basic.cpp
+  docs/examples/minimal.cpp
+  docs/examples/tutorial.cpp
   )
 
 # Build library
@@ -82,6 +84,7 @@ foreach (example IN LISTS OPTIONPP_EXAMPLES)
     "${example}"
     )
   target_include_directories (${CURRENT_EXAMPLE} PRIVATE single_header)
+  target_compile_definitions (${CURRENT_EXAMPLE} PRIVATE OPTIONPP_MAIN)
 endforeach ()
 
 # Set max warning level
