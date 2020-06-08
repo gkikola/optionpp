@@ -67,7 +67,7 @@ def generate():
     output += '\n\n#ifdef OPTIONPP_MAIN\n\n'
     output += incl_list + '\n'
     output += content
-    output += '\n#endif\n'
+    output += '\n#endif\n#undef OPTIONPP_MAIN\n'
 
     with open(single_header_dir / Path('optionpp.hpp'), 'w') as file:
         file.write(output)
