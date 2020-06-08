@@ -1,14 +1,16 @@
 @mainpage Option++
 
-C++ library for reading command-line program options.
+C++ library for reading command-line program options. Written by [Greg
+Kikola](https://www.gregkikola.com/).
 
 @tableofcontents
 
-- @ref start "Getting Started"
+- @ref start "Tutorial"
 - @ref example_programs "Example Programs"
+- @ref build "Build Instructions"
 
 
-# Introduction
+@section intro Introduction
 
 Option++ provides an easy way to read, validate, and process
 command-line options. It can also generate a detailed, properly
@@ -18,12 +20,24 @@ There is a single-header version of the library provided, or you can
 build and link to the shared library.
 
 
-# Features
+@section features Features
 
-TODO
+- Supports the usual Unix and GNU/Linux conventions
+  - Use long (`--option`) and short (`-o`) option names
+  - Double dash by itself (`--`) indicates end of options
+  - Options may have mandatory or optional arguments
+- Allows you to bind variables directly to options
+- Input validation for numerical arguments
+- Can automatically generate a help message
+- Options can be separated into groups for better organization
+- Easily iterate over all parsed data
+  - If desired, can iterate over only non-option arguments
+  - Can also iterate over only option arguments
+- The strings that are used as option prefixes can be customized
+- Exception-based error handling
 
 
-# Option Format
+@section option_format Option Format
 
 Both long and short option names are supported. For example:
 ```
@@ -37,8 +51,8 @@ The equals sign is not required:
 ```
 myprogram -o file.txt
 ```
-With short options, an argument need not be preceded by another
-character:
+With short options, an argument may be written immediately after the
+option name:
 ```
 mycompiler -DMY_DEFINE
 ```
@@ -50,7 +64,7 @@ myprogram --this-is-an-option -- --this-is-not
 ```
 
 
-# Example Program
+@section intro_program Example Program
 
 Here is a simple program that demonstrates how you can use Option++:
 
@@ -59,7 +73,7 @@ Here is a simple program that demonstrates how you can use Option++:
 See the @ref example_programs "Examples" page for many more examples.
 
 
-# Copyright
+@section copyright Copyright
 
 Copyright &copy; 2017-2020 Greg Kikola. License BSL-1.0:
 [Boost Software License
