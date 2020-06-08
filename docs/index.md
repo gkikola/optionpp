@@ -26,6 +26,8 @@ build and link to the shared library.
   - Use long (`--option`) and short (`-o`) option names
   - Double dash by itself (`--`) indicates end of options
   - Options may have mandatory or optional arguments
+- Can parse arguments passed to `main` directly, or can read options
+  from a string
 - Allows you to bind variables directly to options
 - Input validation for numerical arguments
 - Can automatically generate a help message

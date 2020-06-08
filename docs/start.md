@@ -1,5 +1,7 @@
 @page start Tutorial
 
+@brief A guide to setting up and using Option++
+
 @tableofcontents
 
 @section downloading Obtaining Option++

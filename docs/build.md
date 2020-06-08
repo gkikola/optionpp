@@ -1,5 +1,7 @@
 @page build Build Instructions
 
+@brief How to build Option++ and integrate it with your project
+
 @section single_header Single-header Version
 
 To use the single-header version of the library, just download the
