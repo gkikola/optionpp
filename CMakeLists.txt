@@ -61,6 +61,7 @@ set (OPTIONPP_TEST_FILES
 
 set (OPTIONPP_EXAMPLES
   docs/examples/basic.cpp
+  docs/examples/dos.cpp
   docs/examples/minimal.cpp
   docs/examples/mygrep.cpp
   docs/examples/tutorial.cpp

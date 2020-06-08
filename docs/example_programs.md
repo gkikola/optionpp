@@ -5,6 +5,8 @@
 The examples can also be found in `docs/examples` under the root
 project directory.
 
+@tableofcontents
+
 @section example_basic Introductory Example
 
 A basic program that shows off some of Option++'s features.
@@ -23,6 +25,9 @@ Received argument 'hello'
 ```
 
 @section example_mygrep A grep Clone - Full Working Example
+
+An unoptimized and highly-simplified version of the Unix `grep`
+utility for regular expression pattern matching.
 
 @include mygrep.cpp
 
@@ -47,4 +52,29 @@ prompt$ example_mygrep -E '^a' -i --invert-match input.txt
 Living in a shotgun shack
 In another part of the world
 Behind the wheel of a large automobile
+```
+
+@section example_dos DOS-Style Options
+
+This shows how to customize the strings that the parser interprets as
+option indicators.
+
+@include dos.cpp
+
+Sample input/output:
+
+```
+prompt$ example_dos
+Acceptable options:
+  /F:(size)     Format disk to specific size
+  /N:(sectors)  Specify number of sectors per track on the disk
+  /T:(tracks)   Specify number of tracks on the disk
+  /B            Reserve space on disk to later copy system files
+  /S            Copy operating system files to the disk after formatting
+  /Q            Quick format - erases file allocation table but does not
+                  identify bad sectors
+prompt$ example_dos /F:720 /N:9 /T:80 /S
+Formatting disk of size 720 Kb with 9 sectors per track and 80 tracks
+Copying operating system files...
+Done
 ```
