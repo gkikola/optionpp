@@ -60,8 +60,9 @@ int main(int argc, char* argv[]) {
 
   if (!settings.output_file.empty()) {
     if (settings.verbose)
-      std::cout << "Writing output to "
-                << settings.output_file << std::endl;
+      std::cout << "Writing output to '"
+                << settings.output_file
+                << "'" << std::endl;
 
     // Write output...
   } else {
