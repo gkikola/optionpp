@@ -1,0 +1,12 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=@CMAKE_INSTALL_PREFIX@
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: @OPTIONPP_NAME@
+Description: @OPTIONPP_DESCRIPTION@
+Version: @OPTIONPP_VERSION@
+
+Requires:
+Libs: -L${libdir} -loptionpp
+Cflags: -I${includedir}

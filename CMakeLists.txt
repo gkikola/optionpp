@@ -24,6 +24,9 @@ set (CMAKE_CXX_EXTENSIONS OFF)
 # Export symbols on Windows
 set (CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
+# Create pkg-config file
+configure_file(liboptionpp.pc.in "${CMAKE_CURRENT_BINARY_DIR}/liboptionpp.pc" @ONLY)
+
 # See if Doxygen is available
 if (OPTIONPP_DOCS)
   find_package (Doxygen)
@@ -125,4 +128,8 @@ install (
 install (
   DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
   DESTINATION include
+  )
+install (
+  FILES "${CMAKE_BINARY_DIR}/liboptionpp.pc"
+  DESTINATION share/pkgconfig
   )
