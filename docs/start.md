@@ -12,7 +12,7 @@ single-header version and a standard version.
 @subsection single_header Single header version
 
 For the single-header version, just download
-[optionpp.hpp](https://github.com/gkikola/optionpp/raw/v2/single_header/optionpp/optionpp.hpp)
+[optionpp.hpp](https://raw.githubusercontent.com/gkikola/optionpp/master/single_header/optionpp/optionpp.hpp)
 and put it in a directory named `optionpp` somewhere within your
 project directory.
 
@@ -113,7 +113,7 @@ help message:
 my_parser["verbose"].short_name('v').description("Increase verbosity");
 ```
 
-@subsection arguments Options With Arguments
+@subsection arguments Options with Arguments
 
 We can also add options that take arguments. The `option::argument`
 method takes a string giving the name of the argument (this is used in

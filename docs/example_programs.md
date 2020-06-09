@@ -78,3 +78,31 @@ Formatting disk of size 720 Kb with 9 sectors per track and 80 tracks
 Copying operating system files...
 Done
 ```
+
+@section example_from_string Parsing Arguments in Strings
+
+Instead of passing `argc` and `argv` from `main`, you can also pass
+`std::string`s to the parser.
+
+@include from_string.cpp
+
+Sample input/output:
+
+```
+prompt$ example_from_string
+Enter some words, or leave blank to exit:
+Hello world
+Found word 'Hello'
+Found word 'world'
+Enter some words, or leave blank to exit:
+Hello -ab
+Found word 'Hello'
+Found option a
+Found option b
+Enter some words, or leave blank to exit:
+-c "quotes allow spaces in an argument"
+Found option c
+Found word 'quotes allow spaces in an argument'
+Enter some words, or leave blank to exit:
+
+```

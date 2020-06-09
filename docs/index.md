@@ -8,6 +8,9 @@ Kikola](https://www.gregkikola.com/).
 - @ref start "Tutorial"
 - @ref example_programs "Example Programs"
 - @ref build "Build Instructions"
+- <a href="annotated.html"><b>Class List</b></a>
+- <a href="files.html"><b>File List</b></a>
+- <a href="https://github.com/gkikola/optionpp"><b>GitHub Repository</b></a>
 
 
 @section intro Introduction
@@ -72,7 +75,7 @@ Here is a simple program that demonstrates how you can use Option++:
 
 @include{lineno} basic.cpp
 
-See the @ref example_programs "Examples" page for many more examples.
+See the @ref example_programs "Examples" page for more examples.
 
 
 @section copyright Copyright

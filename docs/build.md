@@ -10,7 +10,7 @@ header file and place it inside an `optionpp` directory somewhere
 within your project directory (a subdirectory called 'third_party' or
 something similar is a typical location).
 
-Make sure your compiler, IDE, or build system are configured to search
+Make sure your compiler, IDE, or build system is configured to search
 for includes in the subdirectory containing the `optionpp`
 directory. Then `#include &lt;optionpp/optionpp.hpp>` where needed.
 
@@ -41,8 +41,9 @@ make
 ```
 This will create several files:
 * liboptionpp.so - The actual library
-* run_tests - Unit test executable
+* test - Unit test executable
 * example_* - Example programs from docs/examples/
+
 To compile the library only, you can use `make optionpp`.
 
 
@@ -59,9 +60,9 @@ to create the Visual C++ project files.
 
 Open the solution file `OPTIONPP.sln` in Visual Studio. In the menu,
 select Build > Build Solution. This will build several projects:
-* optionpp - The actual library
-* run_tests - Unit test execution
-* example_* - Example programs from docs\\examples\\
+* optionpp.dll - The actual library
+* test.exe - Unit test execution
+* example_*.exe - Example programs from docs\\examples\\
 
 Under the default Debug configuration, the resulting library and
 executable files will be located in the `build\Debug` directory.
