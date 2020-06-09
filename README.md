@@ -2,15 +2,29 @@
 
 Option++ is a C++ library for reading command-line program
 options. Option++ provides an easy way to read, validate, and process
-command-line options and it can also print detailed program help
+command-line arguments and it can also print detailed program help
 information.
 
-Option++ supports both long and short option names (e.g., `myprogram
---version` or `myprogram -abcd file.txt`). Each program option may
-take a mandatory or optional argument (e.g., `myprogram --color=red`
-or `myprogram -C red` or even `myprogram -Cred`). A double dash, `--`,
-may be used by itself to indicate the end of the options, so that
-remaining command-line arguments do not get parsed by Option++.
+A [single-header version](single_header/optionpp/optionpp.hpp) of the
+library is available. If you use the single-header file, you must
+define the macro `OPTIONPP_MAIN` in exactly one source file before
+including the header.
+
+
+## Features
+
+- Supports the usual Unix and GNU/Linux conventions
+  - Use long (`--option`) and short (`-o`) option names
+  - Double dash by itself (`--`) indicates end of options
+  - Options may have mandatory or optional arguments
+- Can parse arguments passed to `main` directly, or can read options
+  from a string
+- Allows you to bind variables to particular options
+- Input validation for numerical arguments
+- Can automatically generate a help message
+- Options can be separated into groups for better organization
+- Easily iterate over all parsed data
+- Exception-based error handling
 
 
 ## Build instructions
@@ -26,15 +40,19 @@ In addition to a compiler supporting C++11, you will also need
 First clone the repository with `git clone
 https://github.com/gkikola/optionpp.git`. Then, from the root of the
 main project directory, run
+
 ```
 mkdir build
 cmake ..
 make
 ```
+
 This will create several files:
-* liboptionpp.so - The actual library
-* run_tests - Unit test executable
-* example_* - Example programs from docs/examples/
+
+- liboptionpp.so: The actual library
+- run_tests: Unit test executable
+- example_*: Example programs from docs/examples/
+
 To compile the library only, you can use `make optionpp`.
 
 
@@ -51,9 +69,10 @@ to create the Visual C++ project files.
 
 Open the solution file `OPTIONPP.sln` in Visual Studio. In the menu,
 select Build > Build Solution. This will build several projects:
-* optionpp - The actual library
-* run_tests - Unit test execution
-* example_* - Example programs from docs\examples\
+
+- optionpp: The actual library
+- run_tests: Unit test execution
+- example_*: Example programs from docs\examples\
 
 Under the default Debug configuration, the resulting library and
 executable files will be located in the `build\Debug` directory.
