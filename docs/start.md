@@ -9,7 +9,7 @@
 First you need to download the library. There are two versions: a
 single-header version and a standard version.
 
-@subsection single_header Single header version
+@subsection dl_single_header Single header version
 
 For the single-header version, just download
 [optionpp.hpp](https://raw.githubusercontent.com/gkikola/optionpp/master/single_header/optionpp/optionpp.hpp)
