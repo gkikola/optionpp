@@ -10,7 +10,10 @@ set (OPTIONPP_NAME "Option++")
 set (OPTIONPP_VERSION "${PROJECT_VERSION}")
 set (OPTIONPP_DESCRIPTION "${PROJECT_DESCRIPTION}")
 
+option (OPTIONPP_STATIC "Build static library instead of shared" OFF)
+option (OPTIONPP_TEST "Build unit tests" ON)
 option (OPTIONPP_DOCS "Generate documentation" ON)
+option (OPTIONPP_EXAMPLES "Build examples" ON)
 
 # Require standard C++11
 set (CMAKE_CXX_STANDARD 11)
@@ -68,33 +71,41 @@ set (OPTIONPP_EXAMPLES
   docs/examples/tutorial.cpp
   )
 
-# Build library
-add_library (optionpp SHARED "${OPTIONPP_SOURCE_FILES}")
-target_include_directories (optionpp PRIVATE include)
+if (OPTIONPP_STATIC)
+  # Build static library
+  add_library (optionpp STATIC "${OPTIONPP_SOURCE_FILES}")
+  target_include_directories (optionpp PRIVATE include)
+else ()
+  # Build shared library
+  add_library (optionpp SHARED "${OPTIONPP_SOURCE_FILES}")
+  target_include_directories (optionpp PRIVATE include)
+endif ()
 
-# Build test executable
-add_executable (test "${OPTIONPP_TEST_FILES}")
-target_link_libraries (test PRIVATE optionpp)
-target_include_directories (test PRIVATE include third_party)
-add_test (NAME test COMMAND test)
+if (OPTIONPP_TEST)
+  # Build test executable
+  add_executable (test "${OPTIONPP_TEST_FILES}")
+  target_link_libraries (test PRIVATE optionpp)
+  target_include_directories (test PRIVATE include third_party)
+  add_test (NAME test COMMAND test)
+endif ()
 
-# Build examples
-foreach (example IN LISTS OPTIONPP_EXAMPLES)
-  get_filename_component (CURRENT_EXAMPLE "${example}" NAME_WE)
-  set (CURRENT_EXAMPLE "example_${CURRENT_EXAMPLE}")
-  add_executable (
-    ${CURRENT_EXAMPLE}
-    "${example}"
-    )
-  target_include_directories (${CURRENT_EXAMPLE} PRIVATE single_header)
-  target_compile_definitions (${CURRENT_EXAMPLE} PRIVATE OPTIONPP_MAIN)
-endforeach ()
+if (OPTIONPP_EXAMPLES)
+  # Build examples
+  foreach (example IN LISTS OPTIONPP_EXAMPLES)
+    get_filename_component (CURRENT_EXAMPLE "${example}" NAME_WE)
+    set (CURRENT_EXAMPLE "example_${CURRENT_EXAMPLE}")
+    add_executable (
+      ${CURRENT_EXAMPLE}
+      "${example}"
+      )
+    target_include_directories (${CURRENT_EXAMPLE} PRIVATE single_header)
+    target_compile_definitions (${CURRENT_EXAMPLE} PRIVATE OPTIONPP_MAIN)
+  endforeach ()
+endif ()
 
 # Set max warning level
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(optionpp PRIVATE -Wall -Wextra -pedantic)
-  target_compile_options(test PRIVATE -Wall -Wextra -pedantic)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   target_compile_options(optionpp PRIVATE /W4)
-  target_compile_options(test PRIVATE /W4)
 endif ()
