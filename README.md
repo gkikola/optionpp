@@ -1,5 +1,12 @@
 # Option++
 
+- [Homepage](https://www.gregkikola.com/projects/optionpp/)
+- [Documentation](https://www.gregkikola.com/projects/optionpp/docs/)
+- [Examples](https://www.gregkikola.com/projects/optionpp/docs/example_programs.html)
+- [Tutorial](https://www.gregkikola.com/projects/optionpp/docs/start.html)
+
+## Introduction
+
 Option++ is a C++ library for reading command-line program
 options. Option++ provides an easy way to read, validate, and process
 command-line arguments and it can also print detailed program help
@@ -9,11 +16,6 @@ A [single-header version](single_header/optionpp/optionpp.hpp) of the
 library is available. If you use the single-header file, you must
 define the macro `OPTIONPP_MAIN` in exactly one source file before
 including the header.
-
-- [Homepage](https://www.gregkikola.com/projects/optionpp/)
-- [Documentation](https://www.gregkikola.com/projects/optionpp/docs/)
-- [Examples](https://www.gregkikola.com/projects/optionpp/docs/example_programs.html)
-- [Tutorial](https://www.gregkikola.com/projects/optionpp/docs/start.html)
 
 
 ## Features
