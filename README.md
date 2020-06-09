@@ -1,106 +1,100 @@
-Option++
-========
+# Option++
 
 Option++ is a C++ library for reading command-line program
 options. Option++ provides an easy way to read, validate, and process
-command-line options and it can also print detailed program help
+command-line arguments and it can also print detailed program help
 information.
 
-Option++ supports both long and short option names (e.g., `myprogram
---version` or `myprogram -abcd file.txt`). Each program option may
-take a mandatory or optional argument (e.g., `myprogram --color=red`
-or `myprogram -C red` or even `myprogram -Cred`). A double dash, `--`,
-may be used by itself to indicate the end of the options, so that
-remaining command-line arguments do not get parsed by Option++.
+A [single-header version](single_header/optionpp/optionpp.hpp) of the
+library is available. If you use the single-header file, you must
+define the macro `OPTIONPP_MAIN` in exactly one source file before
+including the header.
+
+- [Homepage](https://www.gregkikola.com/projects/optionpp/)
+- [Documentation](https://www.gregkikola.com/projects/optionpp/docs/)
+- [Examples](https://www.gregkikola.com/projects/optionpp/docs/example_programs.html)
+- [Tutorial](https://www.gregkikola.com/projects/optionpp/docs/start.html)
 
 
-Development Status
-------------------
+## Features
 
-Option++ is currently being redesigned and will be (mostly)
-rewritten. You can find the unfinished source files for version 2.0 in
-the 'v2' branch.
-
-
-Requirements
-------------
-
-Option++ depends only on the C++ Standard Library. To compile and use
-Option++, your compiler must support C++11 features. Unfortunately,
-Option++ is not designed for projects that require compatibility with
-older compilers.
-
-
-Setup
------
-
-The Option++ library itself consists of only two files: a header file
-and an implementation source file. Option++ is designed to be used
-simply by copying these files
-([optionpp.cpp](src/optionpp/optionpp.cpp) and
-[optionpp.hpp](src/optionpp/optionpp.hpp)) directly into your
-project's source directory. Then simply put `#include
-"optionpp/optionpp.hpp"` in the appropriate source file(s).
-
-See the example below to get started.
-
-For detailed information about using Option++ and a complete class
-reference, see the
-[documentation](http://www.gregkikola.com/optionpp/).
+- Supports the usual Unix and GNU/Linux conventions
+  - Use long (`--option`) and short (`-o`) option names
+  - Double dash by itself (`--`) indicates end of options
+  - Options may have mandatory or optional arguments
+- Can parse arguments passed to `main` directly, or can read options
+  from a string
+- Allows you to bind variables to particular options
+- Input validation for numerical arguments
+- Can automatically generate a help message
+- Options can be separated into groups for better organization
+- Easily iterate over all parsed data
+- Exception-based error handling
 
 
-Example Program
----------------
+## Build instructions
 
-The following is a simple demonstration of how to use Option++.
+### Requirements
 
-    #include <exception>
-    #include <iostream>
-    #include <string>
-    #include "optionpp/optionpp.hpp"
-
-    int main(int argc, char* argv[])
-    {
-      bool show_line_nums = false;
-      int line_width = 16;
-
-      optionpp::OptionParser opt = {
-        {'n', "line-numbers", "", "display line numbers"},
-        {'w', "line-width", "WIDTH", "set maximum display width "
-         "for each line"},
-        {'?', "help", "", "give detailed usage information"},
-      };
-
-      try {
-        opt.parse(argc, argv);
-
-        for (const auto& o : opt) {
-          switch (o.short_name) {
-          case 'n':
-            show_line_nums = true;
-            break;
-          case 'w':
-            line_width = o.arg_to_unsigned();
-            break;
-          case '?':
-            opt.print_usage(std::cout);
-            return 0;
-          }
-        }
-      } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-      }
-
-      //...
-
-      return 0;
-    }
+In addition to a compiler supporting C++11, you will also need
+[CMake](https://cmake.org/) version 3.10 or higher.
 
 
-Copyright
----------
+### Unix-like Environments
 
-Copyright &copy; 2017-2018 Greg Kikola. License BSL-1.0: [Boost
+First clone the repository with `git clone
+https://github.com/gkikola/optionpp.git`. Then, from the root of the
+main project directory, run
+
+```
+mkdir build
+cmake ..
+make
+```
+
+This will create several files:
+
+- liboptionpp.so: The actual library
+- run_tests: Unit test executable
+- example_*: Example programs from docs/examples/
+
+To compile the library only, you can use `make optionpp`.
+
+
+### Windows
+
+#### Visual Studio 2019
+
+Use `git` to clone the repository:
+`git clone https://github.com/gkikola/optionpp.git`.
+
+Create a `build` directory within the root project directory. Open a
+command prompt, navigate to the `build` directory, and run `cmake ..`
+to create the Visual C++ project files.
+
+Open the solution file `OPTIONPP.sln` in Visual Studio. In the menu,
+select Build > Build Solution. This will build several projects:
+
+- optionpp: The actual library
+- run_tests: Unit test execution
+- example_*: Example programs from docs\examples\
+
+Under the default Debug configuration, the resulting library and
+executable files will be located in the `build\Debug` directory.
+
+#### Troubleshooting
+
+If Visual Studio gives you the error message "Error HRESULT E_FAIL has
+been returned from a call to a COM component" try this:
+1. Close Visual Studio.
+2. Delete the hidden `.vs` directory from the `build` directory.
+3. Reopen the solution or one of the project files.
+4. Try building the solution again.
+
+
+## Copyright
+
+Copyright &copy; 2017-2020 Greg Kikola. License BSL-1.0: [Boost
 Software License version 1.0](https://www.boost.org/LICENSE_1_0.txt).
 
 Option++ is free software: you are free to change and redistribute it.
