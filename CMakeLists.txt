@@ -9,6 +9,7 @@ project (
 set (OPTIONPP_NAME "Option++")
 set (OPTIONPP_VERSION "${PROJECT_VERSION}")
 set (OPTIONPP_DESCRIPTION "${PROJECT_DESCRIPTION}")
+set (OPTIONPP_LIBDIR "optionpp-${OPTIONPP_VERSION}")
 
 option (OPTIONPP_STATIC "Build static library instead of shared" OFF)
 option (OPTIONPP_TEST "Build unit tests" ON)
@@ -51,6 +52,10 @@ set (OPTIONPP_SOURCE_FILES
   src/parser_result.cpp
   src/result_iterator.cpp
   src/utility.cpp
+  )
+
+set (OPTIONPP_PUBLIC_HEADER_FILES
+  include/optionpp/opt
   )
 
 set (OPTIONPP_TEST_FILES
@@ -109,3 +114,15 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   target_compile_options(optionpp PRIVATE /W4)
 endif ()
+
+# Installation
+install (
+  TARGETS optionpp
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib/static
+  )
+install (
+  DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+  DESTINATION include
+  )
