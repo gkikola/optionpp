@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.10)
 
 project (
-  OPTIONPP
+  optionpp
   VERSION 2.0
   DESCRIPTION "C++ library for reading command-line options"
   )
@@ -121,6 +121,7 @@ endif ()
 # Installation
 install (
   TARGETS optionpp
+  EXPORT optionppConfig
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib/static
@@ -132,4 +133,12 @@ install (
 install (
   FILES "${CMAKE_BINARY_DIR}/liboptionpp.pc"
   DESTINATION share/pkgconfig
+  )
+export (
+  TARGETS optionpp
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/optionppConfig.cmake"
+  )
+install (
+  EXPORT optionppConfig
+  DESTINATION share/optionpp/cmake
   )
